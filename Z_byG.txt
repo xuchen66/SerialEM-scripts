@@ -1,0 +1,4 @@
+MacroName Z_byG
+## This is in MyFuncs
+
+CallFunction MyFuncs::Z_byG 

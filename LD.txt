@@ -1,0 +1,32 @@
+MacroName LD
+# main macro for single particle data collection in Low Dose Mode
+# update @ 2014-10-23 08:01:15
+
+Echo ===> Running LD ...
+
+## position (X,Y)
+RealignToNavItem 1
+#CallFunction MyFuncs::ZeroIS-quick 0.3 3.0
+#CallFunction MyFuncs::CropImage A 0.25
+Copy A P
+CallFunction MyFuncs::AlignToP 2
+
+## Center Beam, assume AutoCenterBeam policy has been set up
+AutoCenterBeam
+
+## CycleTargetFocus, range is set in macro "Parameters".
+CallFunction MyFuncs::CycleTargetFocus -1.2 -2.2 0.1 
+
+## Autofocus
+G
+
+## Drift control, till 2A/sec
+CallFunction MyFuncs::Drift 2
+
+## shot
+#EarlyReturnNextShot 0
+R
+#S
+
+ReportClock
+echo ----------------------------------------------------------------

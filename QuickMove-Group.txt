@@ -1,0 +1,51 @@
+MacroName QuickMove-Group
+# assume sub-group points are picked
+# also has a hole as template in buffer P
+SuppressReports
+
+ResetClock
+shift = 1
+DIS_limit = 2.0
+
+## predict location
+ReportNavItem
+X_item = $repVal2
+Y_item = $repVal3
+
+ReportGroupStatus
+GS = $repVal1
+If $navAcqIndex == 1 OR $GS == 1
+echo --> Need Realign ...
+   RealignToNavItem 1
+   CallFunction MyFuncs::AlignToP 1
+   ShiftItemsByCurrentDiff $shift
+   # AutoCenterBeam
+   # CallFunction MyFuncs::CycleTargetDefocus -1.2 -2.0 0.2
+   # G
+   # AutoCenterBeam
+   # G
+Endif
+
+# actual location
+ReportStageXYZ
+X_curr = $repVal1
+Y_curr = $repVal2
+
+DIS = SQRT (($X_curr - $X_item ) * ($X_curr - $X_item) + ($Y_curr - $Y_item) * ($Y_curr - $Y_item))
+echo DIS = $DIS
+
+If $DIS > $DIS_limit
+echo --> Too far away from target, Need Realign ...
+   RealignToNavItem 1
+   CallFunction MyFuncs::AlignToP 1
+   ShiftItemsByCurrentDiff $shift
+Else
+   ShiftItemsByCurrentDiff $shift
+Endif
+
+# GoToLowDoseArea R
+# EarlyReturnNextShot 0
+# R 
+ReportClock
+echo $repVal1
+echo .

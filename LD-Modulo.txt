@@ -1,0 +1,51 @@
+MacroName LD-Modulo
+# Macro to run from Acquire at points...
+# it skips some point for preparing step just take shot
+# last update 2014-10-13 02:03:15
+
+## define the next line
+# point to do things (5,10,15...), skip between
+point = 5
+
+############ no edit below ################
+
+# find index number for current acquire
+ReportNavItem
+echo Acquiring Item is $navAcqIndex
+remainder = modulo $navAcqIndex $point
+
+## very first one, force two round realigning
+If $navAcqIndex == 1
+   ForceCenterRealign 
+Endif
+
+# find GroupStatus for current item. It is 1 for first 
+# acquire item in the group.
+# It is recommended to have a new group for each mesh.
+ReportGroupStatus
+GS = $reportedValue1
+
+# goto position
+RealignToNavItem 1
+#CallFunction MyFuncs::ZeroIS-quick 0.3 3.0
+CallFunction MyFuncs::CropImage A 0.25
+Copy A P
+CallFunction MyFuncs:AlignToP 2
+
+## now a few actions after get to the point
+If $remainder == 0 OR $GS == 1
+   # CenterBeam, assume autocenter policy has been setup
+   AutoCenterBeam
+   # change focus target
+   CallFunction MyFuncs::CycleTargetDefocus -1.0 -2.0 0.1
+   # actual focus
+   G
+   # drift control, stop when reaching 2A
+   CallFunction MyFuncs::Drift 2
+Else
+   echo Directly take shot!
+Endif 
+
+# final shots
+R
+S

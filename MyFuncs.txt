@@ -1,0 +1,539 @@
+MacroName MyFuncs
+## functions which can be called from a macro or a function.
+
+####################################
+Function CycleTargetDefocus 3 0
+## three variables, not string
+
+# define defocus up and down thresholds, and changing step
+# set here or by calling Parameters
+TD_low = $argVal1
+TD_high = $argVal2
+step = $argVal3
+
+#Call Parameters
+
+Echo ===> Running CycleTargetDefocus ...
+Echo >>>> defined Range and Step (um)  => [ $TD_low, $TD_high ], [ $step ].
+
+## no editing below ##
+delta = -1 * $step
+
+# if the current TargetDefocus is outside of range, make it as TD_low.
+# Otherwise, increase a step of $delta
+
+SuppressReports
+ReportTargetDefocus 
+If $reportedValue1 > $TD_low OR $reportedValue1 < $TD_high
+   SetTargetDefocus $TD_low
+Else 
+   IncTargetDefocus $delta
+Endif
+
+ReportTargetDefocus 
+TargetDefocus = $repVal1
+Echo TargetDefocus = $repVal1 um
+EndFunction 
+
+################################################
+Function CropImageAToBuffer 0 1 
+#=============================================
+# CallFunction MyFuncs::CropImageAToBuffer T
+#=============================================
+Echo ===> Running CropImageAToBuffer ...
+
+buffer = $argVal1
+
+#SupressReports
+
+## get info for A and $buffer
+ImageProperties $buffer
+XP = $reportedValue1
+YP = $reportedValue2
+
+ImageProperties A
+XA = $reportedValue1
+YA = $reportedValue2
+
+Xdiff = $XA - $XP
+Ydiff = $YA - $YP
+
+half_Xdiff = $Xdiff / 2
+half_Ydiff = $Ydiff / 2
+
+X0 = $half_Xdiff 
+X1 = $XP + $half_Xdiff
+
+Y0 = $half_Ydiff 
+Y1 = $YP + $half_Ydiff
+
+# crop
+CropImage A $X0 $X1 $Y0 $Y1
+EndFunction 
+
+################################
+Function CropImageAToP 0 0 
+Echo ===> Running CropImageAToP ...
+
+#SupressReports
+
+## get info for A and P
+ImageProperties P
+XP = $reportedValue1
+YP = $reportedValue2
+
+ImageProperties A
+XA = $reportedValue1
+YA = $reportedValue2
+
+Xdiff = $XA - $XP
+Ydiff = $YA - $YP
+
+half_Xdiff = $Xdiff / 2
+half_Ydiff = $Ydiff / 2
+
+X0 = $half_Xdiff 
+X1 = $XP + $half_Xdiff
+
+Y0 = $half_Ydiff 
+Y1 = $YP + $half_Ydiff
+
+# crop
+CropImage A $X0 $X1 $Y0 $Y1
+EndFunction 
+
+####################################################
+Function CropImage 1 1
+## crop image in A buffer to quarter size
+## CallFunction MyFuncs::CropImage A 0.25
+
+buffer = $argVal1
+frac = $argVal2
+
+ImageProperties $buffer
+X = $repVal1
+Y = $repVal2
+
+halfX = $X / 2
+halfY = $Y / 2
+
+QX = $X * $frac
+QY = $Y * $frac
+
+echo $QX $QY
+
+X0 = $halfX - ( $QX / 2 )
+X1 = $halfX + ( $QX / 2 )
+Y0 = $halfY - ( $QY / 2 )
+Y1 = $halfY + ( $QY / 2 ) - 1
+
+# crop
+CropImage $buffer $X0 $X1 $Y0 $Y1
+EndFunction
+
+####################################################
+Function AlignToBuffer 1 1
+#========================================
+# CallFunction MyFuncs::AlignToBuffer 2 T
+#========================================
+# *** Note: Align to buffer T, twice ****
+#
+# a function to align to an image against buffer $buffer, $iter times.
+# it takes shots and even crop it when needed. At the end, 
+# the ImageShift = 0. Assume your have an image in buffer $buffer
+# 
+# update @  2015-12-31 01:22:15
+
+iter = $argVal1
+buffer = $argVal2
+
+SuppressReports
+
+## Low Dose
+ReportLowDose 
+If $reportedValue1 == 1
+    ImageLowDoseSet $buffer
+    S = $reportedValue1
+Elseif $reportedValue1 == 0
+    ImageProperties $buffer
+    S = $reportedValue6
+Endif
+
+## get image parameters in buffer $buffer
+ImageProperties $buffer
+XP = $reportedValue1
+YP = $reportedValue2
+bin = $reportedValue3
+E = $reportedValue4
+# PixelSize = $reportedValue5
+#S = $reportedValue6
+
+# figure out from which set the image was taken
+#(0=view, 1=focus, 2=trial, 3=record, 4=preview)#
+If $S == 0
+    shot = View
+Elseif $S == 1
+    shot = Focus
+Elseif $S == 2 OR $S == 5
+    shot = Trial
+Elseif $S == 3
+    shot = Record
+Elseif $S == 4
+    shot = Preview
+Endif
+
+## set camera parameters
+SetExposure $S $E
+SetCenteredSize $S $bin $XP $YP
+
+## align
+Loop $iter
+    $shot
+    # Need crop, for Camera like Eagle or Falcon?
+    ImageProperties A
+    XA = $reportedValue1
+    YA = $reportedValue2
+    If $XA > $XP OR $YA > $YP
+        echo CallFunction  MyFuncc::CropImageAToBuffer $buffer
+        CallFunction  MyFuncs::CropImageAToBuffer $buffer
+    Endif
+    AlignTo $buffer
+    ResetImageShift 
+EndLoop 
+
+## reset camera
+RestoreCameraSet
+EndFunction 
+
+
+####################################################
+Function AlignToP 1 0
+# align round  
+# a function to align to an image against buffer P, $iter times.
+# it takes shots and even crop it when needed. At the end, 
+# the ImageShift = 0.
+# SEM 3-5 beta built 10/10/2014
+# update @  2014-11-18 02:09:34
+
+iter = $argVal1
+
+SuppressReports
+
+## Low Dose
+ReportLowDose 
+If $reportedValue1 == 1
+    ImageLowDoseSet P
+    S = $reportedValue1
+Elseif $reportedValue1 == 0
+    ImageProperties P
+    S = $reportedValue6
+Endif
+
+## get image parameters in buffer P
+ImageProperties P
+XP = $reportedValue1
+YP = $reportedValue2
+bin = $reportedValue3
+E = $reportedValue4
+# PixelSize = $reportedValue5
+#S = $reportedValue6
+
+# figure out from which set the image was taken
+#(0=view, 1=focus, 2=trial, 3=record, 4=preview)#
+If $S == 0
+    shot = View
+Elseif $S == 1
+    shot = Focus
+Elseif $S == 2 OR $S == 5
+    shot = Trial
+Elseif $S == 3
+    shot = Record
+Elseif $S == 4
+    shot = Preview
+Endif
+
+## set camera parameters
+SetExposure $S $E
+SetCenteredSize $S $bin $XP $YP
+
+## align
+Loop $iter
+    $shot
+    # Need crop, for Camera like Eagle or Falcon?
+    ImageProperties A
+    XA = $reportedValue1
+    YA = $reportedValue2
+    If $XA > $XP OR $YA > $YP
+        echo CallFunction  MyFuncc::CropImageAToP
+        CallFunction  MyFuncs::CropImageAToP
+    Endif
+    AlignTo P
+    ResetImageShift 
+EndLoop 
+
+## reset camera
+RestoreCameraSet
+EndFunction 
+
+######################################################
+Function ZeroIS-quick 2 0
+# two arguments are -  shift threshold and dead shift (too large)
+
+# 2014-10-21 12:05:23
+
+Echo ===> Running ZeroIS-quick ...
+
+limit = $argVal1
+dead = $argVal2
+
+#- no editing below -#
+
+# IS from Realign routine
+ReportImageShift
+X = $reportedValue1
+Y = $reportedValue2
+IS = sqrt $X * $X + $Y * $Y
+
+If $IS <= $limit
+    ClearAlignment
+    echo IS ($IS) <= limit ($limit) um
+    echo Clearalignment
+Elseif $IS > $limit AND $IS <= $dead
+    echo IS ($IS) > limit ($limit) um
+    echo Resetimageshift
+    ResetImageShift
+Else 
+    Echo IS ($IS) > $dead um, skip this point!
+Endif
+EndFunction 
+
+###################################################
+Function Drift 1 0 
+# A function to measure drift rate, if good, skip to the end of loop. 
+# Otherwise, exit execution -- i.e. skip the point. 
+
+Echo ===> Running Drift $argVal1(A)...
+
+#=============
+# parameters 
+#=============
+## drift rate threshold
+crit = $argVal1
+# set these above from centralized macro - Parameters 
+shot = F
+interval = 15
+times = 10
+
+period = $interval + 1
+#SuppressReports
+#ResetClock 
+
+$shot
+Delay $interval
+Loop $times index
+$shot
+AlignTo B
+ReportAlignShift
+ClearAlignment
+dx = $reportedValue3
+dy = $reportedValue4
+dist = sqrt $dx * $dx + $dy * $dy
+rate = $dist / $period * 10	
+#ReportClock
+echo Rate = $rate A/sec
+echo ----------------
+
+If $rate < $crit
+    echo Drift is low enough after shot $index      
+    break
+Elseif  $index < $times
+    Delay $interval
+Else
+    echo Drift never got below $crit: Skipping ...
+    exit   
+Endif
+EndLoop
+EndFunction
+
+######################################################
+Function CalEucentricFocus 0 0
+# macro to calibrate EucentriFocus using F 
+# update @ 2014-10-22 07:55:56
+
+Echo ===> Running CalEucFocus ...
+Echo *** Assuming specimen is already at Eucentricitt ***
+
+# use SEM built-in wobbling way to get to Eucentricity
+#Eucentricity 3
+
+## record original TargetDefocus
+ReportTargetDefocus 
+orig = $reportedValue1
+
+## make sure TargetDefocus is at 0
+SetTargetDefocus 0
+
+## bring Objective to eucentric
+## not to normalize because beam will be 
+## drifting afterwards.
+
+#NormalizeLenses 2
+#Delay 1
+Loop 3
+	G
+EndLoop
+
+## Cal - record the value in memory, unless in admin mode
+## and save it to calibration file.
+CalEucentricFocus
+
+## restore original target defocus
+SetTargetDefocus $orig
+EndFunction
+
+####################################################################
+Function CalEucentricFocus_View 0 0
+# macro to quickly calbrate EucentricFocus value using View in LD. 
+# update @ 2014-10-21 12:28:58
+
+Echo ===> Running CalEucFocus_View ...
+Echo *** Assuming specimen is already at Eucentricity ***
+
+# use SEM built-in wobbling way to get to Eucentricity
+#Eucentricity 3
+
+## record original TargetDefocus
+ReportTargetDefocus 
+orig = $reportedValue1
+
+## make sure TargetDefocus is at 0
+SetTargetDefocus 0
+
+## take care of LD offset
+GoToLowDoseArea V
+SaveFocus 
+SetStandardFocus 0
+
+## Bring objective to Eucentric Focus. Not use normalize
+## because it caused beam to shift (not stable) 
+#NormalizeLenses 2
+#Delay 1
+Loop 3
+# use View in LD
+	G 1 1
+EndLoop
+CalEucentricFocus
+
+## Restore Focus
+RestoreFocus 
+
+## restore original target defocus
+SetTargetDefocus $orig
+EndFunction
+
+###############################################################
+Function Z_byG 0 0
+#
+# a function to adjust the eccentric center using beam tilted pairs.
+# It uses Autofocus to measure the focus and adjust Z instead.
+#
+
+Echo ===> Running Z_byG ...
+
+# If in Low Dose, the area should be at Focus first
+# before defocus is zeroed, because it could come from V with 
+# large defocus offset. It could float up in that case. 
+
+SuppressReports
+ReportLowDose
+# if in LowDose and area is V
+If $reportedValue1 == 1 AND $reportedValue2 == 0
+  GoToLowDoseArea F
+Endif 
+
+#==================
+# set objective lens 
+#==================
+SetEucentricFocus
+#NormalizeLenses 2
+#Delay 1
+
+#===========
+# Adjust Z
+#===========
+Loop 2
+Autofocus -1
+ReportAutofocus 
+t = -1 * $reportedValue1
+MoveStage 0 0 $t
+echo --> Z moved $reportedValue1 micron 
+EndLoop
+EndFunction
+
+#########################################################
+Function Z_byV 0 0
+
+Echo ===> Running Z_byV ...
+#====================================
+# for defocus offset of V in Low Dose, save it
+# ===================================
+GoToLowDoseArea V
+SaveFocus
+
+#==================
+# set object lens 
+#==================
+SetEucentricFocus
+#NormalizeLenses 2
+#Delay 1
+
+#===========
+# Adjust Z
+#===========
+Loop 2
+Autofocus -1 1
+ReportAutofocus 
+Z = -1 * $reportedValue1
+MoveStage 0 0 $Z
+echo Z has moved --> $Z micron 
+EndLoop
+
+#=========================================
+# restore the defocus set in V originally
+# ========================================
+RestoreFocus
+EndFunction
+
+#######################################################
+Function DistanceFromLastItem 0 0 
+# a function to return distance how far stage moved from last A point
+
+ReportNavItem 
+If $navAcqIndex == 1
+   echo -> This is the first Acq Item
+   DIS = 0
+Else
+   X_curr = $repVal2
+   Y_curr = $repVal3
+   DIS = SQRT (($X_curr - $X ) * ($X_curr - $X) + ($Y_curr - $Y) * ($Y_curr - $Y)) 
+Endif 
+echo => variable DIS has value $DIS
+
+#clear for this round, carry over to next item
+ClearPersistentVars 
+X := $X_curr
+Y := $Y_curr
+
+EndFunction 
+
+###########################################################
+Function ToggleScreen 0 0
+ReportScreen 
+
+If $repVal1 = 0
+   ScreenDown
+Else
+   ScreenUp
+Endif
+EndFunction 
+ 

@@ -1,0 +1,26 @@
+MacroName MoveQuick
+# macro to move stage to an item point using realign and direct stage: 
+# if the DIS from last point is large, then using realign and shift item 
+# or directly AlignToP 
+
+distance = 5
+shift = 5
+
+# get DIS moved from last item
+CallFunction MyFuncs::DistanceFromLastItem
+
+# if moved large distance, stage will be off, do realign
+# if is first "A" item, get it correct first. 
+If $DIS > $distance OR $DIS == 0
+    RealignToNavItem 1
+Endif 
+
+# get a template in P
+## Copy A P 
+## or put a hole in P manually
+
+CallFunction MyFuncs::AlignToP 1
+ShiftItemsByCurrentDiff $shift   
+
+
+
