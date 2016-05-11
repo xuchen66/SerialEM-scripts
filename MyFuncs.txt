@@ -536,4 +536,24 @@ Else
    ScreenUp
 Endif
 EndFunction 
- 
+
+############################################################ 
+Function ShotByImageShift radius shots
+## a function to take shots around a hole after it is centered.
+## It uses ImagesShift rather than stage movement to save time.
+# 
+# calling example - take 6 shots around with 0.7 microns from center. 
+# CallFunction ShotByImageShift 0.7 6
+#
+base_angle = 360 / $shots
+
+Loop $shots index
+angle = ( $index - 1 ) * $base_angle
+X = $radius * SIN$angle
+Y = $radius * COS$angle
+
+ImageShiftByMicrons $X $Y
+Delay 1
+Record
+SetImageShift 0 0 
+EndLoop
