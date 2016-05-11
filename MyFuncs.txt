@@ -538,22 +538,22 @@ Endif
 EndFunction 
 
 ############################################################ 
-Function ShotByImageShift radius shots
-## a function to take shots around a hole after it is centered.
-## It uses ImagesShift rather than stage movement to save time.
-# 
-# calling example - take 6 shots around with 0.7 microns from center. 
-# CallFunction ShotByImageShift 0.7 6
+Function RecordWithIS 2 0 radius number
+# take shots using Image Shift after hole is centered
+# for 2 um hole, maybe radius should use 0.75 when call this function like
+# beam size set as 1um, take 6 shot around hole edge
 #
-base_angle = 360 / $shots
+# CallFunction MyFuncs::RecordWithIS 0.75 6
+#
 
-Loop $shots index
-angle = ( $index - 1 ) * $base_angle
-X = $radius * SIN$angle
-Y = $radius * COS$angle
+ang_base = 360 / $number
+Loop $number index
+ang = ( $index - 1 ) * $ang_base
+X = $radius * SIN $ang
+Y = $radius * COS $ang
 
+# now take shot
 ImageShiftByMicrons $X $Y
-Delay 1
 Record
-SetImageShift 0 0 
+SetImageShift 0 0
 EndLoop
