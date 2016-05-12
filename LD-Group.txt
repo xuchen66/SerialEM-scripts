@@ -1,23 +1,21 @@
-MacroName LD-Group
+ScriptName LD-Group
 
 # macro to skip points except the very first in the group.
 # assume LD is setup.
 
+# define ref buffer 
+buffer = T
+
 #### X,Y position 
 RealignToNavItem 1
-#CallFunction MyFuncs::ZeroIS-quick 0.3 3.0
-
-## for read in from file into P buffer
-#OpenOldFile hole.mrc
-#ReadFile P
-#CloseFile 
-## or using current A buffer and use center portion
-#CallFunction CropImage A 0.5
-
-Copy A P
+# CallFunction MyFuncs::ZeroIS-quick 0.3 3.0
+## now get reference into ref buffer in one of 2 ways below
+# 1. just using last iamge from realign 
+Copy A $buffer
+# 2. if manually copied an image to ref buffer, comment out above line
 
 ## now align agaist it 
-CallFunction MyFuncs::AlignToP 2
+CallFunction MyFuncs::AlignToBuffer 2 $buffer
 
 # preparation for first item in group
 ReportGroupStatus 
