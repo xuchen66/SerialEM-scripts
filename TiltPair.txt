@@ -1,10 +1,10 @@
-MacroName TiltPair
+ScriptName TiltPair
 ###############################
 # TiltPair.txt
-# update @ 2014-10-21 12:21:06
+# update @ 2016-5-11
 ###############################
 #
-# A main macro for Tilting image pairs. 
+# A main macro for Tilting image pairs. One perhaps should run in Low Dose mode.
 # work for any two angles
 
 Echo ===> Running TiltPair ...
@@ -35,9 +35,7 @@ else
 endif
 
 WalkUpTo $ang
-#Call ZeroIS
 AutoCenterBeam
-G
 G
 CallFunction MyFuncs::Drift 2
 R
