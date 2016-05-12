@@ -1,15 +1,16 @@
-MacroName QuickMove-Group
+ScriptName QuickMove-Group
 # assume sub-group points are picked
-# also has a hole as template in buffer P
+# also has a hole as template in buffer $buffer 
 
 # it directly moves to next item by "acquire at item ..." 
 # and doesn't use any Realign routine, to save some time
 
-# 2015-12-07 08:18:53
+# 2016-5-11
 
 SuppressReports
 
 ResetClock
+buffer = T
 shift = 2.0
 DIS_limit = 2.0
 
@@ -23,11 +24,11 @@ GS = $repVal1
 If $navAcqIndex == 1 OR $GS == 1
    echo --> Need Realign ...
    RealignToNavItem 1
-   CallFunction MyFuncs::AlignToP 1
+   CallFunction MyFuncs::AlignToBuffer 1 $buffer
    # AutoCenterBeam
    # G
 Else
-   CallFunction MyFuncs::AlignToP 1
+   CallFunction MyFuncs::AlignToBuffer 1 $buffer
 Endif
 
 # actual location
@@ -41,7 +42,7 @@ echo DIS = $DIS
 If $DIS > $DIS_limit
 echo --> Too far away from target, Need Realign ...
    RealignToNavItem 1
-   CallFunction MyFuncs::AlignToP 1
+   CallFunction MyFuncs::AlignToBuffer 1 $buffer
    ShiftItemsByCurrentDiff $shift
 Else
    ShiftItemsByCurrentDiff $shift
