@@ -1,10 +1,8 @@
-MacroName ZeroIS
+ScriptName ZeroIS
 # a macro to to go a new position in current
-# 2015-12-06 05:19:05
-
 # define buffer to hold reference image
+# you might need to manually copy an image to that buffer
 
 buffer = T
-
 Copy A $buffer
 CallFunction MyFuncs::AlignToBuffer 2 $buffer
