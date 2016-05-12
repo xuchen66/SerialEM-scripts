@@ -1,4 +1,3 @@
-MacroName Z_byG
-## This is in MyFuncs
+ScriptName Z_byG
 
 CallFunction MyFuncs::Z_byG 
