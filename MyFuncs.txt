@@ -428,12 +428,12 @@ Function RecordWithIS 2 0 radius number
 
 ang_base = 360 / $number
 Loop $number index
-ang = ( $index - 1 ) * $ang_base
-X = $radius * SIN $ang
-Y = $radius * COS $ang
+  ang = ( $index - 1 ) * $ang_base
+  X = $radius * COS $ang
+  Y = $radius * SIN $ang
 
 # now take shot
-ImageShiftByMicrons $X $Y
-Record
-SetImageShift 0 0
+  ImageShiftByMicrons $X $Y
+  Record
+  SetImageShift 0 0
 EndLoop
