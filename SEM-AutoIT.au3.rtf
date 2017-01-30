@@ -1,0 +1,153 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww18900\viewh15680\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+##\
+#include <MsgBoxConstants.au3>\
+\
+; Set the Escape hotkey to terminate the script.\
+HotKeySet("\{ESC\}", "Terminate");\
+\
+MouseClick("primary",210,36,10)		;make sure to very left\
+MouseClick("primary",227,40,2)		;come back twice, so "camera" is there\
+MouseClick("primary",118,41,1)		;click on the camera\
+\
+Main()\
+\
+Func Main()\
+\
+	While 1\
+	WinWait("[TITLE:SerialEM!; CLASS:#32770]")\
+If WinExists("[TITLE:SerialEM!; CLASS:#32770]") Then\
+	WinActivate ("[TITLE:SerialEM!; CLASS:#32770]")\
+	Local $sText = WinGetText("[ACTIVE]")\
+EndIf\
+\
+If StringInStr($sText,"C2_100-OBJ_out") Then\
+	Call ("C2_100_OBJ_out")\
+	;MsgBox(0, "obj out!", "","")\
+Elseif StringInStr($sText,"C2_50-OBJ_70") Then\
+	Call ("C2_50_OBJ_70")\
+Elseif StringInStr($sText,"C2_50-OBJ_100") Then\
+	Call ("C2_50_OBJ_100")\
+ElseIf StringInStr($sText,"K2-shutter") Then\
+	Call ("K2_shutter")\
+	;Sleep (4000)\
+EndIf\
+\
+\
+	Sleep (500)\
+	WEnd\
+EndFunc\
+\
+\
+Func K2_shutter()\
+;MouseClick("primary",210,36,10)	;make sure to very left\
+;MouseClick("primary",227,40,2)		;come back twice, so "camera" is there\
+;MouseClick("primary",118,41,1)		;click on the camera\
+\
+; select fake K2 camera\
+ControlCommand("CCD/TV Camera", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "BM-Falcon")\
+Sleep(3000)		; needed\
+\
+; make sure the Insert is "yellow"\
+If pixelgetcolor(48,270) = 0xD4D0C8 Then\
+	;Sleep (1000)\
+	;MsgBox(0, "Not Yellow, Click!", "","")\
+	WinActivate ("CCD/TV Camera", "[CLASS:#32770]")\
+	ControlClick("CCD/TV Camera", "", "[CLASS:Button; INSTANCE:4]")\
+	ControlClick("CCD/TV Camera", "", "[CLASS:Button; INSTANCE:4]")\
+	Sleep (3000)	;needed\
+Else\
+	Sleep (4000)\
+EndIf\
+\
+Call ("Dismiss")\
+\
+EndFunc\
+\
+Func C2_100_OBJ_out()\
+;MouseClick("primary",210,36,10)		;make sure to very left\
+;MouseClick("primary",227,40,2)		;come back twice, so "camera" is there\
+;MouseClick("primary",118,41,1)		;click on the camera tab (aperture is inside)\
+\
+; select C2, OBJ aperture\
+WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")\
+ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "100")\
+\
+; make sure "Objective" is NOT Yellow\
+If pixelgetcolor(51,381) = 0xFFFF80 Then\
+	;Sleep (1000)\
+	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")\
+Else\
+	Sleep (1000)\
+EndIf\
+\
+Call ("Dismiss")\
+EndFunc\
+\
+Func C2_50_OBJ_70()\
+;MouseClick("primary",210,36,10)		;make sure to very left\
+;MouseClick("primary",227,40,2)		;come back twice, so "camera" is there\
+;MouseClick("primary",118,41,1)		;click on the camera\
+\
+WinActivate ("[TITLE:Apertures; CLASS:#32770]")\
+; select C2\
+ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "50")\
+; turn on if off\
+If pixelgetcolor(20,379) = 0xD4D0C8 Then\
+	;Sleep (1000)\
+	;MsgBox(0, "Not Yellow, Click!", "","")\
+	WinActivate ("Apertures", "[CLASS:#32770]")\
+	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")\
+	Sleep (9000)	;needed\
+EndIf\
+; set obj\
+ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")\
+\
+Call ("Dismiss")\
+EndFunc\
+\
+Func C2_50_OBJ_100()\
+;MouseClick("primary",210,36,10)		;make sure to very left\
+;MouseClick("primary",227,40,2)		;come back twice, so "camera" is there\
+;MouseClick("primary",118,41,1)		;click on the camera\
+\
+; select C2\
+WinActivate ("[TITLE:Apertures; CLASS:#32770]")\
+ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "50")\
+; turn on if off\
+If pixelgetcolor(20,379) = 0xD4D0C8 Then\
+	;Sleep (1000)\
+	;MsgBox(0, "Not Yellow, Click!", "","")\
+	WinActivate ("Apertures", "[CLASS:#32770]")\
+	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")\
+	Sleep (9000)	;needed\
+EndIf\
+; set obj\
+ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")\
+If pixelgetcolor(20,379) = 0xD4D0C8 Then\
+	;Sleep (1000)\
+	;MsgBox(0, "Not Yellow, Click!", "","")\
+	WinActivate ("Apertures", "[CLASS:#32770]")\
+	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")\
+	Sleep (3000)	;needed\
+EndIf\
+\
+Call ("Dismiss")\
+EndFunc\
+\
+Func Dismiss()\
+	; dismiss SerialEM message window\
+WinActivate ("[TITLE:SerialEM!; CLASS:#32770]")\
+ControlClick("SerialEM!", "", "[CLASS:Button; INSTANCE:1]")\
+EndFunc\
+\
+Func Terminate()\
+\'a0\'a0\'a0Exit\
+EndFunc \'a0\'a0;==>Terminate\
+##}
