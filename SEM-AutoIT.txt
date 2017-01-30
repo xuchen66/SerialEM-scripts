@@ -1,9 +1,28 @@
-##
+;; AutoIT script to wait for SerialEM Message Windows popping up.
+;; Based on the message text content, it runs different functions,
+;; to get shutter state and aperture conbination ready.
+;; SerialEM script two lines for each action is below
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;SetupScopeMessage 0 0 K2-shutter
+;ShowMessageOnScope SerialEM!
+
+;SetupScopeMessage 0 0 C2_100-OBJ_out
+;ShowMessageOnScope SerialEM!
+
+;SetupScopeMessage 0 0 C2_50-OBJ_70
+;ShowMessageOnScope SerialEM!
+
+;SetupScopeMessage 0 0 C2_50-OBJ_100
+;ShowMessageOnScope SerialEM!
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; -Chen Xu <chen.xu@umassmed.edu> Jan-29-2017
+
 #include <MsgBoxConstants.au3>
 
 ; Set the Escape hotkey to terminate the script.
 HotKeySet("{ESC}", "Terminate");
 
+; make sure the "Camera" tab is at fromt
 MouseClick("primary",210,36,10)		;make sure to very left
 MouseClick("primary",227,40,2)		;come back twice, so "camera" is there
 MouseClick("primary",118,41,1)		;click on the camera
@@ -11,7 +30,6 @@ MouseClick("primary",118,41,1)		;click on the camera
 Main()
 
 Func Main()
-
 	While 1
 	WinWait("[TITLE:SerialEM!; CLASS:#32770]")
 If WinExists("[TITLE:SerialEM!; CLASS:#32770]") Then
@@ -21,27 +39,23 @@ EndIf
 
 If StringInStr($sText,"C2_100-OBJ_out") Then
 	Call ("C2_100_OBJ_out")
-	;MsgBox(0, "obj out!", "","")
+	Sleep(5000)
 Elseif StringInStr($sText,"C2_50-OBJ_70") Then
 	Call ("C2_50_OBJ_70")
+	Sleep(5000)
 Elseif StringInStr($sText,"C2_50-OBJ_100") Then
 	Call ("C2_50_OBJ_100")
+	Sleep(5000)
 ElseIf StringInStr($sText,"K2-shutter") Then
 	Call ("K2_shutter")
-	;Sleep (4000)
+	Sleep (5000)
 EndIf
 
-
-	Sleep (500)
-	WEnd
+	 Sleep (500)
+	 WEnd
 EndFunc
 
-
 Func K2_shutter()
-;MouseClick("primary",210,36,10)	;make sure to very left
-;MouseClick("primary",227,40,2)		;come back twice, so "camera" is there
-;MouseClick("primary",118,41,1)		;click on the camera
-
 ; select fake K2 camera
 ControlCommand("CCD/TV Camera", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "BM-Falcon")
 Sleep(3000)		; needed
@@ -59,14 +73,9 @@ Else
 EndIf
 
 Call ("Dismiss")
-
 EndFunc
 
 Func C2_100_OBJ_out()
-;MouseClick("primary",210,36,10)		;make sure to very left
-;MouseClick("primary",227,40,2)		;come back twice, so "camera" is there
-;MouseClick("primary",118,41,1)		;click on the camera tab (aperture is inside)
-
 ; select C2, OBJ aperture
 WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
 ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "100")
@@ -83,10 +92,6 @@ Call ("Dismiss")
 EndFunc
 
 Func C2_50_OBJ_70()
-;MouseClick("primary",210,36,10)		;make sure to very left
-;MouseClick("primary",227,40,2)		;come back twice, so "camera" is there
-;MouseClick("primary",118,41,1)		;click on the camera
-
 WinActivate ("[TITLE:Apertures; CLASS:#32770]")
 ; select C2
 ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "50")
@@ -105,10 +110,6 @@ Call ("Dismiss")
 EndFunc
 
 Func C2_50_OBJ_100()
-;MouseClick("primary",210,36,10)		;make sure to very left
-;MouseClick("primary",227,40,2)		;come back twice, so "camera" is there
-;MouseClick("primary",118,41,1)		;click on the camera
-
 ; select C2
 WinActivate ("[TITLE:Apertures; CLASS:#32770]")
 ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "50")
@@ -135,11 +136,10 @@ EndFunc
 
 Func Dismiss()
 	; dismiss SerialEM message window
-WinActivate ("[TITLE:SerialEM!; CLASS:#32770]")
-ControlClick("SerialEM!", "", "[CLASS:Button; INSTANCE:1]")
+	WinActivate ("[TITLE:SerialEM!; CLASS:#32770]")
+	ControlClick("SerialEM!", "", "[CLASS:Button; INSTANCE:1]")
 EndFunc
 
 Func Terminate()
-   Exit
-EndFunc   ;==>Terminate
-##
+    Exit
+EndFunc   ;==>Terminate
