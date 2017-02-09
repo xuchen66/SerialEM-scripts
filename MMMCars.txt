@@ -1,6 +1,9 @@
 ScriptName MMMCars
 # make all the MMMs from different cartriges automatically!!!
 # use property of current registration to do so. 
+# assumption: cartige ID is assigned to registration number. 
+# This part is done automatically in script "LMMCars" when making all 
+# the LMM maps. 
 
 ##########################
 # navigator must be open
@@ -9,21 +12,24 @@ ScriptName MMMCars
 # define where to save 
 SetDirectory X:\Nick
 
-
 ## define cartirges and sample names
 cat = { 6 7 8 }
 name = { Nick-B1G2  Nick-B1G3 Nick-B1G4 }
 
-IsVariableDefined 
+# define a persistant variable so it can across "Acquire at Points..." runs.
+IsVariableDefined regInd
 If $repVal1 == 0 
      regInd := 1           
 Endif
 
+# assume current registration is at lowest one to start with. You might have to 
+# use the spinner to adjust to the lowest registation for "A" point. In above 
 ReportNavItem 
 SetNavRegistration $navRegis
 LoadCartridge $navRegis
 SetColumnOrGunValve 1
 
+# make sure navigator is open and a template montage setup is done.
 OpenNewMontage 0 0 MMM-Car$cat[$regInd]-$name[$regInd]-mesh$navLabel.st
 Montage
 NewMap 
@@ -36,8 +42,8 @@ If $repVal1 == 1
       If $regInd > $#cat
          regInd :=                            # clear the persistant variable
          exit
-       Else 
-           echo SetNavRegistration $cat[$regInd]
+       Else
+           echo Switching to next registration and load matching cartrige! 
            SetNavRegistration $cat[$regInd]
            LoadCartridge $cat[$regInd]
        Endif   
@@ -45,4 +51,4 @@ If $repVal1 == 1
        echo Going to next item in the same Registration!
 Endif
 
-echo ----------------------------------------------
+echo 
