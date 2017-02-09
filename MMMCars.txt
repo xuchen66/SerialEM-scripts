@@ -16,11 +16,31 @@ SetDirectory X:\Nick
 cat = { 6 7 8 }
 name = { Nick-B1G2  Nick-B1G3 Nick-B1G4 }
 
+########################################################################
+# Make sure the current registration is the lowest, i.e. 6 in this case
+########################################################################
+
+###### No editing below ######
+
 # define a persistant variable so it can across "Acquire at Points..." runs.
 IsVariableDefined regInd
 If $repVal1 == 0 
      regInd := 1           
 Endif
+
+# Start with the lowest one, and grows ==> Need to test! 
+SetNavRegistration $cat[$regInd]
+
+## If on wrong registration, it will be 0. So let grow until we have one. 
+Loop $#cat
+ReportNumNavAcquire
+If $repVal1 == 0
+   regInd := $regInd + 1 
+   SetNavRegistration $cat[$regInd]
+Else 
+   Break
+Endif
+EndLoop
 
 # assume current registration is at lowest one to start with. You might have to 
 # use the spinner to adjust to the lowest registation for "A" point. In above 
