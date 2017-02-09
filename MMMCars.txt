@@ -12,7 +12,7 @@ ScriptName MMMCars
 # define where to save 
 SetDirectory X:\Nick
 
-## define cartirges and sample names
+## define cartirges and sample names, only include one with MMM points selected
 cat = { 6 7 8 }
 name = { Nick-B1G2  Nick-B1G3 Nick-B1G4 }
 
@@ -30,17 +30,6 @@ Endif
 
 # Start with the lowest one, and grows ==> Need to test! 
 SetNavRegistration $cat[$regInd]
-
-## If on wrong registration, it will be 0. So let grow until we have one. 
-Loop $#cat
-ReportNumNavAcquire
-If $repVal1 == 0
-   regInd := $regInd + 1 
-   SetNavRegistration $cat[$regInd]
-Else 
-   Break
-Endif
-EndLoop
 
 # assume current registration is at lowest one to start with. You might have to 
 # use the spinner to adjust to the lowest registation for "A" point. In above 
