@@ -1,0 +1,36 @@
+ScriptName LMMCars
+# LMM for multiple cartriges, assumes the montage file opened.
+
+##########################
+# navigator must be open
+##########################
+
+# define where to save 
+SetDirectory X:\Nick
+
+
+## define cartirges and sample names
+cat = { 6 7 8 }
+name = { Nick-B1G2  Nick-B1G3 Nick-B1G4 }
+
+###
+CallFunction 7::LMMCars
+
+# rise mag to settle temp & Close the valves
+GoToLowDoseArea  V
+SetColumnOrGunValve 0
+
+Function LMMCars 0 0 
+
+Loop $#cat index
+LoadCartridge $cat[$index]
+SetColumnOrGunValve 1
+MoveStageTo 0 0 
+OpenNewMontage 0 0 LMM-Car$cat[$index]-$name[$index].st
+Montage 
+SetNavRegistration $cat[$index]
+NewMap
+CloseFile
+EndLoop 
+
+EndFunction 
