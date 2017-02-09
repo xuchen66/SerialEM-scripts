@@ -1,0 +1,48 @@
+ScriptName MMMCars
+# make all the MMMs from different cartriges automatically!!!
+# use property of current registration to do so. 
+
+##########################
+# navigator must be open
+##########################
+
+# define where to save 
+SetDirectory X:\Nick
+
+
+## define cartirges and sample names
+cat = { 6 7 8 }
+name = { Nick-B1G2  Nick-B1G3 Nick-B1G4 }
+
+IsVariableDefined 
+If $repVal1 == 0 
+     regInd := 1           
+Endif
+
+ReportNavItem 
+SetNavRegistration $navRegis
+LoadCartridge $navRegis
+SetColumnOrGunValve 1
+
+OpenNewMontage 0 0 MMM-Car$cat[$regInd]-$name[$regInd]-mesh$navLabel.st
+Montage
+NewMap 
+Close 
+
+## if last point of this registration, switch to next available registration
+ReportNumNavAcquire 
+If $repVal1 == 1  
+     regInd := $regInd + 1
+      If $regInd > $#cat
+         regInd :=                            # clear the persistant variable
+         exit
+       Else 
+           echo SetNavRegistration $cat[$regInd]
+           SetNavRegistration $cat[$regInd]
+           LoadCartridge $cat[$regInd]
+       Endif   
+ else 
+       echo Going to next item in the same Registration!
+Endif
+
+echo ----------------------------------------------
