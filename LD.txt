@@ -2,13 +2,16 @@ ScriptName LD
 # main macro for single particle data collection in Low Dose Mode
 # update @ 2016-5-11
 
+# define buffer to which ref image is copied temporarily
+buffer = T
+
 Echo ===> Running LD ...
 
 ## position (X,Y)
 RealignToNavItem 1
 #CallFunction MyFuncs::ZeroIS-quick 0.3 3.0
 #CallFunction MyFuncs::CropImage A 0.25
-buffer = T
+
 Copy A $buffer
 CallFunction MyFuncs::AlignToBuffer 2 $buffer
 
