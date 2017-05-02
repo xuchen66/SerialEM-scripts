@@ -453,3 +453,32 @@ CloseFile
 EndLoop 
 
 EndFunction 
+
+##################################################################
+
+Function AmongList? 1 0 nP
+
+#list = { 1 4 5 9 }
+#echo  $#list
+
+n = $nP
+
+
+Loop $#list ind
+if $n == $list[$ind]
+ last = $ind
+  break
+else
+   last = $ind
+Endif
+EndLoop
+
+If $last <  $#list  OR $n ==  $list[$#list] 
+   #echo Among
+   RepVal1 = 1
+Else
+  # echo Not among
+   RepVal1 = 0
+Endif
+
+EndFunction
