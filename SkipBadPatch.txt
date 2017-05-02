@@ -1,0 +1,72 @@
+ScriptName SkipBadPatch
+# script to skip bad Phase Plate Patch
+#
+# It uses a fucntion to see if a numher is among a list 
+#### AlongList? 1 0 nP ####
+# Yes assign 1 to RepVal1 or No assign 0 to RepVal1
+
+##### User Input #####
+# how many shot before Next Patch
+shot = 10
+
+# bad list patches and current one shown on TUI
+list = {  31 32 35  }
+current = 30
+
+
+##### no editing below #####
+ClearPersistentVars 
+
+# counter for patch number
+IsVariableDefined nP
+If $repVal1 == 0 
+   nP := $current
+Endif
+
+## make sure this one is good to start with
+CallFunction 11::NextGood
+
+# counter for Acquire point starts after new patch
+IsVariableDefined nA
+If $repVal1 == 0 
+   nA := 1
+Endif
+
+echo nA = $nA
+
+# main script to take shot
+# Call LD-Group
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Main !!!!!!!!!!!!!!!!!!!!!!!!
+
+
+# after certain shots done, switch to next good and reset counter
+If $nA > $shot
+   #echo SHOULD SWITCH
+   ShowMessageOnScope SerialEM PP
+   CallFunction 11::NextGood   
+   nA := 
+   np := $nP + 1
+Else
+   nA := $nA + 1
+Endif
+
+Function NextGood
+# now switch to next Good one
+Loop 76
+#echo IN LOOP
+#echo nP = $nP
+CallFunction MyFuncs::AmongList? $nP
+#echo RepVal1 = $RepVal1
+If $RepVal1 == 1
+   ShowMessageOnScope SerialEM PP
+    If $nP > 76
+        nP := 1
+    Else
+        nP := $nP + 1
+    Endif
+Else 
+   Echo This is GOOD patch, take shots ...
+   break
+Endif
+Endloop
+EndFunction 
