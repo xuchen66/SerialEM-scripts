@@ -58,6 +58,7 @@ Loop 76
 CallFunction MyFuncs::AmongList? $nP
 #echo RepVal1 = $RepVal1
 If $RepVal1 == 1
+   Echo Bad one, skipping ...
    ShowMessageOnScope SerialEM PP
     If $nP > 76
         nP := 1
