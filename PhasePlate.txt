@@ -60,7 +60,7 @@ Function NextGood
 Loop 76
 #echo IN LOOP
 #echo nP = $nP
-CallFunction MyFuncs::AmongList? $nP
+CallFunction AmongList? $nP
 #echo RepVal1 = $RepVal1
 If $RepVal1 == 1
    Echo Bad one, skipping ...
