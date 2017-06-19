@@ -1,5 +1,6 @@
 ScriptName PhasePlate
 # script to skip bad Phase Plate Patch
+# chen.xu@umassmed.edu - May 20, 2017
 #
 # It uses a fucntion to see if a numher is among a list 
 #### AlongList? 1 0 nP ####
@@ -81,6 +82,7 @@ EndFunction
 #####################################
 Function Charger 
 ## using R to charge PP in LD mode for 59 seconds
+## you need to test it if this works on your version of SerialEM
 
 # original 
 ReportUserSetting  LowDoseAreaToShow Area
