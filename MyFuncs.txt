@@ -482,3 +482,14 @@ Else
 Endif
 
 EndFunction
+
+#################################################################
+Function IsFrameMdocOpen 0 0 
+# function to output reminding message on log widow if frame mdoc file is NOT open. 
+
+ReportFrameMdocOpen
+if $RepVal1 == 0
+   echo >>>>>>>>>> Frame Mdoc file NOT Open <<<<<<<<<<<<<<<<
+Endif 
+
+
