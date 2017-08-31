@@ -1,48 +1,72 @@
 ScriptName MMMCars
 # make all the MMMs from different cartriges automatically!!!
 # use property of current registration to do so. 
-# assumption: cartige ID is assigned to registration number. 
-# This part is done automatically in script "LMMCars" when making all 
-# the LMM maps. 
+
+echo #############################################
+echo ###                 ClearPersistentvars                                ####
+echo #############################################
 
 ##########################
 # navigator must be open
 ##########################
+echo ---> Running MMMCars!!!
 
-# define where to save 
-SetDirectory X:\Nick
+## define where to save, cartirges and sample names
+SetDirectory X:\TEST-XC
+cat = { 1 2  }
+name = { name1 name2 }
 
-## define cartirges and sample names, only include one with MMM points selected
-cart = { 6 7 8 }
-name = { Nick-B1G2  Nick-B1G3 Nick-B1G4 }
+### do it! 
+CallFunction MMMCars 
 
-########################################################################
-# Make sure the current registration is the lowest, i.e. 6 in this case
-########################################################################
+################ No editing Below #################
 
-###### No editing below ######
-
-# define a persistant variable so it can across "Acquire at Points..." runs.
+Function MMMCars 0 0 
+## Define persistant variable 
 IsVariableDefined regInd
 If $repVal1 == 0 
      regInd := 1           
 Endif
 
-# Start with the lowest one, and grows ==> Need to test! 
-SetNavRegistration $cat[$regInd]
-
-# assume current registration is at lowest one to start with. You might have to 
-# use the spinner to adjust to the lowest registation for "A" point. In above 
 ReportNavItem 
 SetNavRegistration $navRegis
 LoadCartridge $navRegis
 SetColumnOrGunValve 1
 
-# make sure navigator is open and a template montage setup is done.
-OpenNewMontage 0 0 MMM-Car$cat[$regInd]-$name[$regInd]-mesh$navLabel.st
-Montage
+
+#  C2 100, Obj out
+SetupScopeMessage 0 0 C2_100-OBJ_out
+ShowMessageOnScope SerialEM!
+Delay 2 
+RealignToNavItem 1
+
+# from shift to marker got the X, Y shifts 46X  - 1250X
+MoveStage 3.2 -11.03
+
+#  C2 70, Obj 70
+SetupScopeMessage 0 0 C2_70-OBJ_70
+ShowMessageOnScope SerialEM!
+Delay 2
+
+# get Z height right
+Call Z_byV2-200
+
+### get map and JPG image of it.
+OpenNewFile Vmap-Car$cat[$regInd]-$name[$regInd]-mesh$navLabel.st
+V
+S
 NewMap 
-Close 
+
+# get file root name and Z number
+ReportCurrentFilename 1
+root = $RepVal1 
+ext = $RepVal2
+ReportFileZsize
+z = $RepVal1
+
+# save to jpeg for lazy people! 
+SaveToOtherFile A TIFF JPG $root-$z.jpg
+CloseFile 
 
 ## if last point of this registration, switch to next available registration
 ReportNumNavAcquire 
@@ -51,13 +75,15 @@ If $repVal1 == 1
       If $regInd > $#cat
          regInd :=                            # clear the persistant variable
          exit
-       Else
-           echo Switching to next registration and load matching cartrige! 
+       Else 
+           echo SetNavRegistration $cat[$regInd]
            SetNavRegistration $cat[$regInd]
            LoadCartridge $cat[$regInd]
        Endif   
  else 
-       echo Going to next item in the same Registration!
+       echo  +++++  Going to next item in the same Registration! +++++
 Endif
 
-echo 
+EndFunction 
+
+echo
