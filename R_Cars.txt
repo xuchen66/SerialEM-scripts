@@ -1,0 +1,74 @@
+ScriptName R_Cars
+# make all the R shots from different cartriges automatically!!!
+# use property of current registration to do so. 
+
+echo #############################################
+echo ###                 ClearPersistentvars                                ####
+echo #############################################
+
+##########################
+# navigator must be open
+##########################
+echo ---> Running MMMCars!!!
+
+## define where to save, cartirges and sample names
+SetDirectory X:\TEST-XC
+cat = { 1 2  }
+name = { name1 name2 }
+
+### do it! 
+CallFunction RCars 
+
+################ No editing Below #################
+
+Function RCars 0 0 
+## Define persistant variable 
+IsVariableDefined regInd
+If $repVal1 == 0 
+     regInd := 1           
+Endif
+
+ReportNavItem 
+SetNavRegistration $navRegis
+LoadCartridge $navRegis
+SetColumnOrGunValve 1
+
+#  C2 70, Obj 70
+SetupScopeMessage 0 0 C2_70-OBJ_70
+ShowMessageOnScope SerialEM!
+Delay 2
+
+### get map and JPG image of it.
+Call LD
+OpenNewFile Vmap-Car$cat[$regInd]-$name[$regInd]-pt_$navLabel.st
+S
+# get file root name and Z number
+ReportCurrentFilename 1
+root = $RepVal1 
+ext = $RepVal2
+ReportFileZsize
+z = $RepVal1
+
+# save to jpeg for lazy people! 
+SaveToOtherFile A TIFF JPG $root-$z.jpg
+CloseFile 
+
+## if last point of this registration, switch to next available registration
+ReportNumNavAcquire 
+If $repVal1 == 1  
+     regInd := $regInd + 1
+      If $regInd > $#cat
+         regInd :=                            # clear the persistant variable
+         exit
+       Else 
+           echo SetNavRegistration $cat[$regInd]
+           SetNavRegistration $cat[$regInd]
+           LoadCartridge $cat[$regInd]
+       Endif   
+ else 
+       echo  +++++  Going to next item in the same Registration! +++++
+Endif
+
+EndFunction 
+
+echo
