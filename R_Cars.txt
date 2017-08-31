@@ -40,7 +40,7 @@ Delay 2
 
 ### get map and JPG image of it.
 Call LD
-OpenNewFile Vmap-Car$cat[$regInd]-$name[$regInd]-pt_$navLabel.st
+OpenNewFile R-Car$cat[$regInd]-$name[$regInd]-pt_$navLabel.mrc
 S
 # get file root name and Z number
 ReportCurrentFilename 1
