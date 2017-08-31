@@ -9,7 +9,7 @@ echo #############################################
 ##########################
 # navigator must be open
 ##########################
-echo ---> Running MMMCars!!!
+echo ---> Running R_Cars!!!
 
 ## define where to save, cartirges and sample names
 SetDirectory X:\TEST-XC
