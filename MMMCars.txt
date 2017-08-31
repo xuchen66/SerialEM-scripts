@@ -13,7 +13,7 @@ ScriptName MMMCars
 SetDirectory X:\Nick
 
 ## define cartirges and sample names, only include one with MMM points selected
-cat = { 6 7 8 }
+cart = { 6 7 8 }
 name = { Nick-B1G2  Nick-B1G3 Nick-B1G4 }
 
 ########################################################################
