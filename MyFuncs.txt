@@ -139,14 +139,6 @@ SetCenteredSize $S $bin $XP $YP
 ## align
 Loop $iter ind
     $shot
-    # Need crop, for Camera like Eagle or Falcon?
-    ImageProperties A
-    XA = $reportedValue1
-    YA = $reportedValue2
-    If $XA > $XP OR $YA > $YP
-        echo CallFunction  MyFuncc::CropImageAToBuffer $buffer
-        CallFunction  MyFuncs::CropImageAToBuffer $buffer
-    Endif
     AlignTo $buffer
     If $ind == $iter  	# last round of loop, relax stage
     	ResetImageShift 2
