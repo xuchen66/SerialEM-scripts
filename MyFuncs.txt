@@ -122,12 +122,14 @@ If $S == 0
     shot = View
 Elseif $S == 1
     shot = Focus
-Elseif $S == 2 OR $S == 5
+Elseif $S == 2 
     shot = Trial
 Elseif $S == 3
     shot = Record
 Elseif $S == 4
     shot = Preview
+Elseif $S == 5 
+    shot = Search
 Endif
 
 ## set camera parameters
@@ -135,7 +137,7 @@ SetExposure $S $E
 SetCenteredSize $S $bin $XP $YP
 
 ## align
-Loop $iter
+Loop $iter ind
     $shot
     # Need crop, for Camera like Eagle or Falcon?
     ImageProperties A
@@ -146,7 +148,11 @@ Loop $iter
         CallFunction  MyFuncs::CropImageAToBuffer $buffer
     Endif
     AlignTo $buffer
-    ResetImageShift 
+    If $ind == $iter  	# last round of loop, relax stage
+    	ResetImageShift 2
+    Else 
+    	ResetImageShift
+    Endif
 EndLoop 
 
 ## reset camera
@@ -177,8 +183,8 @@ If $IS <= $limit
     echo Clearalignment
 Elseif $IS > $limit AND $IS <= $dead
     echo IS ($IS) > limit ($limit) um
-    echo Resetimageshift
-    ResetImageShift
+    echo Resetimageshift with Relaxing stage ...
+    ResetImageShift 2
 Else 
     Echo IS ($IS) > $dead um, skip this point!
 Endif
