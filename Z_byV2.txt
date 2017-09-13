@@ -1,0 +1,40 @@
+ScriptName Z_byV2
+# script to adjust Z to eucentric height using large defocus and beam-tilted pairs
+# 
+echo For -300um V offset ...
+
+offset = -288.5
+
+CallFunction Z_byV2 $offset 
+
+#########
+Function Z_byV2 1 0
+Echo ===> Running Z_byV ...
+#====================================
+# for defocus offset of V in Low Dose, save it
+# ===================================
+GoToLowDoseArea V
+SaveFocus
+
+#==================
+# set object lens 
+#==================
+SetEucentricFocus
+ChangeFocus $offset                          # for -300um offset 
+
+#===========
+# Adjust Z
+#===========
+Loop 2
+Autofocus -1 2
+ReportAutofocus 
+Z = -1 * $reportedValue1
+MoveStage 0 0 $Z
+echo Z has moved --> $Z micron 
+EndLoop
+
+#=========================================
+# restore the defocus set in V originally
+# ========================================
+RestoreFocus
+EndFunction
