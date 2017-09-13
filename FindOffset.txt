@@ -1,0 +1,55 @@
+ScriptName FindOffset
+# script to find proper offset value to run Z_byV2
+# assume speciment is ON the eucentricity 
+
+## Eucentric Z
+Eucentricity 3
+ReportStageXYZ 
+Z0 = $repVal3
+
+## the idea is to try different offset until the final Z is very close to eucentric Z
+offset = -288.5
+
+Loop 10
+  CallFunction Z_byV2 $offset 
+  ReportStageXYZ 
+  Z = $repVal3
+  diffZ = $Z0 - $Z
+  If $diffZ < 0.5 AND $diffZ > -0.5
+    exit
+  Else
+    offset = $offset - $diffZ       # this relationship needs test, maybe plus
+  Endif
+Endloop
+
+#########
+Function Z_byV2 1 0
+Echo ===> Running Z_byV ...
+#====================================
+# for defocus offset of V in Low Dose, save it
+# ===================================
+GoToLowDoseArea V
+SaveFocus
+
+#==================
+# set object lens 
+#==================
+SetEucentricFocus
+ChangeFocus $offset                          # for -300um offset 
+
+#===========
+# Adjust Z
+#===========
+Loop 2
+Autofocus -1 2
+ReportAutofocus 
+Z = -1 * $reportedValue1
+MoveStage 0 0 $Z
+echo Z has moved --> $Z micron 
+EndLoop
+
+#=========================================
+# restore the defocus set in V originally
+# ========================================
+RestoreFocus
+EndFunction
