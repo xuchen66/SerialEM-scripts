@@ -16,6 +16,7 @@ Loop 10
   Z = $repVal3
   diffZ = $Z0 - $Z
   If $diffZ < 0.5 AND $diffZ > -0.5
+    echo ====> offset = $offset
     exit
   Else
     offset = $offset - $diffZ       # this relationship needs test, maybe plus
