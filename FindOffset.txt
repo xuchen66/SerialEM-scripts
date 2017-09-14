@@ -9,6 +9,7 @@ ReportStageXYZ
 Z0 = $repVal3
 
 ## now find the offset
+offset = -288.0             # good for -300um V vs R
 Loop 10
 CallFunction MyFuncs::Z_byV2 $offset
 
