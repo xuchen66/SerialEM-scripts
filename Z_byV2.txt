@@ -1,15 +1,12 @@
 ScriptName Z_byV2
 # script to adjust Z to eucentric height using large defocus and beam-tilted pairs
 # 
-echo For -300um V offset ...
-
-offset = -288.5
 
 CallFunction Z_byV2 $offset 
 
 #########
 Function Z_byV2 1 0
-Echo ===> Running Z_byV ...
+Echo ===> Running Z_byV2 $offset...
 #====================================
 # for defocus offset of V in Low Dose, save it
 # ===================================
