@@ -3,25 +3,28 @@ ScriptName FindOffset
 # assume speciment is ON the eucentricity 
 
 ## Eucentric Z
+##
 Eucentricity 3
 ReportStageXYZ 
 Z0 = $repVal3
 
-## the idea is to try different offset until the final Z is very close to eucentric Z
-offset = -288.5
-
+## now find the offset
 Loop 10
-  CallFunction Z_byV2 $offset 
-  ReportStageXYZ 
-  Z = $repVal3
-  diffZ = $Z0 - $Z
-  If $diffZ < 0.5 AND $diffZ > -0.5
-    echo ====> offset = $offset
-    exit
-  Else
-    offset = $offset - $diffZ       # this relationship needs test, maybe plus
-  Endif
-Endloop
+CallFunction Z_byV2 $offset
+
+ReportStageXYZ 
+Z = $repVal3
+diffZ = $Z - $Z0
+echo $diffZ
+   If  ABS $diffZ < 0.5 
+      echo >>> Found "offset" is $offset
+      echo >>> run "Z_byZ2 $offset" 
+      exit
+   Else 
+      offset = $offset + $diffZ
+   Endif 
+EndLoop 
+
 
 #########
 Function Z_byV2 1 0
