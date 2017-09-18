@@ -11,11 +11,10 @@ Z0 = $repVal3
 ## now find the offset
 # for initial offset, get a close value from current setting
 ReportUserSetting LowDoseViewDefocus
-offset = $repVal1 + ( $repVal1 / 10 )
+offset = $repVal1 - ( $repVal1 / 10 )
 # 
 Loop 10
 CallFunction MyFuncs::Z_byV2 $offset
-
 ReportStageXYZ 
 Z = $repVal3
 diffZ = $Z - $Z0
