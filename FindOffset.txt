@@ -4,7 +4,7 @@ ScriptName FindOffset
 
 ## Eucentric Z
 ##
-Eucentricity 3
+#Eucentricity 3
 ReportStageXYZ 
 Z0 = $repVal3
 
@@ -20,6 +20,7 @@ Z = $repVal3
 diffZ = $Z - $Z0
 echo $diffZ
    If  ABS $diffZ < 0.5 
+      offset = ROUND $offset 1
       echo >>> Found "offset" is $offset
       echo >>> run "Z_byZ2 $offset" 
       exit
