@@ -27,6 +27,7 @@ Else
 Endif
 
 ReportTargetDefocus TD
+TD = ROUND $TD 2
 Echo TargetDefocus = $TD um
 EndFunction 
 
@@ -351,6 +352,7 @@ ReportAutofocus DEF
 Z = -1 * $DEF
 #t = -1 * $reportedValue1
 MoveStage 0 0 $Z
+Z = ROUND $Z 2
 echo --> Z moved $DEF micron 
 EndLoop
 EndFunction
@@ -381,6 +383,7 @@ ReportAutofocus DEF
 Z = -1 * $DEF
 #Z = -1 * $repVal1
 MoveStage 0 0 $Z
+Z = ROUND $Z 2
 echo Z has moved --> $Z micron 
 EndLoop
 
@@ -520,8 +523,9 @@ ChangeFocus $offset                         # for -300um offset
 Loop 2
 Autofocus -1 2
 ReportAutofocus 
-Z = -1 * $reportedValue1
+Z = -1 * $repVal1
 MoveStage 0 0 $Z
+Z = ROUND $Z 2
 echo Z has moved --> $Z micron 
 EndLoop
 
