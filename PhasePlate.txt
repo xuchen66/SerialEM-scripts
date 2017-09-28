@@ -72,8 +72,8 @@ If $RepVal1 == 1
         nP := $nP + 1
     Endif
 Else 
+   Echo This is GOOD patch, charging ...
    CallFunction Charger
-   Echo This is GOOD patch, take shots ...
    break
 Endif
 Endloop
@@ -87,8 +87,11 @@ Function Charger
 # original 
 ReportUserSetting  LowDoseAreaToShow Area
 SetUserSetting LowDoseAreaToShow 3
+# stablize it first for 5 min
+Delay 5 min
+# now lower screen to charge it
 ScreenDown 
-Delay 59
+Delay 10 min
 ScreenUp
 
 # resume orignal 
