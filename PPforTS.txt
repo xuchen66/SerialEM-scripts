@@ -46,7 +46,9 @@ Endif
 echo nA = $nA
 
 # main script to take shot 
-#Call LD
+# get to the target
+RealignToNavItem 1
+Eucentricity 6
 echo !!!! Doing Titlting Series... !!!!
 
 
