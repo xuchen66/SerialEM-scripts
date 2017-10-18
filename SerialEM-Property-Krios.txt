@@ -1,0 +1,309 @@
+SerialEMProperties
+GainReferencePath	C:\Program Files\SerialEM\
+MRCHeaderTitle	        Acquired by Camera on UMass Krios 0:cETA 1:GIF K2
+LogBookPathName	        C:\Program Files\SerialEM\TiltSeriesLogBook.txt
+DigitalMicrographReferencePath	C:\ProgramData\Gatan\Reference Images
+
+StartUpMessage Admin--New!!
+
+## For FEI computer
+SocketServerIP 1 172.18.8.15
+SocketServerPort 1 48892
+
+
+#
+#  GENERAL CAMERA PROPERTIES
+#
+ActiveCameraList	        0 1
+InitialCurrentCamera		1
+OtherCamerasInTIA		1
+
+
+GainNormalizeInSerialEM	        1
+ReferenceMemoryLimitMB	        160
+DarkRefAgeLimit	                3600
+GainRefInactivityLimit	        180
+DefaultCameraDivide16BitBy2     1
+DefaultActAfterExposures	1
+StartCameraInDebugMode	        0
+XRayCriterionIterations	        4
+#
+# GIF/FILTER AND REFINE ZLP PROPERTIES
+#
+BiggestGIFApertureNumber	4
+FilterSlitInOutDelay	        18
+FilterOffsetDelayCriterion	40.
+FilterOffsetDelayBase1	        10.
+FilterOffsetDelayBase2	        30.
+FilterOffsetDelaySlope1	        0.5
+FilterOffsetDelaySlope2	        0.25
+RetractCameraOnEnteringEFTEM	0
+MinLowMagSlitWidth	        25
+SlitWideningSafetyFactor	0.75
+EnergyShiftCalMinField	        8.
+RefineZLPStepSize	        2.
+RefineZLPSlitWidth	        20.
+#RefineZLPStepSize	        8.
+#RefineZLPSlitWidth	        10.
+RefineZLPMinimumExposure	0.005
+
+
+# INSERT CAMERA PROPERTIES
+CameraProperties              0
+# It will not work without the right name
+# The name changed to BM-Eagle in Tecnai 4.1, and BM-Falcon, and BM-Ceta
+# The 2K Eagle and the Falcon do not have binning 8
+# For Falcon, set FEICameraType to 2, pixel size to 14, remove RelativeGainFactors
+# For Ceta, set FEICameraType to 3, pixel size to 14, remove RelativeGainFactors
+# You can add "DetectorName 0 official-name" and then make the Name different
+Name                          BM-Ceta
+FEICameraType                 3
+CameraSizeX                   4096
+CameraSizeY                   4096
+#RelativeGainFactors           1.0 0.350 0.155 0.134
+MakesUnsignedImages	      1
+FourPortReadout               1
+Binnings                      1 2 4 8
+#UsableArea                   7 7 4087 4085
+HotPixelsAreImodCoords        1
+NormalizeInSerialEM	      0
+#DarkXRayAbsoluteCriterion    20
+#DarkXRaySDCriterion	      15
+#DarkXRayRequireBothCriteria  1
+MaximumXRayDiameter           6
+BuiltInSettling               0
+ExtraBeamTime                 0.05
+StartupDelay                  1.
+Retractable                   0
+GIF                           0
+Order                         1
+FilmToCameraMagnification     1.28
+PixelSizeInMicrons            14
+ExtraRotation                 0.
+# MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
+#RotationAndPixel 22 -0.03 999 0.997
+RotationAndPixel 6 999 -176.5 0
+RotationAndPixel 16 999 -176.8 6.863
+RotationAndPixel 17 999 175.7 4.799
+EndCameraProperties
+
+
+# These are properties assuming remote access and a 270-degree rotation and
+#  flip, which seems standard for Tecnai/Polara above-GIF installs
+
+GatanServerIP	127.0.0.1
+GatanServerPort	48890
+
+# REMOVE "Filter" FROM EACH FOR GMS 3
+K2FilterName Hanning Window (default)
+K2FilterName Bandpass Filter (default)
+K2FilterName Sobel Filter (default)
+K2FilterName Combined Filter (default)
+
+CameraProperties	     1
+Name	                     GIF K2
+# MAKE SURE THE NUMBER BEFORE "Gain Ref." IS CORRECT FOR YOUR CAMERA
+DMGainReferenceName	     K2-0001 1 Gain Ref. x1.m0.dm4
+CameraSizeY	             3710
+CameraSizeX	             3838
+SizeCheckSwapped             1
+RotationAndFlip              2
+DMRotationAndFlip            0      # before Stephan visit was 2
+#UsableArea                  0 0 3712 3840 	# top left bottom right!
+UseSocket	             0
+K2Type	                     1
+MakesUnsignedImages	     1
+XMustBeMultipleOf	     4
+YMustBeMultipleOf	     2
+FourPortReadout	             0
+Binnings	             1 2 3 4 5 6 8
+BasicCorrections	     49
+HotPixelsAreImodCoords	     1
+#DarkXRayAbsoluteCriterion   20
+#DarkXRaySDCriterion	     15
+#DarkXRayRequireBothCriteria 1
+MaximumXRayDiameter	     6
+BeamBlankShutter	     0
+OnlyOneShutter	             1
+StartupDelay                 1.45
+ExtraBeamTime                0.3
+BuiltInSettling              0.0 
+ShutterDeadTime	             0.001		
+MinimumDriftSettling	     0.05
+MinimumBlankedExposure       0.35
+ExtraUnblankTime	     0.012
+ExtraOpenShutterTime	     0.12
+Retractable	             1
+InsertionDelay	             5.0
+RetractionDelay	             3.0
+GIF	                     1
+Order                        1
+FilmToCameraMagnification    1.31	# orig=1.342
+PixelSizeInMicrons	     5.0  
+CountsPerElectron	     35.3 #33.7
+ExtraRotation	             0.
+# MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
+##RotationAndPixel 33 0.04 999 0.0749
+## pixelsize at 25-34 were calbrated using Magic*Cal and PLX TM negative stain sample. 
+RotationAndPixel 6 999 93.4 0
+RotationAndPixel 16 999 95.7 5.918			#5.061
+RotationAndPixel 17 999 -95.8 6.186		#-93.5 5.327
+#RotationAndPixel 25 999 999 0.4505	#26k
+#RotationAndPixel 26 999 999 0.3588
+#RotationAndPixel 27 999 999 0.2939
+#RotationAndPixel 28 999 999 0.2274	#53k
+#RotationAndPixel 29 999 999 0.1863
+#RotationAndPixel 30 999 999 0.1485
+#RotationAndPixel 31 999 999 0.117
+#RotationAndPixel 32 999 999 0.0915	#130k
+#RotationAndPixel 33 999 999 0.0720
+#RotationAndPixel 34 999 999 0.0558	#215k
+EndCameraProperties
+
+
+# INSERT MAG TABLE FOR SCOPE FROM AN APPROPRIATE FILE HERE, AND DELETE THE
+# FOLLOWING COMMENTS.
+# ALTERNATIVELY, Run 'List Mags' in the Calibrate menu
+# UNCOMMMENT THE FOLLOWING, INDICATING THE NUMBER OF LINES IN THE TABLE
+#
+#MagnificationTable  39 
+#
+# THEN INSERT LINES IN THIS FORMAT, STARTING WITH OUTPUT FROM 'List Mags'
+# Mag table:  Index  TecnaiFilmMag  TecnaiRotation  - both reported by Tecnai (Add screen mag by hand)
+# If there is a GIF, add EFTEM screen up mag, reported rotation, screen down mag
+MagnificationTable  41
+1       40   180       40       29     0   	    29 
+2       50   180       50       52     0            52 
+3       64   180       64       82     0            82 
+4       81   180       81      135     0           135 
+5      100   180      100      175     0           175 
+6      130   180      130      220     0           220 
+7      165   180      165      275     0           275 
+8      205   180      205      360     0           360 
+9      260   180      260      470     0           470 
+10      320   180      320      580     0           580
+11      410   180      410      740     0           740
+12      520   180      520      940     0           940
+13      660   180      660     1200     0          1200
+14      830   180      830     1550     0          1550
+15     1050   180     1050     1950     0          1950
+16     1150   180     1150     2500     0          2500
+17     1700   180     1700     2250   180          2250
+18     2200   180     2200     3600   180          3600
+19     2850   180     2850     4800   180          4800
+20     3800   180     3800     6500   180          6500
+21     5000   180     5000     8700   180          8700
+22     6500   180     6500    11500   180         11500
+23     8700   180     8700    15000   180         15000
+24    11000   180    11000    19500   180         19500
+25    14000   180    14000    26000   180         26000
+26    18000   180    18000    33000   180         33000
+27    22500   180    22500    42000   180         42000
+28    29000   180    29000    53000   180         53000
+29    37000   180    37000    64000   180         64000
+30    47000   180    47000    81000   180         81000
+31    59000   180    59000   105000   180        105000
+32    75000   180    75000   130000   180        130000
+33    96000   180    96000   165000   180        165000
+34   120000   180   120000   215000   180        215000
+35   155000   180   155000   270000   180        270000
+36   195000   180   195000   350000   180        350000
+37   250000   180   250000   440000   180        440000
+38   300000   180   300000   560000   180        560000
+39   380000   180   380000   710000   180        710000
+40   470000   180   470000   910000   180        910000
+41   600000   180   600000  1150000   180       1150000
+
+
+#
+# SCOPE PROPERTIES
+#
+LowestMModeMagIndex             17
+GlobalExtraRotation             -12  # INITIALLY -12 FOR 300 KV, -5 FOR 200 TECNAI
+MicronsPerUnitImageShift	1.
+DeltaZtoDefocusFactor	        1.0
+ScreenCurrentFactor             1.0
+SmallScreenFactor               1.0
+LensNormalizationDelay          3800	# need this or F will be blur switching from V
+TiltAxisOffset                  0.       # SET TO YOUR AXIS OFFSET
+#
+# For Titan or Tecnai 4.0 this needs to be the name of the gauge in TUI,
+# IGPCl for Titan or IGP1 for Tecnai or IGPco for Talos
+#WatchGauge	                P4 1.48e-5 4.25e-5
+WatchGauge	                IGPco 1.48e-5 4.25e-5
+FloatingCurrentMeterSmoothed	0
+MaxCalibrationImageShift	5.
+MaxLMCalibrationImageShift	15.
+StageLimits            0. 0. 0. 0. # SET LIMITS IF NEEDED FOR Setup Full Montage
+ImageShiftDelays                7
+0.1 0.
+0.3 0.4
+0.8 0.9
+1.6 1.7
+3. 3.
+3.5 3.5
+4. 3.7
+#
+# FILE OPTIONS
+#
+FileOptionsMode                 1
+FileOptionsExtraFlags	        17
+FileOptionsMaxSections	        360
+FileOptionsPixelsTruncatedLo	40
+FileOptionsPixelsTruncatedHi	40
+FileOptionsUnsignedOption	0
+# 
+# TASK MINUMUM FIELD SIZES AND OTHER PROPERTIES
+#
+ResetRealignMinField	        8.
+ReverseTiltMinField	        4.5
+WalkUpMinField	                1.5
+EucentricityCoarseMinField	8.
+EucentricityFineMinField	4.5
+EucentricityFineAlignMinField	8.
+ResetRealignMaxIterations	2
+ResetRealignHigherMagCriterion	0.5
+WalkUpShiftLimit	        3.0     # SET TO 2.0 for 300 KV TECNAI/POLARA
+WalkUpLowDoseISLimit	        2.0     # SET TO 1.3 for 300 KV TECNAI/POLARA
+EucentricityBacklashZ	        -3.
+EucentricityResetISThreshold	0.1
+EucentricityMaxFineIS	        3.      # SET TO 2.0 for 300 KV TECNAI/POLARA
+TiltBacklash	                3.
+CheckAutofocusChange	        5.
+TSDefaultStartAngle	        60.
+TSMaxTiltError	                0.1
+#
+# INTENSITY CALIBRATION
+#
+BeamCalMinField             8.
+#BeamCalExtraRangeNeeded	    10.
+BeamCalChangeDelay	    2000 
+BeamCalMinExposure	    0.1
+BeamCalMaxExposure	    3.
+BeamCalMinCounts	    3000
+BeamCalMaxCounts	    30000
+BeamCalInitialIncrement	    0.0002
+BeamCalSpacingFactor	    1.2
+BeamCalFavorMagChanges      1
+
+# needed for Krios
+UseIlluminatedAreaForC2	    1
+C2ApertureSizes 	50 70 100 150
+IlluminatedAreaLimits 	-0.033 2.51
+
+#added to blank beam for TEM <-> EFTEM siwtching 
+BlankDuringTransients		1
+
+# to use realign in LM1950 
+RealignItemMaxLMField	40
+
+# for distortion measurement (accroding to David email - at least 5 seconds)
+DistortionStageDelay	5000
+
+# to aoivd occaional COM error -> actaully hiccup getting image
+CameraRetries	3
+MakeFEIerrorBeTimeout 1
+
+#SMTP server
+SMTPServer 	127.0.0.1
+SendMailFrom	Krios-K2.CryoEM
