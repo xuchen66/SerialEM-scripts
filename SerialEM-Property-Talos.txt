@@ -1,0 +1,306 @@
+SerialEMProperties
+GainReferencePath	C:\ProgramData\SerialEM\
+MRCHeaderTitle	Acquired on UMass Talos Camera -> 0:Ceta 1:K2
+LogBookPathName	C:\ProgramData\SerialEM\TiltSeriesLogBook.txt
+DigitalMicrographReferencePath	C:\ProgramData\Gatan\Reference Images
+
+StartUpMessage Talos Admin!
+
+
+#
+#  GENERAL CAMERA PROPERTIES
+#
+ActiveCameraList		0 1
+OtherCamerasInTIA		1
+InitialCurrentCamera		1
+
+GainNormalizeInSerialEM		0
+ReferenceMemoryLimitMB		160
+DarkRefAgeLimit			3600
+GainRefInactivityLimit		180
+DefaultCameraDivide16BitBy2     0
+DefaultActAfterExposures	0
+StartCameraInDebugMode	0
+
+InnerXRayBorderDistance		1.2
+OuterXRayBorderDistance 	2.1
+XRayCriterionIterations		4
+XRayCriterionIncrease		1.0
+
+BiggestGIFApertureNumber	4
+FilterSlitInOutDelay		18
+FilterOffsetDelayCriterion	40.
+FilterOffsetDelayBase1		10.
+FilterOffsetDelayBase2		30.
+FilterOffsetDelaySlope1		0.5
+FilterOffsetDelaySlope2		0.25
+RetractCameraOnEnteringEFTEM	0
+MinLowMagSlitWidth		25
+SlitWideningSafetyFactor	0.75
+EnergyShiftCalMinField		8.
+RefineZLPStepSize		2.
+RefineZLPSlitWidth		20.
+RefineZLPMinimumExposure	0.005
+
+#   CETA PROPERTIES
+#
+CameraProperties        0
+# You can add "DetectorName 0 official-name" and then make the Name different
+# It will not work without the right name
+# The name changed to BM-Eagle in Tecnai 4.1, and BM-Falcon, and BM-Ceta
+# The 2K Eagle and the Falcon do not have binning 8
+# For Falcon, set FEICameraType to 2, pixel size to 14, remove RelativeGainFactors
+# For Ceta, set FEICameraType to 3, pixel size to 14, remove RelativeGainFactors
+# You can add "DetectorName 0 official-name" and then make the Name different
+Name    			BM-Ceta
+FEICameraType 			3
+CameraSizeX     		4096
+CameraSizeY     		4096
+MakesUnsignedImages		1
+FourPortReadout         	1
+Binnings        		1 2 4 8
+#UsableArea 			7 7 4087 4085
+HotPixelsAreImodCoords  	1
+#DarkXRayAbsoluteCriterion	20
+#DarkXRaySDCriterion		15
+#DarkXRayRequireBothCriteria	1
+MaximumXRayDiameter     	6
+BuiltInSettling 		0
+ExtraBeamTime   		0.05
+StartupDelay    		1.
+Retractable     		0
+GIF     			0
+Order 				1
+FilmToCameraMagnification       1.28
+PixelSizeInMicrons      	14
+ExtraRotation   0.
+# MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
+#RotationAndPixel 22 999 999 0.997
+RotationAndPixel 8 999 -5.3 0 		#210X
+RotationAndPixel 16 999 -95.4 6.27
+RotationAndPixel 17 999 999 11.82
+RotationAndPixel 18 999 -197.4 0
+RotationAndPixel 20 999 999 5.656
+
+EndCameraProperties
+
+# K2 PROPERTIES
+# These are properties assuming remote access and a 270-degree rotation and
+#  flip, which seems standard for Tecnai/Polara above-GIF installs
+
+#GatanServerIP 127.0.0.1
+GatanServerIP 172.18.8.141
+GatanServerPort 48890 
+SocketServerIP 1 172.18.8.16
+SocketServerPort 1 48892
+
+#
+K2FilterName Hanning Window (default)
+K2FilterName Bandpass Filter (default)
+K2FilterName Sobel Filter (default)
+K2FilterName Combined Filter (default)
+
+
+CameraProperties	     1
+Name	                     K2 Summit
+DMGainReferenceName	     K2-0001 1 Gain Ref. x1.m0.dm4
+# THESE 5 WILL NEED CHANGING IF CAMERA ORIENTATION CHANGES
+CameraSizeX	             3710
+CameraSizeY	             3838
+SizeCheckSwapped             1
+RotationAndFlip              7		# accedently 1 before
+DMRotationAndFlip            7
+#UsableArea                  0 0 3712 3840 	# top left bottom right!
+UseSocket	             0
+K2Type	                     1
+MakesUnsignedImages	     1
+XMustBeMultipleOf	     4
+YMustBeMultipleOf	     2
+FourPortReadout	             0
+Binnings	             1 2 3 4 5 6 8
+BasicCorrections	     49
+HotPixelsAreImodCoords	     1
+#DarkXRayAbsoluteCriterion   20
+#DarkXRaySDCriterion	     15
+#DarkXRayRequireBothCriteria 1
+MaximumXRayDiameter	     6
+BeamBlankShutter	     0
+OnlyOneShutter	             1
+StartupDelay                 1.45
+ExtraBeamTime                0.3
+BuiltInSettling              0.0 
+ShutterDeadTime	             0.001		
+MinimumDriftSettling	     0.05
+MinimumBlankedExposure       0.35
+ExtraUnblankTime	     0.012
+ExtraOpenShutterTime	     0.12
+Retractable	             1
+InsertionDelay	             5.0
+RetractionDelay	             3.0
+GIF	                     0
+Order                        2
+FilmToCameraMagnification    1.31	# orig=1.342
+PixelSizeInMicrons	     5.0  
+CountsPerElectron	     37.55	# measured at 3.15 e/p/s
+ExtraRotation	             0.
+# MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
+##RotationAndPixel 33 0.04 999 0.0749
+#RotationAndPixel 1 999 -3.9 0
+RotationAndPixel 4 999 -102.4 0
+#RotationAndPixel 16 999 -4.9 1.797
+RotationAndPixel 16 999 -94.7 1.797
+RotationAndPixel 17 999 84.0 3.396
+RotationAndPixel 28 999 999 0.2425	#17.5k
+RotationAndPixel 29 999 999 0.18879
+RotationAndPixel 30 999 999 0.14847
+RotationAndPixel 31 999 999 0.11687
+RotationAndPixel 32 999 999 0.09138
+RotationAndPixel 33 999 999 0.0719	#57k
+
+EndCameraProperties
+
+
+
+# THIS NEEDS TO HAVE GIF MAGS ADDED
+
+# Mag table:  Index  TecnaiFilmMag  TecnaiRotation  - both reported by scope (Add screen mag by hand)
+# If there is a GIF, add EFTEM screen up mag, reported rotation, screen down mag
+MagnificationTable  44 
+1       25   -90
+2       34   -90
+3       46   -90
+4       62   -90
+5       84   -90
+6      115   -90
+7      155   -90
+8      210   -90
+9      280   -90
+10      380   -90
+11      510   -90
+12      700   -90
+13      940   -90
+14     1300   -90
+15     1700   -90
+16     2300   -90
+17     1250    90
+18     1600    90
+19     2000    90
+20     2600    90
+21     3400    90
+22     4300    90
+23     5300    90
+24     6700    90
+25     8500    90
+26    11000    90
+27    13500    90
+28    17500    90
+29    22000    90
+30    28000    90
+31    36000    90
+32    45000    90
+33    57000    90
+34    73000    90
+35    92000    90
+36   120000    90
+37   150000    90
+38   190000    90
+39   240000    90
+40   310000    90
+41   390000    90
+42   400000    90
+43   510000    90
+44   650000    90
+
+
+#
+# SCOPE PROPERTIES
+#
+LowestMModeMagIndex             17
+GlobalExtraRotation		-5   # INITIALLY SET TO -12 FOR 300 KV, -5 FOR 200
+MicronsPerUnitImageShift	1.
+DeltaZtoDefocusFactor	        1.0
+ScreenCurrentFactor             1.0
+
+SmallScreenFactor		1.0
+LensNormalizationDelay		2000
+
+#
+# For Titan or Tecnai 4.0 this needs to be the name of the gauge in TUI,
+# IGPCl for Titan or IGP1 for Tecnai or IGPco for Talos
+WatchGauge			IGPco 1.48e-5 4.25e-5
+FloatingCurrentMeterSmoothed	0
+MaxCalibrationImageShift	5.
+MaxLMCalibrationImageShift	15.
+StageLimits			0. 0. 0. 0.     # SET LIMITS IF NEEDED FOR Setup Full Montage
+ImageShiftDelays 		7
+0.1 0.
+0.3 0.4
+0.8 0.9
+1.6 1.7
+3. 3.
+3.5 3.5
+4. 3.7
+#
+# FILE OPTIONS
+#
+FileOptionsMode			1
+FileOptionsExtraFlags		17
+FileOptionsMaxSections		360
+FileOptionsPixelsTruncatedLo	40
+FileOptionsPixelsTruncatedHi	40
+FileOptionsUnsignedOption	0
+
+# 
+# TASK MINUMUM FIELD SIZES AND OTHER PROPERTIES
+#
+ResetRealignMinField	        8.
+ReverseTiltMinField	        4.5
+WalkUpMinField	                1.5
+EucentricityCoarseMinField	8.
+EucentricityFineMinField	4.5
+EucentricityFineAlignMinField	8.
+ResetRealignMaxIterations	2
+ResetRealignHigherMagCriterion	0.5
+WalkUpShiftLimit	        3.0     # SET TO 2.0 for 300 KV TECNAI/POLARA
+WalkUpLowDoseISLimit	        2.0     # SET TO 1.3 for 300 KV TECNAI/POLARA
+EucentricityBacklashZ	        -3.
+EucentricityResetISThreshold	0.1
+EucentricityMaxFineIS	        3.      # SET TO 2.0 for 300 KV TECNAI/POLARA
+TiltBacklash	                3.
+CheckAutofocusChange	        5.
+TSDefaultStartAngle	        60.
+TSMaxTiltError	                0.1
+
+#
+# INTENSITY CALIBRATION
+#
+BeamCalMinField             	8.
+BeamCalExtraRangeNeeded	    	10.
+BeamCalChangeDelay	    	1000 
+BeamCalMinExposure	    	0.1
+BeamCalMaxExposure	    	3.
+BeamCalMinCounts	    	100
+BeamCalMaxCounts	    	8000
+BeamCalInitialIncrement	    	0.0001
+BeamCalSpacingFactor	    	1.1
+
+################## added by Chen
+# USE THESE FOR CALIBRATING ON CETA
+#BeamCalMaxExposure		3.
+#BeamCalMinCounts		3000
+#BeamCalFavorMagChanges  	1
+
+# USE THESE FOR CALIBRATING ON K2
+#BeamCalMaxExposure 		0.4
+#BeamCalMinCounts 		10000
+
+# testing on Talos for 46x - to allow Realign in LM range
+RealignItemMaxLMField		360	#50
+		
+# email alert setup
+SMTPServer	smtp.gmail.com
+SendMailFrom	Talos-K2@cryoem.umassmed.edu
+
+## try out to press COM error - actually the hiccups to acquire
+CameraRetries 		3
+MakeFEIerrorBeTimeout	1
