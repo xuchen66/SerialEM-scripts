@@ -23,6 +23,7 @@ ReportTargetDefocus
 If $reportedValue1 > $TD_low OR $reportedValue1 < $TD_high
    SetTargetDefocus $TD_low
 Else 
+   ChangeFocus $delta
    IncTargetDefocus $delta
 Endif
 
