@@ -558,3 +558,4 @@ SetLowDoseMode 1
 #report time 
 Echo Align ZLP from DM interface - Done! 
 ProgramTimeStamps
+EndFunction
