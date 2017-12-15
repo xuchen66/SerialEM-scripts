@@ -32,5 +32,13 @@ CallFunction MyFuncs::Drift 2 F
 R
 #S
 
+## Align ZLP every 100 shots
+ReportNavItem
+echo Acquiring Item is $navAcqIndex
+remainder = modulo $navAcqIndex 100
+If $remainder == 0
+   CallFunction AlignZLPFromDM
+Endif
+
 ReportClock
 echo ----------------------------------------------------------------
