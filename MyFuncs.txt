@@ -536,3 +536,25 @@ EndLoop
 RestoreFocus
 EndFunction
 
+##################################################
+Function AlignZLPFromDM 0 0
+# using AutoIT script to align ZLP once a while 
+
+# get out from Low Dose mode first, or beam is blanked
+ReportLowDose
+if $repVal1 == 1
+   SetLowDoseMode 0
+endif 
+
+# raise the screen, doesn't hurt even it is already up
+ScreenUp
+
+# now do it from Autoit script AlignZLP
+Pause Align ZLP From DM
+
+# when done, turn on Low Dose mode 
+SetLowDoseMode 1
+
+#report time 
+Echo Align ZLP from DM interface - Done! 
+ProgramTimeStamps
