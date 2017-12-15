@@ -1,0 +1,22 @@
+#include <MsgBoxConstants.au3>
+; Set the Escape hotkey to terminate the script.
+; based on initial code from Wim Hagen [at] MBEL
+;; Chen.xu@umassmed.edu 2017-12-14 
+
+HotKeySet("{ESC}", "Terminate");
+
+AlignZLP ()
+
+Func AlignZLP()
+
+   While 1
+ WinWait("[TITLE:SerialEM; CLASS:#32770]")
+ If WinExists("[TITLE:SerialEM; CLASS:#32770]") Then
+ControlClick("Aperture", "", "[CLASS:Button; INSTANCE:22]")
+ControlClick("SerialEM", "", "[CLASS:Button; INSTANCE:1]")
+ EndIf
+
+ ; Avoid high CPU usage.
+ Sleep(1000)
+   WEnd
+EndFunc ;==>Example
