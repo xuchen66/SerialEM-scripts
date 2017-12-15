@@ -1,6 +1,7 @@
 ScriptName LD
 # main macro for single particle data collection in Low Dose Mode
-# update @ 2016-5-11
+# update @ 2017-12-14  => add modulo function to align ZLP from DM
+# after R shot
 
 # define buffer to which ref image is copied temporarily
 buffer = T
@@ -34,7 +35,6 @@ R
 
 ## Align ZLP every 100 shots
 ReportNavItem
-echo Acquiring Item is $navAcqIndex
 remainder = modulo $navAcqIndex 100
 If $remainder == 0
    CallFunction AlignZLPFromDM
