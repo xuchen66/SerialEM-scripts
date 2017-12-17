@@ -20,7 +20,7 @@ delta = -1 * $step
 
 SuppressReports
 ReportTargetDefocus 
-If $reportedValue1 > $TD_low OR $reportedValue1 < $TD_high
+If $repVal1 > $TD_low OR $repVal1 < $TD_high
    SetTargetDefocus $TD_low
 Else 
    IncTargetDefocus $delta
@@ -143,8 +143,8 @@ Loop $iter ind
     $shot
     # still need crop, for Camera which doesn't do flexible sub-size like FEI cameras
     ImageProperties A
-    XA = $reportedValue1
-    YA = $reportedValue2
+    XA = $repVal1
+    YA = $repVal2
     If $XA > $XP OR $YA > $YP
         echo CallFunction  MyFuncc::CropImageAToBuffer $buffer
         CallFunction  MyFuncs::CropImageAToBuffer $buffer
