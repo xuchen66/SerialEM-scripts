@@ -452,6 +452,7 @@ EndLoop
 Function LMMCars 0 0 
 
 Loop $#cat index
+ResetClock
 LoadCartridge $cat[$index]
 SetNavRegistration $cat[$index]
 SetColumnOrGunValve 1
@@ -460,6 +461,9 @@ OpenNewMontage 0 0 LMM-Car$cat[$index]-$name[$index].st
 Montage 
 NewMap
 CloseFile
+ReportClock T
+echo $T
+echo
 EndLoop 
 
 EndFunction 
