@@ -1,0 +1,20 @@
+ScriptName Save_MRC_JPG
+L
+#echo R shot ...
+S
+#newmap 
+
+ReportCurrentFilename 1
+root = $RepVal1 
+ext = $RepVal2
+
+ReportFileZsize
+z = $RepVal1
+
+Reduceimage A 4     # reduce size 4 time with anti-aliase reduction
+SaveToOtherFile A TIFF JPG $root-$z.jpg
+
+#CloseFile 
+
+#ScreenDown
+exit
