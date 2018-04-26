@@ -307,3 +307,8 @@ MakeFEIerrorBeTimeout 1
 #SMTP server
 SMTPServer 	127.0.0.1
 SendMailFrom	Krios-K2.CryoEM
+
+# for RefineZLP problem, David suggested to add 
+NoSpectrumOffset                1
+MaximumSlitWidth                250
+GIFAdjustsForSlitWidth          1
