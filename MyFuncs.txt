@@ -586,7 +586,7 @@ If $RepVal5 != 2        # if not a map item
 EndIf
 
 # load map overview into Q unbinned
-SetUserSetting BufferToReadInto Q
+SetUserSetting BufferToReadInto 16	# Q is 16th in alphabet, if A is 0.
 SetUserSetting LoadMapsUnbinned 1   
 LoadNavMap
 
