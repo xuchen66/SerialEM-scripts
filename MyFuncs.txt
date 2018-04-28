@@ -462,7 +462,7 @@ Montage
 NewMap
 CloseFile
 # make a jpg file for map overview
-CallFunction MyFuncs::MapToJPG Q	# assuming loading buffer is Q.
+CallFunction MyFuncs::MapToJPG
 ReportClock T
 echo $T
 echo
@@ -567,7 +567,7 @@ ProgramTimeStamps
 EndFunction
 
 ##################################################
-Function MapToJPG 0 1 LoadBuffer
+Function MapToJPG 0 0
 # 
 # SerialEM Script to convert map overview to a jpg image. 
 # it works on currently selected map item and should work for "Acquire at points...".
@@ -578,14 +578,19 @@ Function MapToJPG 0 1 LoadBuffer
 # Updated: 2018-04-27
 #################################
 
+# skip non-map item
 ReportNavItem
 If $RepVal5 != 2        # if not a map item
   Echo -> Not a map item
   Exit
 EndIf
 
+# load map overview into Q unbinned
+SetUserSetting BufferToReadInto Q
 SetUserSetting LoadMapsUnbinned 1   
 LoadNavMap
-ReduceImage $LoadBuffer 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
+
+# make a jpeg image
+ReduceImage Q 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
 SaveToOtherFile A JPG JPG $navNote.jpg
 EndFunction
