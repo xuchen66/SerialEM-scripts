@@ -1,6 +1,6 @@
-ScriptName MapsToJPG
+ScriptName MapToJPG
 #
-# SerialEM Script to convert map overview to jpg. 
+# SerialEM Script to convert map overview to a jpg image. 
 # it works on currently selected map item and should work for "Acquire at points...".
 # Before running this script, one perhaps wants to dial "Bin Overview" in montage control panel to 1. 
 ##############################
