@@ -461,6 +461,8 @@ OpenNewMontage 0 0 LMM-Car$cat[$index]-$name[$index].st
 Montage 
 NewMap
 CloseFile
+# make a jpg file for map overview
+CallFunction MyFuncs::MapToJPG Q	# assuming loading buffer is Q.
 ReportClock T
 echo $T
 echo
