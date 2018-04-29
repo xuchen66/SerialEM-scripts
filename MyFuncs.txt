@@ -594,3 +594,24 @@ LoadNavMap
 ReduceImage Q 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
 SaveToOtherFile A JPG JPG $navNote.jpg
 EndFunction
+
+##################################################
+Function AToJPG 0 0
+# 
+# SerialEM Script to convert save image in buffer A to a jpg image. 
+# it reduces image in A by 2 for comfortable JPG density range. It 
+# takes current filename and Z into jpg filename
+# 
+#################################
+# Chen Xu <chen.xu@umassmed.edu>
+# Created: 2018-04-29
+# Updated: 2018-04-29
+#################################
+ReportCurrentFilename 1
+root = $RepVal1 
+ext = $RepVal2
+ReportFileZsize
+z = $RepVal1
+
+ReduceImage A 2
+SaveToOtherFile A JPG JPG $root-$z.jpg
