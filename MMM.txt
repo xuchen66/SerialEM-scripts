@@ -5,18 +5,27 @@ ScriptName MMM
 # Created: 2018-04-27
 # Updated: 2018-04-30
 
-# Assume a MMM file is opened
+# Assume a template MMM file is opened, e.g., MMM-Car2-Sample2.map
 
 ReportCurrentFilename 1
 root = $RepVal1
 ReportNavItem
 
-OpenNewMontage 0 0 $root-mesh-$navLabel.map
+OpenNewMontage 0 0 $root-mesh_$navLabel.map
 Montage 
 NewMap
 CloseFile
-# make a jpg file for map overview
-CallFunction MyFuncs::MapToJPG
+
+# Load New Map Overview in Q unbinned
+ItemIndexWithNote $root-mesh_$navLabel.map        #command not availabe, even stated in helpfile
+NewMapIndex = $RepVal1
+SetUserSetting BufferToReadInto 16	              #Q is 16th in alphabet, if A is 0.
+SetUserSetting LoadMapsUnbinned 1   
+LoadOtherMap $NewMapIndex
+# make a jpeg image
+ReduceImage Q 2         #loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
+SaveToOtherFile A JPG JPG $root-mesh_$navLabel.map.jpg
+
 ReportClock T
 echo $T
 echo
