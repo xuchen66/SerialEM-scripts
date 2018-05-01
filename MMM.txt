@@ -17,7 +17,7 @@ NewMap
 CloseFile
 
 # Load New Map Overview in Q unbinned
-ItemIndexWithNote $root-mesh_$navLabel.map        #command not availabe, even stated in helpfile
+NavIndexWithNote $root-mesh_$navLabel.map        #command not availabe, even stated in helpfile
 NewMapIndex = $RepVal1
 SetUserSetting BufferToReadInto 16	              #Q is 16th in alphabet, if A is 0.
 SetUserSetting LoadMapsUnbinned 1   
