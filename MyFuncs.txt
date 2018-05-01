@@ -630,11 +630,11 @@ Function AToJPG 0 0
 # takes current filename and Z into jpg filename. Therefore, MRC file
 # is required to be opened.
 # 
-#################################
 # Chen Xu <chen.xu@umassmed.edu>
 # Created: 2018-04-29
 # Updated: 2018-04-29
-#################################
+#
+
 ReportCurrentFilename 1
 root = $RepVal1 
 ext = $RepVal2
