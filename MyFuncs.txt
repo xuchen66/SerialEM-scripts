@@ -598,7 +598,9 @@ EndFunction
 Function NewMapToJPG 0 0
 # 
 # SerialEM Script to convert last item - map overview to a jpg image. 
-# it works on currently selected map item and should work for "Acquire at points...".
+# It uses Note string as part of jpg filename.
+# it works on an item which creates a map and should work for "Acquire at points..."
+# as "Run Script after". 
 # 
 # Chen Xu <chen.xu@umassmed.edu>
 # Created: 2018-04-27
@@ -615,7 +617,7 @@ EndIf
 # load map overview into Q unbinned
 SetUserSetting BufferToReadInto 16	# Q is 16th in alphabet, if A is 0.
 SetUserSetting LoadMapsUnbinned 1   
-LoadOtherMap -1				# last item on the navigator window
+LoadOtherMap -1				# last item on the nav list
 
 # make a jpeg image
 ReduceImage Q 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
@@ -643,3 +645,4 @@ z = $RepVal1
 
 ReduceImage A 2
 SaveToOtherFile A JPG JPG $root-$z.jpg
+EndFunction
