@@ -570,13 +570,12 @@ EndFunction
 Function MapToJPG 0 0
 # 
 # SerialEM Script to convert map overview to a jpg image. 
-# it works on currently selected map item and should work for "Acquire at points...".
+# it works on currently selected map item.
 # 
-#################################
 # Chen Xu <chen.xu@umassmed.edu>
 # Created: 2018-04-27
 # Updated: 2018-04-27
-#################################
+#
 
 # skip non-map item
 ReportNavItem
@@ -589,6 +588,34 @@ EndIf
 SetUserSetting BufferToReadInto 16	# Q is 16th in alphabet, if A is 0.
 SetUserSetting LoadMapsUnbinned 1   
 LoadNavMap
+
+# make a jpeg image
+ReduceImage Q 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
+SaveToOtherFile A JPG JPG $navNote.jpg
+EndFunction
+
+###################################################################
+Function NewMapToJPG 0 0
+# 
+# SerialEM Script to convert last item - map overview to a jpg image. 
+# it works on currently selected map item and should work for "Acquire at points...".
+# 
+# Chen Xu <chen.xu@umassmed.edu>
+# Created: 2018-04-27
+# Updated: 2018-04-30
+#
+
+# skip non-map item
+ReportOtherItem -1
+If $RepVal5 != 2        # if not a map item
+  Echo -> Not a map item, exit ...
+  Exit
+EndIf
+
+# load map overview into Q unbinned
+SetUserSetting BufferToReadInto 16	# Q is 16th in alphabet, if A is 0.
+SetUserSetting LoadMapsUnbinned 1   
+LoadOtherMap -1				# last item on the navigator window
 
 # make a jpeg image
 ReduceImage Q 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
