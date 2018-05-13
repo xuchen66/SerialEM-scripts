@@ -70,7 +70,7 @@ EndFunction
 Function CropImage 1 1 frac buffer 
 ## crop image in A buffer to quarter size
 ## calling example
-## CallFunction MyFuncs::CropImage A 0.25
+## CallFunction MyFuncs::CropImage 0.25 P
 
 ImageProperties $buffer
 X = $repVal1
@@ -80,6 +80,29 @@ halfX = $X / 2
 halfY = $Y / 2
 QX = $X * $frac
 QY = $Y * $frac
+X0 = $halfX - ( $QX / 2 )
+X1 = $halfX + ( $QX / 2 )
+Y0 = $halfY - ( $QY / 2 )
+Y1 = $halfY + ( $QY / 2 ) - 1
+
+# crop
+CropImage $buffer $X0 $X1 $Y0 $Y1
+EndFunction
+
+####################################################
+Function CropImageCenter 2 1 pixX pixY buffer 
+## crop image from center in a buffer to x y (pixle) size
+## calling example:
+## CallFunction MyFuncs::CropImageCenter 100 100 P
+
+ImageProperties $buffer
+X = $repVal1
+Y = $repVal2
+
+halfX = $X / 2
+halfY = $Y / 2
+QX = $pixX
+QY = $pixY
 X0 = $halfX - ( $QX / 2 )
 X1 = $halfX + ( $QX / 2 )
 Y0 = $halfY - ( $QY / 2 )
