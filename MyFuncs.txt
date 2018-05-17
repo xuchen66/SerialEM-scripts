@@ -173,16 +173,32 @@ Loop $iter ind
         CallFunction  MyFuncs::CropImageAToBuffer $buffer
     Endif
     AlignTo $buffer
-    If $ind == $iter  	# last round of loop, relax stage
-    	ResetImageShift 2
-    Else 
-    	ResetImageShift
-    Endif
+    ResetImageShift
+    #If $ind == $iter  	# last round of loop, relax stage
+    #	ResetImageShift 2
+    #Else 
+    # 	ResetImageShift
+    #Endif
 EndLoop 
 
 ## reset camera
 RestoreCameraSet
+
+## relax
+# report shift in buffer A from last round of Align
+# move stage 0.025um in opposite directions
+ReportAlignShift
+shiftX = $repVal5
+shiftY = $repVal6
+signX = $shiftX / ABS ( $shiftX )
+signX = $shiftY / ABS ( $shiftY )
+moveX = -1 * $signX * 0.025
+moveY = -1 * $signY * 0.025
+echo Relaxing ...
+MoveStave $moveX $moveY
+
 EndFunction 
+
 
 ######################################################
 Function ZeroIS-quick 2 0 limit dead
