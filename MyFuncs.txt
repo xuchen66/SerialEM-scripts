@@ -685,3 +685,88 @@ z = $RepVal1
 ReduceImage A 2
 SaveToOtherFile A JPG JPG $root-$z.jpg
 EndFunction
+
+####################################################
+Function CropShotToBuffer 0 1 buffer 
+# Take a shot and crop against buffer
+SuppressReports
+
+## Low Dose
+ReportLowDose 
+If $reportedValue1 == 1
+    ImageLowDoseSet $buffer
+    S = $reportedValue1
+Elseif $reportedValue1 == 0
+    ImageProperties $buffer
+    S = $reportedValue6
+Endif
+
+## get image parameters in buffer $buffer
+ImageProperties $buffer
+XP = $reportedValue1
+YP = $reportedValue2
+bin = $reportedValue3
+E = $reportedValue4
+# PixelSize = $reportedValue5
+#S = $reportedValue6
+
+# figure out from which set the image was taken
+#(0=view, 1=focus, 2=trial, 3=record, 4=preview)#
+If $S == 0
+    shot = View
+Elseif $S == 1
+    shot = Focus
+Elseif $S == 2 
+    shot = Trial
+Elseif $S == 3
+    shot = Record
+Elseif $S == 4
+    shot = Preview
+Elseif $S == 5 
+    shot = Search
+Endif
+
+## set camera parameters
+SetExposure $S $E
+SetCenteredSize $S $bin $XP $YP
+
+
+$shot
+# still need crop, for Camera which doesn't do flexible sub-size like FEI cameras
+ImageProperties A
+XA = $repVal1
+YA = $repVal2
+If $XA > $XP OR $YA > $YP
+	echo CallFunction  MyFuncs::CropImageAToBuffer $buffer
+	CallFunction MyFuncs::CropImageAToBuffer $buffer
+Endif
+
+## reset camera
+RestoreCameraSet
+EndFunction
+
+######################################################
+Function Relax 0 0 
+# function to relax stage for $dis distance
+
+## relax
+# report shift in buffer A from last round of Align
+# move stage 0.025um in opposite directions
+ReportAlignShift
+shiftX = $repVal5
+shiftY = $repVal6
+
+# just in case it got a blank image so no shift found
+If $shiftX == 0 OR $shiftY == 0
+   signX = 0
+   signY = 0
+Else
+   signX = $shiftX / ABS ( $shiftX )
+   signY = $shiftY / ABS ( $shiftY )
+Endif
+
+moveX = -1 * $signX * 0.025
+moveY = -1 * $signY * 0.025
+echo MoveStave $moveX $moveY ...
+MoveStage $moveX $moveY
+EndFunction 
