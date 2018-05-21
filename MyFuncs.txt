@@ -767,6 +767,6 @@ Endif
 
 moveX = -1 * $signX * 0.025
 moveY = -1 * $signY * 0.025
-echo MoveStave $moveX $moveY ...
+echo MoveStage $moveX $moveY ...
 MoveStage $moveX $moveY
 EndFunction 
