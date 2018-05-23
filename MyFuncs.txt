@@ -687,8 +687,8 @@ SaveToOtherFile A JPG JPG $root-$z.jpg
 EndFunction
 
 ####################################################
-Function CropShotToBuffer 0 1 buffer 
-# Take a shot and crop against buffer
+Function BufferShot 0 1 buffer 
+# Take a shot using the same imaging condition in a buffer
 SuppressReports
 
 ## Low Dose
