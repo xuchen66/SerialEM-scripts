@@ -1,6 +1,7 @@
 ScriptName LD
 # main macro for single particle data collection in Low Dose Mode
-# update @ 2017-12-14  => add modulo function to align ZLP from DM
+# update @ 2018-05-27  
+# 
 # after R shot
 
 # define buffer to which ref image is copied temporarily
@@ -8,37 +9,32 @@ buffer = T
 
 Echo ===> Running LD ...
 
-## position (X,Y)
-RealignToNavItem 1
-#CallFunction MyFuncs::ZeroIS-quick 0.3 3.0
-#CallFunction MyFuncs::CropImage A 0.25
+buffer = T              # reference buffer for positioning
 
-Copy A $buffer
-CallFunction MyFuncs::AlignToBuffer 2 $buffer
+## position (X,Y)
+RealignToNavItem 0      # stays in LD-View after realign
+ResetImageShift
+Copy A $buffer          # comment out this line if you have a template hole in ref buffer 
+CallFunction MyFuncs::Relax   # move stage backward for 25nm 
+CallFunction MyFuncs::BufferShot $buffer  # take shot mimicing image in ref buffer
+AlignTo $buffer         # some IS is left here, it is OK, specially "AdjustBeamTiltForIS" is on
 
 ## Center Beam, assume AutoCenterBeam policy has been set up
 AutoCenterBeam
 
-## CycleTargetFocus, range is set in macro "Parameters".
+## autofocus
 CallFunction MyFuncs::CycleTargetFocus -1.2 -2.2 0.1 
-
-## Autofocus
 G
 
 ## Drift control, till 2A/sec, using F shot
 CallFunction MyFuncs::Drift 2 F
 
-## shot
-#EarlyReturnNextShot 0
-R
-#S
+GotoLowDoseArea R
+AdjustBeamTiltForIS     # this compensates small beam tilt being off due to small IS
 
-## Align ZLP every 100 shots
-ReportNavItem
-remainder = modulo $navAcqIndex 100
-If $remainder == 0
-   CallFunction AlignZLPFromDM
-Endif
+MultipleRecords         # for multi-shot
+#EarlyReturnNextShot 0  # single-shot
+#R
 
 ReportClock
 echo ----------------------------------------------------------------
