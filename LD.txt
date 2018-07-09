@@ -12,12 +12,12 @@ Echo ===> Running LD ...
 buffer = T              # reference buffer for positioning
 
 ## position (X,Y)
-RealignToNavItem 0      # stays in LD-View after realign
+RealignToNavItem 0      
 ResetImageShift
-Copy A $buffer          # comment out this line if you have a template hole in ref buffer 
-CallFunction MyFuncs::Relax   # move stage backward for 25nm 
-CallFunction MyFuncs::BufferShot $buffer  # take shot mimicing image in ref buffer
-AlignTo $buffer         # some IS is left here, it is OK, specially "AdjustBeamTiltForIS" is on
+Copy A $buffer           
+CallFunction MyFuncs::Relax   
+CallFunction MyFuncs::BufferShot $buffer  
+AlignTo $buffer         
 
 ## Center Beam, assume AutoCenterBeam policy has been set up
 AutoCenterBeam
