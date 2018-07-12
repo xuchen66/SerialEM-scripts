@@ -771,7 +771,7 @@ echo MoveStage $moveX $moveY ...
 MoveStage $moveX $moveY
 EndFunction 
 
-########
+######################################################
 Function MoveToNext 1 0 D 
 # move to next Nav item with D short
 
