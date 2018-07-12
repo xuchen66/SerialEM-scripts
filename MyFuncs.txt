@@ -770,3 +770,38 @@ moveY = -1 * $signY * 0.025
 echo MoveStage $moveX $moveY ...
 MoveStage $moveX $moveY
 EndFunction 
+
+########
+Function MoveToNext 1 0 D 
+# move to next Nav item with D short
+
+# short in um
+D = 0.1
+
+# current item
+ReportNavItem 
+Xmap = $repVal2
+Ymap = $repVal3
+
+ReportNextNavAcqItem
+XmapN = $repVal2
+YmapN = $repVal3
+ZmapN = $repVal4
+
+# current stage position
+ReportStageXYZ
+Xstage = $repVal1
+Ystage = $repVal2
+
+Xdiff = $Xstage - $Xmap
+Ydiff = $Ystage - $Ymap
+XstageN = $XmapN + $Xdiff
+YstageN = $YmapN + $Ydiff
+
+Xshort  = $XstageN - $D * ( $XstageN - $Xstage ) / SQRT ( ( $XstageN - $Xstage ) * ( $XstageN - $Xstage ) + ( $YstageN - $Ystage ) * ( $YstageN - $Ystage ) )
+Yshort  = $YstageN - $D * ( $YstageN - $Ystage ) / SQRT ( ( $XstageN - $Xstage ) * ( $XstageN - $Xstage ) + ( $YstageN - $Ystage ) * ( $YstageN - $Ystage ) )
+
+##########
+
+MoveStageTo $Xshort $Yshort $ZmapN
+EndFunction
