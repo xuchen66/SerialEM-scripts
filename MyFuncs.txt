@@ -554,8 +554,14 @@ Echo ===> Running Z_byV2 ...
 #====================================
 # for defocus offset of V in Low Dose, save it
 # ===================================
+GoToLowDoseArea R
+SetEucentricFocus
 GoToLowDoseArea V
 SaveFocus
+
+# use 1.6 as G-tilt
+ReportUserSetting AutofocusBeamTilt GTilt
+SetUserSetting AutofocusBeamTilt 1.6
 
 #==================
 # set object lens 
@@ -576,9 +582,11 @@ echo Z has moved --> $Z micron
 EndLoop
 
 #=========================================
-# restore the defocus set in V originally
+# restore the defocus in V originally
 # ========================================
 RestoreFocus
+# and AutofocusBeamTilt too
+SetUserSetting AutofocusBeamTilt $GTilt
 EndFunction
 
 ##################################################
