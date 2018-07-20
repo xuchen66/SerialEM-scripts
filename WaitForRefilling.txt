@@ -3,7 +3,7 @@ ScriptName WaitForRefilling
 # do Update hardware Background while refilling. It can be used 
 # as pre-action macro for Krios and Talos-Arctica
 
-Loop 10
+Loop 30
 AreDewarsFilling
 If $repVal1 == 1
    echo LN2 is Refilling
@@ -12,5 +12,5 @@ Else
    Break   
 Endif 
 
-Delay 5 min
+Delay 1 min
 EndLoop
