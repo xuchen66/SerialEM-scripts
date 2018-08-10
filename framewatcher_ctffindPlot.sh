@@ -29,7 +29,9 @@ for dir in rawTIFF alignedMRC alignedJPG ;
 tmux new-session -d -s framewatcher "framewatcher -gpu 0 -bin 2 -pr $PWD/rawTIFF \ 
              -after 'mv %{rootName}_powpair.jpg $PWD/alignedJPG' \
              -kV 200 -dtotal $1"
+echo "framewatcher -gpu 0 -bin 2 -pr $PWD/rawTIFF -after 'mv %{rootName}_powpair.jpg $PWD/alignedJPG' -kV 200 -dtotal $1"
 tmux new-window -n ctffindPlot "ctffindPlot"
+echo "ctffindPlot"
 echo
 echo A tmux session and window are created. To attach, type \"tmux a\"
 echo
