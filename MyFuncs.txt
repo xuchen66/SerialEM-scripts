@@ -174,29 +174,15 @@ Loop $iter ind
     Endif
     AlignTo $buffer
     ResetImageShift
-    #If $ind == $iter  	# last round of loop, relax stage
-    #	ResetImageShift 2
-    #Else 
-    # 	ResetImageShift
-    #Endif
+    If $ind == $iter  	# last round of loop, relax stage
+    	ResetImageShift 2
+    Else 
+     	ResetImageShift
+    Endif
 EndLoop 
 
 ## reset camera
 RestoreCameraSet
-
-## relax
-# report shift in buffer A from last round of Align
-# move stage 0.025um in opposite directions
-ReportAlignShift
-shiftX = $repVal5
-shiftY = $repVal6
-signX = $shiftX / ABS ( $shiftX )
-signX = $shiftY / ABS ( $shiftY )
-moveX = -1 * $signX * 0.025
-moveY = -1 * $signY * 0.025
-echo Relaxing ...
-MoveStave $moveX $moveY
-
 EndFunction 
 
 
@@ -779,37 +765,3 @@ echo MoveStage $moveX $moveY ...
 MoveStage $moveX $moveY
 EndFunction 
 
-######################################################
-Function MoveToNext 1 0 D 
-# move to next Nav item with D short
-
-# short in um
-D = 0.1
-
-# current item
-ReportNavItem 
-Xmap = $repVal2
-Ymap = $repVal3
-
-ReportNextNavAcqItem
-XmapN = $repVal2
-YmapN = $repVal3
-ZmapN = $repVal4
-
-# current stage position
-ReportStageXYZ
-Xstage = $repVal1
-Ystage = $repVal2
-
-Xdiff = $Xstage - $Xmap
-Ydiff = $Ystage - $Ymap
-XstageN = $XmapN + $Xdiff
-YstageN = $YmapN + $Ydiff
-
-Xshort  = $XstageN - $D * ( $XstageN - $Xstage ) / SQRT ( ( $XstageN - $Xstage ) * ( $XstageN - $Xstage ) + ( $YstageN - $Ystage ) * ( $YstageN - $Ystage ) )
-Yshort  = $YstageN - $D * ( $YstageN - $Ystage ) / SQRT ( ( $XstageN - $Xstage ) * ( $XstageN - $Xstage ) + ( $YstageN - $Ystage ) * ( $YstageN - $Ystage ) )
-
-##########
-
-MoveStageTo $Xshort $Yshort $ZmapN
-EndFunction
