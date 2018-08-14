@@ -172,8 +172,8 @@ Loop $iter ind
         echo CallFunction  MyFuncc::CropImageAToBuffer $buffer
         CallFunction  MyFuncs::CropImageAToBuffer $buffer
     Endif
-    AlignTo $buffer
-    ResetImageShift
+    AlignTo $buffer 0 1	# last 1 is to prevent trimming
+    #ResetImageShift
     If $ind == $iter  	# last round of loop, relax stage
     	ResetImageShift 2
     Else 
