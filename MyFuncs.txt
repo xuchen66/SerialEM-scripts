@@ -751,8 +751,12 @@ shiftX = $repVal5
 shiftY = $repVal6
 
 # just in case it got a blank image so no shift found
-If $shiftX == 0 OR $shiftY == 0
+#If $shiftX = 0 OR $shiftY == 0
+#   signX = 0
+#   signY = 0
+If $shiftX < 0.025
    signX = 0
+Elseif $shiftY < 0.025
    signY = 0
 Else
    signX = $shiftX / ABS ( $shiftX )
