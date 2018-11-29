@@ -23,7 +23,7 @@ AlignTo $buffer
 AutoCenterBeam
 
 ## autofocus
-CallFunction MyFuncs::CycleTargetFocus -1.2 -2.2 0.1 
+CallFunction MyFuncs::CycleTargetDefocus -1.2 -2.2 0.1 
 G
 
 ## Drift control, till 2A/sec, using F shot
