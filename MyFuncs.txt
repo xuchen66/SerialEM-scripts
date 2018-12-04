@@ -770,3 +770,17 @@ echo MoveStage $moveX $moveY ...
 MoveStage $moveX $moveY
 EndFunction 
 
+######################################################
+Function AutofocusByCTF 0 0
+# using CtfFind to do autofocusing
+
+# get target focus and RefocusThresold on current setting
+ReportUserSetting TargetDefocus TargetDefocus
+ReportUserSetting RefocusThreshold RefocusThreshold
+
+# 
+F
+CtfFind buf dmin dmax [fast] [box] [phmin] [phmax] [phstep] [afix]
+
+
+EndFunction
