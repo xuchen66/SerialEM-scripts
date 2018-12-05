@@ -771,16 +771,27 @@ MoveStage $moveX $moveY
 EndFunction 
 
 ######################################################
-Function AutofocusByCTF 0 0
+Function CtfFindFocus 0 0
 # using CtfFind to do autofocusing
 
 # get target focus and RefocusThresold on current setting
 ReportUserSetting TargetDefocus TargetDefocus
 ReportUserSetting RefocusThreshold RefocusThreshold
 
+dmin = $TargetDefocus + 1.
+dmax = $TargetDefocus - 1.
+
 # 
 F
-CtfFind buf dmin dmax [fast] [box] [phmin] [phmax] [phstep] [afix]
+#CtfFind buf dmin dmax [fast] [box] [phmin] [phmax] [phstep] [afix]
+CtfFind A $dmin $dmax 1 
 
+def1 = $repVal1
+def2 = $repVal2
+echo def1 = $repVal1 def2 = $repVal2
+def = ( $def1 + $def2 ) / 2
+delta = 1 * ( $TargetDefocus - $def )		#need test sign
 
+ChangeFocus $delta
+echo 
 EndFunction
