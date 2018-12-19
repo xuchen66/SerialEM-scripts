@@ -772,7 +772,7 @@ EndFunction
 
 ######################################################
 Function CtfFindFocus 0 0
-# using CtfFind to do autofocusing
+# using CtfFind to do autofocusing, assume image in A buffer
 
 # get target focus and RefocusThresold on current setting
 ReportUserSetting TargetDefocus TargetDefocus
@@ -782,7 +782,7 @@ dmin = $TargetDefocus + 1.
 dmax = $TargetDefocus - 1.
 
 # 
-F
+#F
 #CtfFind buf dmin dmax [fast] [box] [phmin] [phmax] [phstep] [afix]
 CtfFind A $dmin $dmax 1 
 
