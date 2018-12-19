@@ -780,8 +780,7 @@ ReportUserSetting RefocusThreshold RefocusThreshold
 
 dmin = $TargetDefocus + 1.
 dmax = $TargetDefocus - 1.
-
-# 
+ 
 #F
 #CtfFind buf dmin dmax [fast] [box] [phmin] [phmax] [phstep] [afix]
 CtfFind A $dmin $dmax 1 
