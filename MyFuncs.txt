@@ -789,8 +789,10 @@ def1 = $repVal1
 def2 = $repVal2
 echo def1 = $repVal1 def2 = $repVal2
 def = ( $def1 + $def2 ) / 2
-delta = 1 * ( $TargetDefocus - $def )		#need test sign
+echo def = $def
+delta =  1 * ( $TargetDefocus * 10000 + $def ) / 10000		#need test sign
+echo $delta
 
 ChangeFocus $delta
-echo 
+echo ChangeFocus $delta
 EndFunction
