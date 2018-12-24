@@ -752,13 +752,13 @@ shiftY = $repVal6
 
 # just in case it got a blank image so no shift found
 # or the shift found is too small, skip this
-If ABS ( $shiftX ) < 0.025
+If ABS ( $shiftX ) < 25
    signX = 0
 Else
    signX = $shiftX / ABS ( $shiftX )
 Endif 
 
-If ABS ( $shiftY ) < 0.025
+If ABS ( $shiftY ) < 25
    signY = 0
 Else 
    signY = $shiftY / ABS ( $shiftY )
