@@ -778,24 +778,26 @@ Function CtfFindFocus 0 0
 ReportUserSetting TargetDefocus TargetDefocus
 ReportUserSetting RefocusThreshold RefocusThreshold
 
-dmin = $TargetDefocus + 1.
-If $dmin < 0
-    dmin = 0
-Endif 
-dmax = $TargetDefocus - 1.
+dmin = $TargetDefocus + 2.
+if $dmin > 0
+dmin = 0
+endif
+dmax = $TargetDefocus - 2.
  
 #F
 #CtfFind buf dmin dmax [fast] [box] [phmin] [phmax] [phstep] [afix]
 CtfFind A $dmin $dmax 1 
 
-def1 = $repVal1 / 10000
-def2 = $repVal2 / 10000
-echo def1 = $repVal1 um,  def2 = $repVal2 um
-def = ( $def1 + $def2 ) / 2
-echo def = $def
-delta =  1 * ( $TargetDefocus + $def )		#need test sign
-echo $delta
+def = $repVal1
+stig = $repVal2
 
-ChangeFocus $delta
-echo ChangeFocus $delta
+delta =  $TargetDefocus  - $def 		#need test sign
+df = $delta * 1.30
+
+#ReportDefocus 
+ChangeFocus $df
+#ReportDefocus 
+echo 
 EndFunction
+
+
