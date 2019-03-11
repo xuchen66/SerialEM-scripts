@@ -85,8 +85,9 @@ Function Charger
 ## you need to test it if this works on your version of SerialEM
 
 # original 
-ReportUserSetting  LowDoseAreaToShow Area
-SetUserSetting LowDoseAreaToShow 3
+#ReportUserSetting  LowDoseAreaToShow Area
+#SetUserSetting LowDoseAreaToShow 3
+GoToLowDoseArea R
 # stablize it first for 5 min
 Delay 5 min
 # now lower screen to charge it
