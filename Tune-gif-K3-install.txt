@@ -1,0 +1,432 @@
+################################## Chen did 53000X ################
+RABLR was on, switched RABLR off.
+ZLP Offset = 0 eV.
+                 Error    dE
+
+        Initial: 4.03     0.10 eV
+        Tune 1: 1.82     0.05 eV
+        Final: 1.82     0.05 eV
+        Lens       Initial     dE          Final      dE
+         FX1      -0.97     -0.00         -0.96      0.00
+         FY1       0.15      0.01          0.15     -0.00
+         SX1      10.13     -0.00         10.25      0.01
+         SY1       0.32     -0.00          0.31     -0.00
+         SX2      -9.24      0.08         -9.07     -0.03
+
+
+
+Isochromaticity tuning complete.
+
+1:54:39 PM: Tuning image achromaticity (fine)
+
+Initial Error : 0.25
+    Tune 1    0.11
+
+Summary of Chromaticity Tuning : 
+
+    Lens       Initial     Final
+
+    Q1        62.984      62.963
+    Q1Y        0.144       0.144
+
+Final Error : 0.11
+
+
+Chromaticity tuning complete.
+ZLP Offset = 3 eV.
+                 Error    dE
+
+        Initial: 1.72     0.06 eV
+Isochromaticity within tolerance - no tuning required.
+RABLR was off, switched RABLR on.
+RABLR was on, switched RABLR off.
+
+1:57:13 PM: Centering image (x,y in image pix)
+
+                   D1X       dx          D5Y       dy
+    Initial:       0.23     -6.7       -18.76     -2.2
+      Final:       0.22      2.4       -18.81      0.0
+
+
+Centering tuning complete.
+ZLP Offset = 0 eV.
+                 Error    dE
+
+        Initial: 2.26     0.06 eV
+Isochromaticity within tolerance - no tuning required.
+
+1:59:12 PM: Tuning image achromaticity (fine)
+
+Initial Error : 0.16
+    Achromaticity within tolerance, no tuning required.
+
+
+
+Chromaticity tuning complete.
+
+1:59:34 PM: Tuning image magnification (fine)
+
+Initial :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.863     M [5.2]          5.199
+     Q4Y     -0.605     Tilt X[0.001]      0.000
+     Q5      -66.330     A [1.000]         1.001
+     Q5Y      0.535     Tilt Y[0.001]      0.000
+
+
+    Tune 1 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.860     M [5.2]          5.197
+     Q4Y     -0.605     Tilt X[0.001]      0.000
+     Q5      -66.260     A [1.000]         1.001
+     Q5Y      0.530     Tilt Y[0.001]      0.000
+
+
+    Tune 2 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.858     M [5.2]          5.199
+     Q4Y     -0.605     Tilt X[0.001]      0.000
+     Q5      -66.263     A [1.000]         1.000
+     Q5Y      0.528     Tilt Y[0.001]      0.000
+
+
+    Tune 3 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.858     M [5.2]          5.200
+     Q4Y     -0.602     Tilt X[0.001]      0.000
+     Q5      -66.262     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+Final :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.858     M [5.2]          5.199
+     Q4Y     -0.602     Tilt X[0.001]      0.000
+     Q5      -66.262     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+
+
+
+
+Magnification tuning complete.
+ZLP Offset = 0.5 eV.
+                 Error    dE
+
+        Initial: 2.31     0.07 eV
+Isochromaticity within tolerance - no tuning required.
+2:02:04 PM    Tuning distortions:
+
+               RMS Distortion (%)
+
+Initial:          0.10
+ Tune 1:       67.39    -44.14     22.42        0.08
+  Final:       67.39    -44.14     22.42        0.10
+
+
+Distortion tuning complete.
+2:02:42 PM    Tuning distortions:
+
+               S2R       S5R       S4R       O5        O4R       O5R       O2        O4        Distortion Error (Arb. Units)
+
+Initial:        1.70      1.47     -2.51    -24.60     -8.40     10.18     -6.59      6.63        0.026
+ Tune 1:        1.60      2.58     -4.24    -23.99     -9.57     10.12     -6.88      6.28        0.047
+  Final:        1.70      1.47     -2.51    -24.60     -8.40     10.18     -6.59      6.63        0.034
+
+
+Distortion tuning complete.
+
+2:03:19 PM: Tuning image magnification (fine)
+
+Initial :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.858     M [5.2]          5.199
+     Q4Y     -0.602     Tilt X[0.001]     -0.000
+     Q5      -66.262     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+    Tune 1 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.858     M [5.2]          5.195
+     Q4Y     -0.608     Tilt X[0.001]      0.000
+     Q5      -66.292     A [1.000]         1.001
+     Q5Y      0.529     Tilt Y[0.001]      0.000
+
+
+    Tune 2 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.855     M [5.2]          5.199
+     Q4Y     -0.608     Tilt X[0.001]      0.000
+     Q5      -66.311     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+    Tune 3 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.854     M [5.2]          5.205
+     Q4Y     -0.607     Tilt X[0.001]      0.000
+     Q5      -66.310     A [1.000]         0.999
+     Q5Y      0.526     Tilt Y[0.001]      0.000
+
+
+Final :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.854     M [5.2]          5.204
+     Q4Y     -0.607     Tilt X[0.001]      0.000
+     Q5      -66.310     A [1.000]         0.999
+     Q5Y      0.526     Tilt Y[0.001]      0.000
+
+
+
+
+
+
+Magnification tuning complete.
+RABLR was off, switched RABLR on.
+
+
+###################################### end of 53kX ####################################
+
+
+##### 130kX ################
+
+
+RABLR was on, switched RABLR off.
+ZLP Offset = -1 eV.
+                 Error    dE
+
+        Initial: 9.99     0.42 eV
+        Tune 1: 0.88     0.04 eV
+        Final: 0.88     0.04 eV
+        Lens       Initial     dE          Final      dE
+         FX1      -0.96      0.19         -0.92     -0.01
+         FY1       0.15      0.02          0.14     -0.00
+         SX1      10.25      0.05         10.29      0.01
+         SY1       0.31     -0.00          0.31      0.00
+         SX2      -9.07      0.02         -8.97     -0.01
+
+
+
+Isochromaticity tuning complete.
+
+2:08:37 PM: Tuning image achromaticity (fine)
+
+Initial Error : 0.20
+    Tune 1    0.01
+
+Summary of Chromaticity Tuning : 
+
+    Lens       Initial     Final
+
+    Q1        62.963      62.966
+    Q1Y        0.144       0.143
+
+Final Error : 0.01
+
+
+Chromaticity tuning complete.
+ZLP Offset = 1.5 eV.
+                 Error    dE
+
+        Initial: 3.37     0.18 eV
+Isochromaticity within tolerance - no tuning required.
+RABLR was off, switched RABLR on.
+RABLR was on, switched RABLR off.
+
+2:11:05 PM: Centering image (x,y in image pix)
+
+                   D1X       dx          D5Y       dy
+    Initial:       0.22      2.3       -18.81     -4.5
+      Final:       0.22     -0.6       -18.90     -0.7
+
+
+Centering tuning complete.
+ZLP Offset = 0.5 eV.
+                 Error    dE
+
+        Initial: 2.84     0.11 eV
+        Tune 1: 1.28     0.06 eV
+        Final: 1.28     0.06 eV
+        Lens       Initial     dE          Final      dE
+         FX1      -0.92     -0.05         -0.93      0.02
+         FY1       0.14     -0.00          0.14     -0.01
+         SX1      10.29      0.03         10.30      0.01
+         SY1       0.31      0.01          0.31     -0.00
+         SX2      -8.97      0.00         -8.92     -0.00
+
+
+
+Isochromaticity tuning complete.
+
+2:14:04 PM: Tuning image achromaticity (fine)
+
+Initial Error : 0.06
+    Achromaticity within tolerance, no tuning required.
+
+
+
+Chromaticity tuning complete.
+
+2:14:26 PM: Tuning image magnification (fine)
+
+Initial :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.854     M [5.2]          5.202
+     Q4Y     -0.607     Tilt X[0.001]     -0.000
+     Q5      -66.310     A [1.000]         1.000
+     Q5Y      0.526     Tilt Y[0.001]      0.000
+
+
+    Tune 1 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.855     M [5.2]          5.200
+     Q4Y     -0.614     Tilt X[0.001]      0.000
+     Q5      -66.297     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+    Tune 2 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.855     M [5.2]          5.200
+     Q4Y     -0.614     Tilt X[0.001]      0.000
+     Q5      -66.298     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+    Tune 3 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.856     M [5.2]          5.200
+     Q4Y     -0.614     Tilt X[0.001]      0.000
+     Q5      -66.299     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+Final :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.856     M [5.2]          5.199
+     Q4Y     -0.614     Tilt X[0.001]      0.000
+     Q5      -66.299     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+
+
+
+
+Magnification tuning complete.
+ZLP Offset = 1 eV.
+                 Error    dE
+
+        Initial: 0.87     0.05 eV
+Isochromaticity within tolerance - no tuning required.
+2:16:56 PM    Tuning distortions:
+
+               RMS Distortion (%)
+
+Initial:          0.09
+ Tune 1:       69.51    -44.99     22.46        0.10
+  Final:       67.39    -44.14     22.42        0.10
+
+
+Distortion tuning complete.
+2:17:34 PM    Tuning distortions:
+
+               S2R       S5R       S4R       O5        O4R       O5R       O2        O4        Distortion Error (Arb. Units)
+
+Initial:        1.70      1.47     -2.51    -24.60     -8.40     10.18     -6.59      6.63        0.008
+ Tune 1:        1.59      1.36     -2.54    -24.92     -8.69      9.63     -6.71      7.43        0.043
+  Final:        1.70      1.47     -2.51    -24.60     -8.40     10.18     -6.59      6.63        0.065
+
+
+Distortion tuning complete.
+
+2:18:03 PM: Tuning image magnification (fine)
+
+Initial :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.856     M [5.2]          5.200
+     Q4Y     -0.614     Tilt X[0.001]      0.000
+     Q5      -66.299     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+    Tune 1 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.855     M [5.2]          5.199
+     Q4Y     -0.614     Tilt X[0.001]      0.000
+     Q5      -66.289     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+    Tune 2 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.855     M [5.2]          5.200
+     Q4Y     -0.614     Tilt X[0.001]      0.000
+     Q5      -66.298     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+    Tune 3 :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.855     M [5.2]          5.200
+     Q4Y     -0.614     Tilt X[0.001]      0.000
+     Q5      -66.298     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+Final :- 
+
+     Lens    Value      Param.[Target]    Measured
+
+     Q2      -59.855     M [5.2]          5.199
+     Q4Y     -0.614     Tilt X[0.001]      0.000
+     Q5      -66.298     A [1.000]         1.000
+     Q5Y      0.527     Tilt Y[0.001]      0.000
+
+
+
+
+
+
+Magnification tuning complete.
+RABLR was off, switched RABLR on.
