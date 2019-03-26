@@ -535,13 +535,13 @@ Endif
 EndFunction
 
 ##############################################
-Function Z_byV2 1 0 offset
-Echo ===> Running Z_byV2 ...
+Function Z_byV2 2 0 offset
+Echo ===> Running Z_byV2 $offset $iter
 #====================================
 # for defocus offset of V in Low Dose, save it
 # ===================================
-GoToLowDoseArea R
-SetEucentricFocus
+#GoToLowDoseArea R
+#SetEucentricFocus
 GoToLowDoseArea V
 SaveFocus
 
@@ -558,7 +558,7 @@ ChangeFocus $offset                         # for -300um offset
 #===========
 # Adjust Z
 #===========
-Loop 2
+Loop $iter 
 Autofocus -1 2
 ReportAutofocus 
 Z = -1 * $repVal1
