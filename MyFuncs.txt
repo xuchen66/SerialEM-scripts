@@ -472,6 +472,7 @@ Loop $number index
   Record
   SetImageShift 0 0
 EndLoop
+EndFunction
 
 ###############################################################
 Function LMMCars 0 0 
