@@ -2,7 +2,7 @@
 ; Set the Escape hotkey to terminate the script.
 ; based on initial code from Wim Hagen [at] MBEL
 ;; Chen.xu@umassmed.edu 2017-05-27 
-
+;
 HotKeySet("{ESC}", "Terminate");
 
 NextPP ()
