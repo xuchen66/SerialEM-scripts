@@ -1,5 +1,6 @@
-ScriptName PhasePlate
-# script to skip bad Phase Plate Patch
+ScriptName VPPControl
+# script to control VPP siwtching - skip bad Phase Plate Patch
+# to be run as "after" script 
 # chen.xu@umassmed.edu - May 20, 2017
 #
 # It uses a fucntion to see if a numher is among a list 
@@ -8,7 +9,7 @@ ScriptName PhasePlate
 
 ##### User Input #####
 # how many shot before Next Patch
-#shot  = 16
+shot  = 200
 
 # bad list patches and current one shown on TUI
 ## Ph1
@@ -26,27 +27,17 @@ If $repVal1 == 0
 Endif
 echo nP = $nP
 
-## make sure this one is good to start with
-#CallFunction 19::NextGood
-
 # counter for Acquire point starts after new patch
 IsVariableDefined nA
-echo RepVal1 = $RepVal1
 If $repVal1 == 0 
    nA := 1
 Endif
-
 echo nA = $nA
 
-# main script to take shot 
-Call LD
-echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Main !!!!!!!!!!!!!!!!!!!!!!!!
-
-
 # after certain shots done, switch to next good and reset counter
-If $nA > 40
-  echo SHOULD SWITCH
-   ShowMessageOnScope SerialEM PP
+If $nA > $shot
+  echo SHOULD SWITCH now after $shot
+   #ShowMessageOnScope SerialEM PP
    CallFunction NextGood   
    nA := 
    np := $nP + 1
@@ -65,7 +56,7 @@ CallFunction AmongList? $nP
 #echo RepVal1 = $RepVal1
 If $RepVal1 == 1
    Echo Bad one, skipping ...
-   ShowMessageOnScope SerialEM PP
+   #ShowMessageOnScope SerialEM PP
     If $nP > 76
         nP := 1
     Else
@@ -103,6 +94,8 @@ EndFunction
 Function AmongList? 1 0 nP
 # a function to see if a integer number is among a list "list"
 # list must be defined somewhere in the main script
+
+n = $nP
 
 Loop $#list ind
 if $n == $list[$ind]
