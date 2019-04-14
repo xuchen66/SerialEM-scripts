@@ -2,7 +2,7 @@
 ;; Based on the message text content, it runs different functions,
 ;; to get shutter state and aperture conbination ready.
 ;; SerialEM script two lines for each action is below
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;SetupScopeMessage 0 0 K2-shutter
 ;ShowMessageOnScope SerialEM!
 
