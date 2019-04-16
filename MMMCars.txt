@@ -1,9 +1,13 @@
 ScriptName MMMCars
 # make all the MMMs from different cartriges automatically!!!
 # use property of current registration to do so. 
-
+#
+# Assume all the LMM maps are done, each with registration 
+# as the cartrige #, all done by script LMMCars. A few meshes
+# picked have the same registration value as the LMM has.
+#
 echo #############################################
-echo ###                 ClearPersistentvars                                ####
+echo ###  ClearPersistentvars                 ####
 echo #############################################
 
 ##########################
@@ -13,8 +17,12 @@ echo ---> Running MMMCars!!!
 
 ## define where to save, cartirges and sample names
 SetDirectory X:\TEST-XC
-cat = { 1 2  }
-name = { name1 name2 }
+
+# read in the cartrige and sample information like LMM
+Call Cars
+
+#cat = { 1 2  }
+#name = { name1 name2 }
 
 ### do it! 
 CallFunction MMMCars 
