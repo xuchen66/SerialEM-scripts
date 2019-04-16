@@ -801,4 +801,71 @@ ChangeFocus $df
 echo 
 EndFunction
 
+#####################################################
+Function C2_150-OBJ_out 0 0
+# requires AutoIT-Talos.txt running on Talos 
+SetupScopeMessage 0 0 C2_150-OBJ_out
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_70-OBJ_100 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 C2_70-OBJ_100
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_50-OBJ_100 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 C2_50-OBJ_100
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_30-OBJ_100 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 C2_30-OBJ_100
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_70-OBJ_70 0 0 
+SetupScopeMessage 0 0 C2_70-OBJ_70
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_50-OBJ_70 0 0 
+SetupScopeMessage 0 0 C2_50-OBJ_70
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_30-OBJ_70 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 C2_30-OBJ_70
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function K2-shutter 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 K2-shutter
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function Turbo_ON 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 Turbo_ON
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function Turbo_OFF 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 Turbo_OFF
+ShowMessageOnScope SEM
+EndFunction
 
