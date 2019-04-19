@@ -2,7 +2,7 @@
 ;; Based on the message text content, it runs different functions,
 ;; to get shutter state and aperture conbination ready.
 ;; SerialEM script two lines for each action is below
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;SetupScopeMessage 0 0 K2-shutter
 ;ShowMessageOnScope SEM
@@ -29,7 +29,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; -Chen Xu <chen.xu@umassmed.edu> Jan-29-2017
-
+;; updated @ April 18, 2019
 #include <MsgBoxConstants.au3>
 
 ; Set the Escape hotkey to terminate the script.
