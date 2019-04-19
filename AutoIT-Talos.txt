@@ -57,7 +57,7 @@ EndIf
 If StringInStr($sText,"C2_150-OBJ_out") Then
 	Call ("C2_150_OBJ_out")
 	Sleep(5000)
-If StringInStr($sText,"C2_70-OBJ_100") Then
+Elseif StringInStr($sText,"C2_70-OBJ_100") Then
 	Call ("C2_70_OBJ_100")
 	Sleep(5000)
 Elseif StringInStr($sText,"C2_50-OBJ_100") Then
@@ -72,7 +72,7 @@ Elseif StringInStr($sText,"C2_70-OBJ_70") Then
 Elseif StringInStr($sText,"C2_50-OBJ_70") Then
 	Call ("C2_50_OBJ_70")
 	Sleep(5000)
-If StringInStr($sText,"C2_30-OBJ_70") Then
+Elseif StringInStr($sText,"C2_30-OBJ_70") Then
 	Call ("C2_30_OBJ_70")
 	Sleep(5000)
 ElseIf StringInStr($sText,"K2-shutter") Then
