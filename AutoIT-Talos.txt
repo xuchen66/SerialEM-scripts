@@ -91,20 +91,24 @@ EndIf
 EndFunc
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;   model ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Func C2_70_OBJ_100()
 
 ; select C2
-WinActivate ("[TITLE:Apertures; CLASS:#32770]")
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "70")
-; turn on if off (yellow color)
+WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "ShowDropDown", "")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "70")
+ControlSend ("Apertures", "","ComboBox1", "{ENTER}")
+Sleep (6000)
 
 ; set obj -> two colors are tested!!!
 ; already in yellow, but wrong size
 If pixelgetcolor(25,381) = 0xFFFF80 Then
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-;ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-Sleep (3000)
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	;Sleep (1000)
@@ -112,8 +116,11 @@ If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	WinActivate ("Apertures", "[CLASS:#32770]")
 	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")
 	sleep (11000)
-	ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-	Sleep (3000)	;needed
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 
 Call ("Dismiss")
@@ -122,18 +129,21 @@ EndFunc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Func C2_50_OBJ_100()
-
 ; select C2
-WinActivate ("[TITLE:Apertures; CLASS:#32770]")
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "50")
-; turn on if off (yellow color)
+WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "ShowDropDown", "")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "50")
+ControlSend ("Apertures", "","ComboBox1", "{ENTER}")
+Sleep (6000)
 
 ; set obj -> two colors are tested!!!
 ; already in yellow, but wrong size
 If pixelgetcolor(25,381) = 0xFFFF80 Then
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-;ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-Sleep (3000)
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	;Sleep (1000)
@@ -141,26 +151,33 @@ If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	WinActivate ("Apertures", "[CLASS:#32770]")
 	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")
 	sleep (11000)
-	ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-	Sleep (3000)	;needed
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
+    ControlSend ("Apertures", "","ComboBox2 ", "{ENTER}")
+    Sleep (6000)
 EndIf
 
-
+Call ("Dismiss")
+EndFunc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Func C2_30_OBJ_100()
-
 ; select C2
-WinActivate ("[TITLE:Apertures; CLASS:#32770]")
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "30")
-; turn on if off (yellow color)
+WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "ShowDropDown", "")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "30")
+ControlSend ("Apertures", "","ComboBox1", "{ENTER}")
+Sleep (6000)
 
 ; set obj -> two colors are tested!!!
 ; already in yellow, but wrong size
 If pixelgetcolor(25,381) = 0xFFFF80 Then
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-;ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-Sleep (3000)
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	;Sleep (1000)
@@ -168,59 +185,67 @@ If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	WinActivate ("Apertures", "[CLASS:#32770]")
 	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")
 	sleep (11000)
-	ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-	Sleep (3000)	;needed
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 
 Call ("Dismiss")
 EndFunc
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Func C2_70_OBJ_70()
-
 ; select C2
-WinActivate ("[TITLE:Apertures; CLASS:#32770]")
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "70")
-; turn on if off (yellow color)
+WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "ShowDropDown", "")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "70")
+ControlSend ("Apertures", "","ComboBox1", "{ENTER}")
+Sleep (6000)
 
 ; set obj -> two colors are tested!!!
 ; already in yellow, but wrong size
 If pixelgetcolor(25,381) = 0xFFFF80 Then
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
-;ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
-Sleep (3000)
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	;Sleep (1000)
 	;MsgBox(0, "Not Yellow, Click!", "","")
 	WinActivate ("Apertures", "[CLASS:#32770]")
 	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")
-	sleep (1000)
-	ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
-	Sleep (3000)	;needed
+	sleep (11000)
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 
 Call ("Dismiss")
 EndFunc
-
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Func C2_50_OBJ_70()
-
 ; select C2
-WinActivate ("[TITLE:Apertures; CLASS:#32770]")
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "50")
-; turn on if off (yellow color)
+WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "ShowDropDown", "")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "50")
+ControlSend ("Apertures", "","ComboBox1", "{ENTER}")
+Sleep (6000)
 
 ; set obj -> two colors are tested!!!
 ; already in yellow, but wrong size
 If pixelgetcolor(25,381) = 0xFFFF80 Then
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
-;ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
-Sleep (3000)
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	;Sleep (1000)
@@ -228,29 +253,33 @@ If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	WinActivate ("Apertures", "[CLASS:#32770]")
 	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")
 	sleep (11000)
-	ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
-	Sleep (3000)	;needed
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 
 Call ("Dismiss")
 EndFunc
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Func C2_30_OBJ_70()
-
 ; select C2
-WinActivate ("[TITLE:Apertures; CLASS:#32770]")
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "30")
-; turn on if off (yellow color)
+WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "ShowDropDown", "")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "30")
+ControlSend ("Apertures", "","ComboBox1", "{ENTER}")
+Sleep (6000)
 
 ; set obj -> two colors are tested!!!
 ; already in yellow, but wrong size
 If pixelgetcolor(25,381) = 0xFFFF80 Then
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
-;ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
-Sleep (3000)
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	;Sleep (1000)
@@ -258,17 +287,40 @@ If pixelgetcolor(25,381) = 0xD4D0C8 Then
 	WinActivate ("Apertures", "[CLASS:#32770]")
 	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")
 	sleep (11000)
-	ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
-	Sleep (3000)	;needed
+    WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
+    ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "70")
+    ControlSend ("Apertures", "","ComboBox2", "{ENTER}")
+    Sleep (6000)
 EndIf
 
 Call ("Dismiss")
 EndFunc
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Func C2_150_OBJ_out()
+
+; select C2, OBJ aperture
+WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "ShowDropDown", "")
+ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "150")
+ControlSend ("Apertures", "","ComboBox1", "{ENTER}")
+Sleep (6000)
+;
+; make sure "Objective" is NOT Yellow
+If pixelgetcolor(51,381) = 0xFFFF80 Then
+	;Sleep (1000)
+	WinActivate ("Apertures", "[CLASS:#32770]")
+	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")
+Else
+	Sleep (1000)
+EndIf
+
+Call ("Dismiss")
+EndFunc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Func K2_shutter()
-
 ; select fake K2 camera
 ControlCommand("CCD/TV Camera", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "BM-Falcon")
 Sleep(3000)		; needed
@@ -290,23 +342,6 @@ Call ("Dismiss")
 EndFunc
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Func C2_150_OBJ_out()
-
-; select C2, OBJ aperture
-WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
-ControlCommand("Apertures", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", "150") 
-; make sure "Objective" is NOT Yellow
-If pixelgetcolor(51,381) = 0xFFFF80 Then
-	;Sleep (1000)
-	ControlClick("Apertures", "", "[CLASS:Button; INSTANCE:2]")
-Else
-	Sleep (1000)
-EndIf
-
-Call ("Dismiss")
-EndFunc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Func Turbo_ON()
@@ -340,3 +375,4 @@ EndFunc
 Func Terminate()
     Exit
 EndFunc   ;==>Terminate
+
