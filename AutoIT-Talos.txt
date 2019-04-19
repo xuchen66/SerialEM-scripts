@@ -104,6 +104,7 @@ Sleep (6000)
 ; set obj -> two colors are tested!!!
 ; already in yellow, but wrong size
 If pixelgetcolor(25,381) = 0xFFFF80 Then
+; 0xFFFF80 -> Yellow
     WinActivate ("[TITLE:Apertures; CLASS:#32770; W:243; H:225]")
     ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "ShowDropDown", "")
     ControlCommand ("Apertures", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", "100")
@@ -111,6 +112,7 @@ If pixelgetcolor(25,381) = 0xFFFF80 Then
     Sleep (6000)
 EndIf
 If pixelgetcolor(25,381) = 0xD4D0C8 Then
+; 0xD4D0C8 -> grey
 	;Sleep (1000)
 	;MsgBox(0, "Not Yellow, Click!", "","")
 	WinActivate ("Apertures", "[CLASS:#32770]")
