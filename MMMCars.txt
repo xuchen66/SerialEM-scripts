@@ -6,6 +6,9 @@ ScriptName MMMCars
 # as the cartrige #, all done by script LMMCars. A few meshes
 # picked have the same registration value as the LMM has.
 #
+#    run this from "Acquire at points ..." 
+# 
+# chen.xu@umassmed.edu April 19, 2019
 echo #############################################
 echo ###  ClearPersistentvars                 ####
 echo #############################################
@@ -15,68 +18,66 @@ echo #############################################
 ##########################
 echo ---> Running MMMCars!!!
 
-## define where to save, cartirges and sample names
-SetDirectory X:\TEST-XC
-
-# read in the cartrige and sample information like LMM
+# 2. Call Cars
 Call Cars
 
-#cat = { 1 2  }
-#name = { name1 name2 }
+# 3. make LMM appropriate map
+SetProperty RealignItemMaxLMfield 700
 
-### do it! 
-CallFunction MMMCars 
-
-################ No editing Below #################
-
-Function MMMCars 0 0 
 ## Define persistant variable 
 IsVariableDefined regInd
 If $repVal1 == 0 
      regInd := 1           
 Endif
 
+CallFunction MyFuncs::C2_150-OBJ_out
 ReportNavItem 
 SetNavRegistration $navRegis
 LoadCartridge $navRegis
 SetColumnOrGunValve 1
+RealignToNavItem 0
+Copy A P
+MoveStage 9.8  0.5
 
-
-#  C2 100, Obj out
-SetupScopeMessage 0 0 C2_100-OBJ_out
-ShowMessageOnScope SerialEM!
-Delay 2 
-RealignToNavItem 1
-
-# from shift to marker got the X, Y shifts 46X  - 1250X
-MoveStage 3.2 -11.03
-
-#  C2 70, Obj 70
-SetupScopeMessage 0 0 C2_70-OBJ_70
-ShowMessageOnScope SerialEM!
-Delay 2
-
-# get Z height right
-Call Z_byV2-200
-
-### get map and JPG image of it.
-OpenNewFile Vmap-Car$cat[$regInd]-$name[$regInd]-mesh$navLabel.st
+# 4. V, fix Z 
+GoToLowDoseArea V
+CallFunction MyFuncs::C2_50-OBJ_70
 V
-S
+Copy A T
+Call Z
+UpdateGroupZ 
+V
+AlignTo T
+
+# 5. MMM
+SetUserSetting MontageUseViewInLD 1
+OpenNewMontage 2 3 Car$navRegis-mesh$navLabel-MMM2x3.map
+Montage 
 NewMap 
-
-# get file root name and Z number
-ReportCurrentFilename 1
-root = $RepVal1 
-ext = $RepVal2
-ReportFileZsize
-z = $RepVal1
-
-# save to jpeg for lazy people! 
-SaveToOtherFile A TIFF JPG $root-$z.jpg
 CloseFile 
 
-## if last point of this registration, switch to next available registration
+# 5. CenterBeam & autofocus
+AutoCenterBeam 
+SetTargetDefocus -1.8
+G
+
+# 6. get raster of R shots
+OpenNewFile Car$navRegis-mesh$navLabel-R.st
+ReportStageXYZ baseX baseY
+Loop 3 ix
+    x = $baseX + $ix * 3 - 4
+    Echo Doing column at X = $X
+    Loop 5 iy
+         y = $baseY + $iy * 2 - 3
+         MoveStageTo $x $y
+         #Autofocus
+         Record
+         Save
+    EndLoop
+EndLoop
+CloseFile 
+
+## 7.  if last point of this registration, switch to next available registration
 ReportNumNavAcquire 
 If $repVal1 == 1  
      regInd := $regInd + 1
@@ -92,6 +93,5 @@ If $repVal1 == 1
        echo  +++++  Going to next item in the same Registration! +++++
 Endif
 
-EndFunction 
-
-echo
+# 8, make LMM inappropriate again 
+SetProperty RealignItemMaxLMfield 700
