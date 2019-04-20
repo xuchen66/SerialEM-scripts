@@ -1,22 +1,15 @@
 ScriptName MMMCars
 # make all the MMMs from different cartriges automatically!!!
 # use property of current registration to do so. 
-#
-# Assume all the LMM maps are done, each with registration 
-# as the cartrige #, all done by script LMMCars. A few meshes
-# picked have the same registration value as the LMM has.
-#
-#    run this from "Acquire at points ..." 
-# 
-# chen.xu@umassmed.edu April 19, 2019
+
 echo #############################################
-echo ###  ClearPersistentvars                 ####
+echo ###                 ClearPersistentvars                                ####
 echo #############################################
 
 ##########################
 # navigator must be open
 ##########################
-echo ---> Running MMMCars!!!
+echo MMMCars!!!
 
 # 2. Call Cars
 Call Cars
@@ -56,28 +49,101 @@ Montage
 NewMap 
 CloseFile 
 
-# 5. CenterBeam & autofocus
+# 6. CenterBeam & autofocus
 AutoCenterBeam 
 SetTargetDefocus -1.8
 G
 
-# 6. get raster of R shots
-OpenNewFile Car$navRegis-mesh$navLabel-R.st
+# 7.  not use V & Search, align pieces
+SetUserSetting  MontageUseSearchInLD 0
+SetUserSetting  MontageUseViewInLD 0
+SetUserSetting  MontageAlignPieces 1
+
+ReportNavItem 
+OpenNewMontage 0 0 Car$navRegis-mesh$navLabel-RMM.map
 ReportStageXYZ baseX baseY
-Loop 3 ix
-    x = $baseX + $ix * 3 - 4
+ScriptName MMMCars
+# make all the MMMs from different cartriges automatically!!!
+# use property of current registration to do so. 
+
+echo #############################################
+echo ###                 ClearPersistentvars                                ####
+echo #############################################
+
+##########################
+# navigator must be open
+##########################
+echo MMMCars!!!
+
+# 2. Call Cars
+Call Cars
+
+# 3. make LMM appropriate map
+SetProperty RealignItemMaxLMfield 700
+
+## Define persistant variable 
+IsVariableDefined regInd
+If $repVal1 == 0 
+     regInd := 1           
+Endif
+
+CallFunction MyFuncs::C2_150-OBJ_out
+ReportNavItem 
+SetNavRegistration $navRegis
+LoadCartridge $navRegis
+SetColumnOrGunValve 1
+RealignToNavItem 0
+Copy A P
+MoveStage 9.8  0.5
+
+# 4. V, fix Z 
+GoToLowDoseArea V
+CallFunction MyFuncs::C2_50-OBJ_70
+V
+Copy A T
+Call Z
+UpdateGroupZ 
+V
+AlignTo T
+
+# 5. MMM
+SetUserSetting MontageUseViewInLD 1
+OpenNewMontage 2 3 Car$navRegis-mesh$navLabel-MMM2x3.map
+Montage 
+NewMap 
+CloseFile 
+
+# 6. CenterBeam & autofocus
+AutoCenterBeam 
+SetTargetDefocus -1.8
+G
+
+# 7.  not use V & Search, align pieces
+SetUserSetting  MontageUseSearchInLD 0
+SetUserSetting  MontageUseViewInLD 0
+SetUserSetting  MontageAlignPieces 1
+
+ReportNavItem 
+OpenNewMontage 0 0 Car$navRegis-mesh$navLabel-RMM.map
+ReportStageXYZ baseX baseY
+Loop 4 ix
+    x = $baseX + $ix * 3 - 7.5
     Echo Doing column at X = $X
-    Loop 5 iy
-         y = $baseY + $iy * 2 - 3
+    Loop 4 iy
+         y = $baseY + $iy * 3 - 7.5
          MoveStageTo $x $y
          #Autofocus
-         Record
-         Save
+         #Save
+         Montage 
+         NewMap
     EndLoop
 EndLoop
 CloseFile 
 
-## 7.  if last point of this registration, switch to next available registration
+# restore stage postion
+MoveStage $baseX $baseY
+
+## 8.  if last point of this registration, switch to next available registration
 ReportNumNavAcquire 
 If $repVal1 == 1  
      regInd := $regInd + 1
@@ -93,5 +159,5 @@ If $repVal1 == 1
        echo  +++++  Going to next item in the same Registration! +++++
 Endif
 
-# 8, make LMM inappropriate again 
+# 9, make LMM inappropriate again 
 SetProperty RealignItemMaxLMfield 700
