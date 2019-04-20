@@ -3,7 +3,7 @@ ScriptName MMMCars
 # use property of current registration to do so. 
 
 echo #############################################
-echo ###                 ClearPersistentvars                                ####
+echo ###         ClearPersistentvars          ####
 echo #############################################
 
 ##########################
@@ -33,8 +33,8 @@ Copy A P
 MoveStage 9.8  0.5
 
 # 4. V, fix Z 
-GoToLowDoseArea V
 CallFunction MyFuncs::C2_50-OBJ_70
+GoToLowDoseArea V
 V
 Copy A T
 Call Z
@@ -42,11 +42,13 @@ UpdateGroupZ
 V
 AlignTo T
 
-# 5. MMM
+# 5. MMM; 
 SetUserSetting MontageUseViewInLD 1
+# for K3, 2x3 gives roughly square; no need for template setup
 OpenNewMontage 2 3 Car$navRegis-mesh$navLabel-MMM2x3.map
 Montage 
 NewMap 
+CallFunction NewMapToJPG
 CloseFile 
 
 # 6. CenterBeam & autofocus
@@ -60,82 +62,21 @@ SetUserSetting  MontageUseViewInLD 0
 SetUserSetting  MontageAlignPieces 1
 
 ReportNavItem 
+# require a template RMM already opened latest as IS montage with 2x3
+# again, for K3, 2x3 gives roughly square
 OpenNewMontage 0 0 Car$navRegis-mesh$navLabel-RMM.map
 ReportStageXYZ baseX baseY
-ScriptName MMMCars
-# make all the MMMs from different cartriges automatically!!!
-# use property of current registration to do so. 
-
-echo #############################################
-echo ###                 ClearPersistentvars                                ####
-echo #############################################
-
-##########################
-# navigator must be open
-##########################
-echo MMMCars!!!
-
-# 2. Call Cars
-Call Cars
-
-# 3. make LMM appropriate map
-SetProperty RealignItemMaxLMfield 700
-
-## Define persistant variable 
-IsVariableDefined regInd
-If $repVal1 == 0 
-     regInd := 1           
-Endif
-
-CallFunction MyFuncs::C2_150-OBJ_out
-ReportNavItem 
-SetNavRegistration $navRegis
-LoadCartridge $navRegis
-SetColumnOrGunValve 1
-RealignToNavItem 0
-Copy A P
-MoveStage 9.8  0.5
-
-# 4. V, fix Z 
-GoToLowDoseArea V
-CallFunction MyFuncs::C2_50-OBJ_70
-V
-Copy A T
-Call Z
-UpdateGroupZ 
-V
-AlignTo T
-
-# 5. MMM
-SetUserSetting MontageUseViewInLD 1
-OpenNewMontage 2 3 Car$navRegis-mesh$navLabel-MMM2x3.map
-Montage 
-NewMap 
-CloseFile 
-
-# 6. CenterBeam & autofocus
-AutoCenterBeam 
-SetTargetDefocus -1.8
-G
-
-# 7.  not use V & Search, align pieces
-SetUserSetting  MontageUseSearchInLD 0
-SetUserSetting  MontageUseViewInLD 0
-SetUserSetting  MontageAlignPieces 1
-
-ReportNavItem 
-OpenNewMontage 0 0 Car$navRegis-mesh$navLabel-RMM.map
-ReportStageXYZ baseX baseY
-Loop 4 ix
-    x = $baseX + $ix * 3 - 7.5
+Loop 3 ix
+    x = $baseX + $ix * 4 - 8.0
     Echo Doing column at X = $X
-    Loop 4 iy
-         y = $baseY + $iy * 3 - 7.5
+    Loop 3 iy
+         y = $baseY + $iy * 4 - 8.0
          MoveStageTo $x $y
          #Autofocus
          #Save
          Montage 
          NewMap
+         CallFunction NewMapToJPG
     EndLoop
 EndLoop
 CloseFile 
@@ -160,4 +101,4 @@ If $repVal1 == 1
 Endif
 
 # 9, make LMM inappropriate again 
-SetProperty RealignItemMaxLMfield 700
+SetProperty RealignItemMaxLMfield 5
