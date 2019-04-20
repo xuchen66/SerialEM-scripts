@@ -66,11 +66,18 @@ ReportNavItem
 # again, for K3, 2x3 gives roughly square
 OpenNewMontage 0 0 Car$navRegis-mesh$navLabel-RMM.map
 ReportStageXYZ baseX baseY
-Loop 3 ix
-    x = $baseX + $ix * 4 - 8.0
+# int = 3. spacing = 4micron offset = 8.0, around middle (8.0 here)
+# -> offset = ( spacing + int * spacing ) / 2 
+# 4 x 4, 3, =>7.5
+# 4 x 4, 4, => 10
+n = 4
+d = 4
+offset = ( $d + $n * $d ) / 2 
+Loop $n ix
+    x = $baseX + $ix * $d - $offset
     Echo Doing column at X = $X
-    Loop 3 iy
-         y = $baseY + $iy * 4 - 8.0
+    Loop $n iy
+         y = $baseY + $iy * $d - $offset
          MoveStageTo $x $y
          #Autofocus
          #Save
