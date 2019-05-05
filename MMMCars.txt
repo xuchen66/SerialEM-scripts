@@ -5,19 +5,20 @@ ScriptName MMMCars
 
 # make all the MMMs from different cartriges automatically!!!
 # use property of current registration to do so. 
+ResetClock 
 
 echo Run this from Acquire at Points... 
-
-
-echo #############################################
 echo ###                 ClearPersistentvars                           ####
-echo #############################################
 
 # find out this from "shift to marker". If the mags for LMM and V are not changed and scope is not 
 # realigned, these two values should remain the same. Better off checn it. 
 
+# shift from LMM to V
 xShift = 9
 yShift = -4
+
+# target defocus (um)
+def = -1.8
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  No Editting belo1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 
@@ -27,9 +28,12 @@ yShift = -4
 echo MMMCars!!!
 
 # 2. Call Cars
+echo => Call Cars
 Call Cars
 
 # 3. make LMM appropriate map
+echo => Realign to mesh ...
+echo ----> Enable LMM realign ...
 SetProperty RealignItemMaxLMfield 700
 
 ## Define persistant variable 
@@ -38,37 +42,45 @@ If $repVal1 == 0
      regInd := 1           
 Endif
 
+echo ----> take out OBJ aperture. 
 CallFunction MyFuncs::C2_150-OBJ_out
 ReportNavItem 
-mesh=$navLabel
+mesh = $navLabel
 SetNavRegistration $navRegis
+echo ----> LoadCartridge $navRegis
 LoadCartridge $navRegis
 SetColumnOrGunValve 1
+echo ----> RealignToNavItem 0
 RealignToNavItem 0
 ResetImageShift 
 Copy A P
 Search 
 AlignTo P
 ResetImageShift 
+echo ----> MoveStage $xShift $yShift
 MoveStage $xShift $yShift
 
 # 4. V, fix Z 
+echo => Fix Z ...
 GoToLowDoseArea V
+echo ----> C2 50 & Obj 70 ...
 CallFunction MyFuncs::C2_30-OBJ_70
 V
 Copy A T
 Call Z
 UpdateGroupZ 
-V
-AlignTo T
+#V
+#AlignTo T
 
 # 5. MMM. No need for pre-setup template
+echo => Make MMM map ...
 SetUserSetting MontageUseViewInLD 1
 SetUserSetting  MontageAlignPieces 1
 SetUserSetting MontageVerySloppy 0
 AllowFileOverwrite 1
 OpenNewMontage 4 6  Car$navRegis-Mesh$mesh-MMM.map
 SetMontageParams 1 576 410 5760 4092 1 1        
+echo ----> Acquire MMM map ...
 Montage 
 NewMap 
 CallFunction MyFuncs::NewMapToJPG
@@ -76,12 +88,13 @@ CloseFile
 
 
 # 6. CenterBeam & autofocus
+echo => CenterBeam & Focus...
 AutoCenterBeam 
-SetTargetDefocus -2.3
+SetTargetDefocus $def
 G
 
 # Record single shot
-
+echo => Make Record Shots...
 ## ReportNavItem -> NOT here, as it will report newly created map
 AllowFileOverwrite 1
 OpenNewFile Car$navRegis-Mesh$mesh-R.st
@@ -94,6 +107,7 @@ ReportStageXYZ baseX baseY
 n = 5
 d = 4
 offset = ( $d + $n * $d ) / 2 
+
 Loop $n ix
     x = $baseX + $ix * $d - $offset
     Echo Doing column at X = $X
@@ -134,4 +148,8 @@ If $repVal1 == 1
 Endif
 
 # 9, make LMM inappropriate again 
+echo => Disable Realign in LMM ...
 SetProperty RealignItemMaxLMfield 5
+
+# 10. time
+ReportClock 
