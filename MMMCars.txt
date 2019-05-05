@@ -108,6 +108,11 @@ n = 5
 d = 4
 offset = ( $d + $n * $d ) / 2 
 
+SetExposure R 1.997
+SetBinning R 1
+SetFrameTime R 0.1995
+SetDoseFracParams R 1 0 1 1 0
+
 Loop $n ix
     x = $baseX + $ix * $d - $offset
     Echo Doing column at X = $X
@@ -128,6 +133,7 @@ Loop $n ix
 EndLoop
 CloseFile 
 
+RestoreCameraSet
 # restore stage postion
 MoveStageTo $baseX $baseY
 
