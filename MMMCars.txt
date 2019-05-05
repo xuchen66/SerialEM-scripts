@@ -28,7 +28,7 @@ def = -1.8
 echo MMMCars!!!
 
 # 2. Call Cars
-echo => Call Cars
+echo => Call Cars, whicch has "Car" and "Name" as two one-dimensional arrays. 
 Call Cars
 
 # 3. make LMM appropriate map
@@ -120,12 +120,8 @@ Loop $n ix
          y = $baseY + $iy * $d - $offset
          MoveStageTo $x $y
          #Autofocus
-          SetExposure R 1.997
-          SetBinning R 1
-          SetFrameTime R 0.1995
-          SetDoseFracParams R 1 0 1 1 0
-          Record
-          Save
+         Record
+         Save
          #Montage 
          NewMap
          CallFunction MyFuncs::NewMapToJPG
