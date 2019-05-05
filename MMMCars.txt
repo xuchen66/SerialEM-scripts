@@ -1,10 +1,25 @@
 ScriptName MMMCars
+# chen.xu@umassmed.edu 
+# Last-Update: 2019-05-04 
+# tested!
+
 # make all the MMMs from different cartriges automatically!!!
 # use property of current registration to do so. 
 
+echo Run this from Acquire at Points... 
+
+
 echo #############################################
-echo ###         ClearPersistentvars          ####
+echo ###                 ClearPersistentvars                           ####
 echo #############################################
+
+# find out this from "shift to marker". If the mags for LMM and V are not changed and scope is not 
+# realigned, these two values should remain the same. Better off checn it. 
+
+xShift = 9
+yShift = -4
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  No Editting belo1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 
 ##########################
 # navigator must be open
@@ -25,16 +40,21 @@ Endif
 
 CallFunction MyFuncs::C2_150-OBJ_out
 ReportNavItem 
+mesh=$navLabel
 SetNavRegistration $navRegis
 LoadCartridge $navRegis
 SetColumnOrGunValve 1
 RealignToNavItem 0
+ResetImageShift 
 Copy A P
-MoveStage 9.8  0.5
+Search 
+AlignTo P
+ResetImageShift 
+MoveStage $xShift $yShift
 
 # 4. V, fix Z 
-CallFunction MyFuncs::C2_50-OBJ_70
 GoToLowDoseArea V
+CallFunction MyFuncs::C2_30-OBJ_70
 V
 Copy A T
 Call Z
@@ -42,35 +62,36 @@ UpdateGroupZ
 V
 AlignTo T
 
-# 5. MMM; 
+# 5. MMM. No need for pre-setup template
 SetUserSetting MontageUseViewInLD 1
-# for K3, 2x3 gives roughly square; no need for template setup
-OpenNewMontage 2 3 Car$navRegis-mesh$navLabel-MMM2x3.map
+SetUserSetting  MontageAlignPieces 1
+SetUserSetting MontageVerySloppy 0
+AllowFileOverwrite 1
+OpenNewMontage 4 6  Car$navRegis-Mesh$mesh-MMM.map
+SetMontageParams 1 576 410 5760 4092 1 1        
 Montage 
 NewMap 
-CallFunction NewMapToJPG
+CallFunction MyFuncs::NewMapToJPG
 CloseFile 
+
 
 # 6. CenterBeam & autofocus
 AutoCenterBeam 
-SetTargetDefocus -1.8
+SetTargetDefocus -2.3
 G
 
-# 7.  not use V & Search, align pieces
-SetUserSetting  MontageUseSearchInLD 0
-SetUserSetting  MontageUseViewInLD 0
-SetUserSetting  MontageAlignPieces 1
+# Record single shot
 
-ReportNavItem 
-# require a template RMM already opened latest as IS montage with 2x3
-# again, for K3, 2x3 gives roughly square
-OpenNewMontage 0 0 Car$navRegis-mesh$navLabel-RMM.map
+## ReportNavItem -> NOT here, as it will report newly created map
+AllowFileOverwrite 1
+OpenNewFile Car$navRegis-Mesh$mesh-R.st
 ReportStageXYZ baseX baseY
 # int = 3. spacing = 4micron offset = 8.0, around middle (8.0 here)
 # -> offset = ( spacing + int * spacing ) / 2 
 # 4 x 4, 3, =>7.5
 # 4 x 4, 4, => 10
-n = 4
+
+n = 5
 d = 4
 offset = ( $d + $n * $d ) / 2 
 Loop $n ix
@@ -80,16 +101,21 @@ Loop $n ix
          y = $baseY + $iy * $d - $offset
          MoveStageTo $x $y
          #Autofocus
-         #Save
-         Montage 
+          SetExposure R 1.997
+          SetBinning R 1
+          SetFrameTime R 0.1995
+          SetDoseFracParams R 1 0 1 1 0
+          Record
+          Save
+         #Montage 
          NewMap
-         CallFunction NewMapToJPG
+         CallFunction MyFuncs::NewMapToJPG
     EndLoop
 EndLoop
 CloseFile 
 
 # restore stage postion
-MoveStage $baseX $baseY
+MoveStageTo $baseX $baseY
 
 ## 8.  if last point of this registration, switch to next available registration
 ReportNumNavAcquire 
