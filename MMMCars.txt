@@ -137,16 +137,16 @@ MoveStageTo $baseX $baseY
 ReportNumNavAcquire 
 If $repVal1 == 1  
      regInd := $regInd + 1
-      If $regInd > $#cat
+     If $regInd > $#cat
          regInd :=                            # clear the persistant variable
          exit
-       Else 
-           echo SetNavRegistration $cat[$regInd]
-           SetNavRegistration $cat[$regInd]
-           LoadCartridge $cat[$regInd]
-       Endif   
- else 
-       echo  +++++  Going to next item in the same Registration! +++++
+     Else 
+         echo SetNavRegistration $cat[$regInd]
+         SetNavRegistration $cat[$regInd]
+         LoadCartridge $cat[$regInd]
+     Endif   
+Else 
+     echo  +++++  Going to next item in the same Registration! +++++
 Endif
 
 # 9, make LMM inappropriate again 
