@@ -42,7 +42,7 @@ If $repVal1 == 0
      regInd := 1           
 Endif
 
-echo ----> C2->150 & OBJ->out. 
+echo ----> C2->150 & OBJ->out...
 CallFunction MyFuncs::C2_150-OBJ_out
 ReportNavItem 
 mesh = $navLabel
@@ -63,7 +63,7 @@ MoveStage $xShift $yShift
 # 4. V, fix Z 
 echo => Fix Z ...
 GoToLowDoseArea V
-echo ----> C2 50 & Obj 70 ...
+echo ----> C2->50 & Obj->70 ...
 CallFunction MyFuncs::C2_30-OBJ_70
 V
 Copy A T
