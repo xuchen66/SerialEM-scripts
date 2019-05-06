@@ -1,0 +1,20 @@
+ScriptName Cars
+# Script to contain information of cartrige and sample
+# to be called by both LMMCars and MMMCars. Then,
+# cat[1], name[1], name1... are all available for string use.
+# cartrige number is set to registration number for LMMCars and MMMCars.
+
+## define where to save 
+SetDirectory X:\Workshop_20190501
+#UserSetDirectory 
+
+## define cartirges and sample names, do not change "cat" and "name"
+cat = {  2 3  } 
+name = { RA7-g1 RA7-g2 }
+
+
+#### NO EDITING BELOW ####
+## rename them so name is directly linked with cat #
+Loop $#cat ind
+   name$cat[$ind] = $name[$ind]
+EndLoop 
