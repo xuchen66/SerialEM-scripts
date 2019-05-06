@@ -78,7 +78,7 @@ SetUserSetting MontageUseViewInLD 1
 SetUserSetting  MontageAlignPieces 1
 SetUserSetting MontageVerySloppy 0
 AllowFileOverwrite 1
-OpenNewMontage 4 6  Car$navRegis-Mesh$mesh-MMM.map
+OpenNewMontage 4 6  Car$navRegis_$name$navRegis_Mesh$mesh_MMM.map
 SetMontageParams 1 576 410 5760 4092 1 1        
 echo ----> Acquire MMM map ...
 Montage 
@@ -97,7 +97,7 @@ G
 echo => Make Record Shots...
 ## ReportNavItem -> NOT here, as it will report newly created map
 AllowFileOverwrite 1
-OpenNewFile Car$navRegis-Mesh$mesh-R.st
+OpenNewFile Car$navRegis_$name$navRegis_Mesh$mesh_R.st
 ReportStageXYZ baseX baseY
 # int = 3. spacing = 4micron offset = 8.0, around middle (8.0 here)
 # -> offset = ( spacing + int * spacing ) / 2 
