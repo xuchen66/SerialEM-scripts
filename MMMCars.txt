@@ -42,7 +42,7 @@ If $repVal1 == 0
      regInd := 1           
 Endif
 
-echo ----> take out OBJ aperture. 
+echo ----> C2->150 & OBJ->out. 
 CallFunction MyFuncs::C2_150-OBJ_out
 ReportNavItem 
 mesh = $navLabel
