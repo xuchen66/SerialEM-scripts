@@ -5,7 +5,7 @@ LogBookPathName	C:\ProgramData\SerialEM\TiltSeriesLogBook.txt
 DigitalMicrographReferencePath	C:\ProgramData\Gatan\Reference Images
 
 StartUpMessage Talos Admin!
-
+AssumeDPI 	150
 
 #
 #  GENERAL CAMERA PROPERTIES
