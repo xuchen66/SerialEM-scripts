@@ -6,6 +6,8 @@ DigitalMicrographReferencePath	C:\ProgramData\Gatan\Reference Images
 
 StartUpMessage Admin--New!!
 
+AssumeDPI   150   # full 4k
+
 ## For FEI computer
 SocketServerIP 1 172.18.8.15
 SocketServerPort 1 48892
