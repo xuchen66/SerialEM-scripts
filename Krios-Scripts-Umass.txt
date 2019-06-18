@@ -1,0 +1,2274 @@
+Macro	0
+MacroName MyFuncs
+## functions which can be called from a macro or a function.
+
+####################################
+Function CycleTargetDefocus 3 0
+## three variables, not string
+
+# define defocus up and down thresholds, and changing step
+# set here or by calling Parameters
+TD_low = $argVal1
+TD_high = $argVal2
+step = $argVal3
+
+#Call Parameters
+
+Echo ===> Running CycleTargetDefocus ...
+Echo >>>> defined Range and Step (um)  => [ $TD_low, $TD_high ], [ $step ].
+
+## no editing below ##
+delta = -1 * $step
+
+# if the current TargetDefocus is outside of range, make it as TD_low.
+# Otherwise, increase a step of $delta
+
+SuppressReports
+ReportTargetDefocus 
+If $reportedValue1 > $TD_low OR $reportedValue1 < $TD_high
+   SetTargetDefocus $TD_low
+Else 
+   IncTargetDefocus $delta
+Endif
+
+ReportTargetDefocus 
+TargetDefocus = $repVal1
+Echo TargetDefocus = $repVal1 um
+EndFunction 
+
+################################################
+Function CropImageAToBuffer 0 1 
+#=============================================
+# CallFunction MyFuncs::CropImageAToBuffer T
+#=============================================
+Echo ===> Running CropImageAToBuffer ...
+
+buffer = $argVal1
+
+#SupressReports
+
+## get info for A and $buffer
+ImageProperties $buffer
+XP = $reportedValue1
+YP = $reportedValue2
+
+ImageProperties A
+XA = $reportedValue1
+YA = $reportedValue2
+
+Xdiff = $XA - $XP
+Ydiff = $YA - $YP
+
+half_Xdiff = $Xdiff / 2
+half_Ydiff = $Ydiff / 2
+
+X0 = $half_Xdiff 
+X1 = $XP + $half_Xdiff
+
+Y0 = $half_Ydiff 
+Y1 = $YP + $half_Ydiff
+
+# crop
+CropImage A $X0 $X1 $Y0 $Y1
+EndFunction 
+
+################################
+Function CropImageAToP 0 0 
+Echo ===> Running CropImageAToP ...
+
+#SupressReports
+
+## get info for A and P
+ImageProperties P
+XP = $reportedValue1
+YP = $reportedValue2
+
+ImageProperties A
+XA = $reportedValue1
+YA = $reportedValue2
+
+Xdiff = $XA - $XP
+Ydiff = $YA - $YP
+
+half_Xdiff = $Xdiff / 2
+half_Ydiff = $Ydiff / 2
+
+X0 = $half_Xdiff 
+X1 = $XP + $half_Xdiff
+
+Y0 = $half_Ydiff 
+Y1 = $YP + $half_Ydiff
+
+# crop
+CropImage A $X0 $X1 $Y0 $Y1
+EndFunction 
+
+####################################################
+Function CropImage 1 1
+## crop image in A buffer to quarter size
+## CallFunction MyFuncs::CropImage A 0.25
+
+buffer = $argVal1
+frac = $argVal2
+
+ImageProperties $buffer
+X = $repVal1
+Y = $repVal2
+
+halfX = $X / 2
+halfY = $Y / 2
+
+QX = $X * $frac
+QY = $Y * $frac
+
+echo $QX $QY
+
+X0 = $halfX - ( $QX / 2 )
+X1 = $halfX + ( $QX / 2 )
+Y0 = $halfY - ( $QY / 2 )
+Y1 = $halfY + ( $QY / 2 ) - 1
+
+# crop
+CropImage $buffer $X0 $X1 $Y0 $Y1
+EndFunction
+
+####################################################
+Function AlignToBuffer 1 1
+#========================================
+# CallFunction MyFuncs::AlignToBuffer 2 T
+#========================================
+# *** Note: Align to buffer T, twice ****
+#
+# a function to align to an image against buffer $buffer, $iter times.
+# it takes shots and even crop it when needed. At the end, 
+# the ImageShift = 0. Assume your have an image in buffer $buffer
+# 
+# update @  2015-12-31 01:22:15
+
+iter = $argVal1
+buffer = $argVal2
+
+SuppressReports
+
+## Low Dose
+ReportLowDose 
+If $reportedValue1 == 1
+    ImageLowDoseSet $buffer
+    S = $reportedValue1
+Elseif $reportedValue1 == 0
+    ImageProperties $buffer
+    S = $reportedValue6
+Endif
+
+## get image parameters in buffer $buffer
+ImageProperties $buffer
+XP = $reportedValue1 - 1
+YP = $reportedValue2 - 1
+bin = $reportedValue3
+E = $reportedValue4
+# PixelSize = $reportedValue5
+#S = $reportedValue6
+
+# figure out from which set the image was taken
+#(0=view, 1=focus, 2=trial, 3=record, 4=preview)#
+If $S == 0
+    shot = View
+Elseif $S == 1
+    shot = Focus
+Elseif $S == 2
+    shot = Trial
+Elseif $S == 3
+    shot = Record
+Elseif $S == 4
+    shot = Preview
+Elseif $S  == 5
+   shot = Search
+Endif
+
+## set camera parameters
+SetExposure $S $E
+SetCenteredSize $S $bin $XP $YP
+
+## align
+Loop $iter ind
+    $shot
+    # Need crop, for Camera like Eagle or Falcon?
+   #  ImageProperties A
+   # XA = $reportedValue1
+   # YA = $reportedValue2
+    #If $XA > $XP OR $YA > $YP
+     #   echo CallFunction  MyFuncc::CropImageAToBuffer $buffer
+      #  CallFunction  MyFuncs::CropImageAToBuffer $buffer
+    #Endif
+    AlignTo $buffer
+    ReportAlignShift 
+    shiftX = $repVal5
+    shiftY = $repVal6
+    echo shiftX = $repVal5
+    echo shiftY = $repVal6
+    If $ind == $iter                   #last rounf of the iteration, relax stage
+      # echo Relaxing ...
+       # ResetImageShift 2    
+       ResetImageShift
+    Else 
+       ResetImageShift 
+    Endif
+EndLoop 
+
+## reset camera
+RestoreCameraSet
+EndFunction 
+
+######################################################
+Function ZeroIS-quick 2 1
+# two arguments are -  shift threshold and dead shift (too large)
+# calling example:
+# CallFunction MyFuncs::ZeroIS-quick 0.2 3.0  T
+
+# 2014-10-21 12:05:23
+
+Echo ===> Running ZeroIS-quick ...
+
+limit = $argVal1
+dead = $argVal2
+buffer = $argVal3
+
+#- no editing below -#
+
+# IS from Realign routine
+ReportImageShift
+X = $reportedValue1
+Y = $reportedValue2
+IS = sqrt $X * $X + $Y * $Y
+
+If $IS <= $limit
+    ClearAlignment
+    echo IS ($IS) <= limit ($limit) um
+    echo Clearalignment
+Elseif $IS > $limit AND $IS <= $dead
+    echo IS ($IS) > limit ($limit) um
+    echo Resetimageshift
+    ResetImageShift
+    CallFunction MyFuncs::AlignToBuffer 1 $buffer
+Else 
+    Echo IS ($IS) > $dead um, skip this point!
+Endif
+EndFunction 
+
+###################################################
+Function Drift 1 0 
+# A function to measure drift rate, if good, skip to the end of loop. 
+# Otherwise, exit execution -- i.e. skip the point. 
+
+Echo ===> Running Drift $argVal1(A)...
+
+#=============
+# parameters 
+#=============
+## drift rate threshold
+crit = $argVal1
+# set these above from centralized macro - Parameters 
+shot = F
+interval = 4
+times = 10
+
+period = $interval + 1
+#SuppressReports
+#ResetClock 
+
+$shot
+Delay $interval
+Loop $times index
+$shot
+AlignTo B
+ReportAlignShift
+ClearAlignment
+dx = $reportedValue3
+dy = $reportedValue4
+dist = sqrt $dx * $dx + $dy * $dy
+rate = $dist / $period * 10	
+#ReportClock
+echo Rate = $rate A/sec
+echo ----------------
+
+If $rate < $crit
+    echo Drift is low enough after shot $index      
+    break
+Elseif  $index < $times
+    Delay $interval
+Else
+    echo Drift never got below $crit: Skipping ...
+    exit   
+Endif
+EndLoop
+EndFunction
+
+######################################################
+Function CalEucentricFocus 0 0
+# macro to calibrate EucentriFocus using F 
+# update @ 2014-10-22 07:55:56
+
+Echo ===> Running CalEucFocus ...
+Echo *** Assuming specimen is already at Eucentricitt ***
+
+# use SEM built-in wobbling way to get to Eucentricity
+#Eucentricity 3
+
+## record original TargetDefocus
+ReportTargetDefocus 
+orig = $reportedValue1
+
+## make sure TargetDefocus is at 0
+SetTargetDefocus 0
+
+## bring Objective to eucentric
+## not to normalize because beam will be 
+## drifting afterwards.
+
+#NormalizeLenses 2
+#Delay 1
+Loop 3
+	G
+EndLoop
+
+## Cal - record the value in memory, unless in admin mode
+## and save it to calibration file.
+CalEucentricFocus
+
+## restore original target defocus
+SetTargetDefocus $orig
+EndFunction
+
+####################################################################
+Function CalEucentricFocus_View 0 0
+# macro to quickly calbrate EucentricFocus value using View in LD. 
+# update @ 2014-10-21 12:28:58
+
+Echo ===> Running CalEucFocus_View ...
+Echo *** Assuming specimen is already at Eucentricity ***
+
+# use SEM built-in wobbling way to get to Eucentricity
+#Eucentricity 3
+
+## record original TargetDefocus
+ReportTargetDefocus 
+orig = $reportedValue1
+
+## make sure TargetDefocus is at 0
+SetTargetDefocus 0
+
+## take care of LD offset
+GoToLowDoseArea V
+SaveFocus 
+SetStandardFocus 0
+
+## Bring objective to Eucentric Focus. Not use normalize
+## because it caused beam to shift (not stable) 
+#NormalizeLenses 2
+#Delay 1
+Loop 3
+# use View in LD
+	G 1 1
+EndLoop
+CalEucentricFocus
+
+## Restore Focus
+RestoreFocus 
+
+## restore original target defocus
+SetTargetDefocus $orig
+EndFunction
+
+###############################################################
+Function Z_byG 0 0
+#
+# a function to adjust the eccentric center using beam tilted pairs.
+# It uses Autofocus to measure the focus and adjust Z instead.
+#
+
+Echo ===> Running Z_byG ...
+
+# If in Low Dose, the area should be at Focus first
+# before defocus is zeroed, because it could come from V with 
+# large defocus offset. It could float up in that case. 
+
+SuppressReports
+ReportLowDose
+# if in LowDose and area is V
+If $reportedValue1 == 1 AND $reportedValue2 == 0
+  GoToLowDoseArea F
+Endif 
+
+#==================
+# set objective lens 
+#==================
+SetEucentricFocus
+#NormalizeLenses 2
+#Delay 1
+
+#===========
+# Adjust Z
+#===========
+Loop 2
+#MoveStage 0 0 2
+#MoveStage 0 0 -1
+Autofocus -1
+ReportAutofocus 
+t = -1 * $reportedValue1
+MoveStage 0 0 $t
+echo --> Z moved $reportedValue1 micron 
+EndLoop
+EndFunction
+
+#########################################################
+Function Z_byV 0 0
+
+Echo ===> Running Z_byV ...
+#====================================
+# for defocus offset of V in Low Dose, save it
+# ===================================
+GoToLowDoseArea V
+SaveFocus
+
+#==================
+# set object lens 
+#==================
+SetEucentricFocus
+
+ReportAutofocusOffset 
+GOffset = $repVal1
+SetAutofocusOffset -10
+#NormalizeLenses 2
+#Delay 1
+
+#===========
+# Adjust Z
+#===========
+Loop 2
+Autofocus -1 1
+ReportAutofocus 
+Z = -1 * $reportedValue1
+MoveStage 0 0 $Z
+echo Z has moved --> $Z micron 
+EndLoop
+
+#=========================================
+# restore the defocus set in V originally
+# ========================================
+RestoreFocus
+SetAutofocusOffset $GOffset
+EndFunction
+
+#######################################################
+Function DistanceFromLastItem 0 0 
+# a function to return distance how far stage moved from last A point
+
+ReportNavItem 
+If $navAcqIndex == 1
+   echo -> This is the first Acq Item
+   DIS = 0
+Else
+   X_curr = $repVal2
+   Y_curr = $repVal3
+   DIS = SQRT (($X_curr - $X ) * ($X_curr - $X) + ($Y_curr - $Y) * ($Y_curr - $Y)) 
+Endif 
+echo => variable DIS has value $DIS
+
+#clear for this round, carry over to next item
+ClearPersistentVars 
+X := $X_curr
+Y := $Y_curr
+
+EndFunction 
+
+###########################################################
+Function ToggleScreen 0 0
+ReportScreen 
+
+If $repVal1 = 0
+   ScreenDown
+Else
+   ScreenUp
+Endif
+EndFunction 
+
+############################################################ 
+Function RecordWithIS 2 0 radius number
+# take shots using Image Shift after hole is centered
+# for 2 um hole, maybe radius should use 0.75 when call this function like
+# beam size set as 1um, take 6 shot around hole edge
+#
+# CallFunction MyFuncs::RecordWithIS 0.75 6
+#
+
+ang_base = 360 / $number
+
+Loop $number index
+SetImageShift 0 0
+
+Delay 1
+
+echo $index
+ang = ( $index  - 1 ) * $ang_base
+X = $radius * SIN ( $ang )
+Y = $radius * COS ( $ang )
+echo $X $Y
+
+# now take shot
+ImageShiftByMicrons   $X $Y
+ReportImageShift 
+Delay 1
+#EarlyReturnNextShot 0
+#Record
+SetImageShift 0 0
+Delay 1
+EndLoop
+
+EndFunction 
+
+###############################################################
+Function LMMCars 0 0 
+
+Loop $#cat index
+LoadCartridge $cat[$index]
+SetNavRegistration $cat[$index]
+SetColumnOrGunValve 1
+MoveStageTo 0 0 
+OpenNewMontage 0 0 LMM-Car$cat[$index]-$name[$index].st
+Montage 
+NewMap
+CloseFile
+# make a jpg file for map overview
+CallFunction MyFuncs::MapToJPG
+ReportClock T
+echo $T
+echo 
+EndLoop 
+
+EndFunction 
+
+###############################################################
+Function AmongList? 1 0 nP
+
+#list = { 1 4 5 9 }
+#echo  $#list
+
+n = $nP
+
+
+Loop $#list ind
+if $n == $list[$ind]
+ last = $ind
+  break
+else
+   last = $ind
+Endif
+EndLoop
+
+If $last <  $#list  OR $n ==  $list[$#list] 
+   #echo Among
+   RepVal1 = 1
+Else
+  # echo Not among
+   RepVal1 = 0
+Endif
+
+EndFunction
+
+#############################################
+Function IsFrameMdocOpen 0 0 
+# function to output reminding message on log widow if frame mdoc file is NOT open. 
+
+ReportFrameMdocOpen
+if $RepVal1 == 0
+   echo >>>>>>>>>> Frame Mdoc file NOT Open <<<<<<<<<<<<<<<<
+Endif 
+EndFunction 
+
+##############################################
+Function Z_byV2 1 1 iter offset
+Echo ===> Running Z_byV2 ...
+#====================================
+# for defocus offset of V in Low Dose, save it
+# ===================================
+GoToLowDoseArea R
+SetEucentricFocus 
+
+GoToLowDoseArea V
+SaveFocus
+ReportFocus
+
+#==================
+# set object lens 
+#==================
+SetEucentricFocus
+ChangeFocus $offset                         # for -300um offset 
+
+#===========
+# Adjust Z
+#===========
+Loop $iter
+Autofocus -1 2
+ReportAutofocus 
+Z = -1 * $reportedValue1
+MoveStage 0 0 $Z
+echo Z has moved --> $Z micron 
+EndLoop
+
+#=========================================
+# restore the defocus set in V originally
+# ========================================
+RestoreFocus
+ReportFocus
+
+EndFunction
+
+########################################
+Function MapToJPG 0 0
+# 
+# SerialEM Script to convert map overview to a jpg image. 
+# it works on currently selected map item and should work for "Acquire at points...".
+# 
+#################################
+# Chen Xu <chen.xu@umassmed.edu>
+# Created: 2018-04-27
+# Updated: 2018-04-27
+#################################
+
+# skip non-map item
+ReportNavItem
+If $RepVal5 != 2        # if not a map item
+  Echo -> Not a map item
+  Exit
+EndIf
+
+# load map overview into Q unbinned
+SetUserSetting BufferToReadInto 16	# Q is 16th in alphabet, if A is 0.
+SetUserSetting LoadMapsUnbinned 1   
+LoadNavMap
+
+# make a jpeg image
+ReduceImage Q 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
+SaveToOtherFile A JPG JPG $navNote-$navLabel.jpg
+EndFunction
+
+###################################################################
+Function NewMapToJPG 0 0
+# 
+# SerialEM Script to convert last item - map overview to a jpg image. 
+# It uses Note string as part of jpg filename.
+# it works on an item which creates a map and should work for "Acquire at points..."
+# as "Run Script after". 
+# 
+# Chen Xu <chen.xu@umassmed.edu>
+# Created: 2018-04-27
+# Updated: 2018-04-30
+#
+
+# skip non-map item
+ReportOtherItem -1
+If $RepVal5 != 2        # if not a map item
+  Echo -> Not a map item, exit ...
+  Exit
+EndIf
+
+# load map overview into Q unbinned
+SetUserSetting BufferToReadInto 16	# Q is 16th in alphabet, if A is 0.
+SetUserSetting LoadMapsUnbinned 1   
+LoadOtherMap -1				# last item on the nav list
+
+# make a jpeg image
+#ReduceImage Q 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
+Copy Q A                            # no further binning
+SaveToOtherFile A JPG JPG $navNote$navLabel.jpg
+EndFunction
+
+####################################################
+Function BufferShot 0 1 buffer 
+# Take a shot and crop against buffer
+SuppressReports
+
+## Low Dose
+ReportLowDose 
+If $reportedValue1 == 1
+    ImageLowDoseSet $buffer
+    S = $reportedValue1
+Elseif $reportedValue1 == 0
+    ImageProperties $buffer
+    S = $reportedValue6
+Endif
+
+## get image parameters in buffer $buffer
+ImageProperties $buffer
+XP = $reportedValue1
+YP = $reportedValue2
+bin = $reportedValue3
+E = $reportedValue4
+# PixelSize = $reportedValue5
+#S = $reportedValue6
+
+# figure out from which set the image was taken
+#(0=view, 1=focus, 2=trial, 3=record, 4=preview)#
+If $S == 0
+    shot = View
+Elseif $S == 1
+    shot = Focus
+Elseif $S == 2 
+    shot = Trial
+Elseif $S == 3
+    shot = Record
+Elseif $S == 4
+    shot = Preview
+Elseif $S == 5 
+    shot = Search
+Endif
+
+## set camera parameters
+SetExposure $S $E
+SetCenteredSize $S $bin $XP $YP
+
+
+$shot
+# still need crop, for Camera which doesn't do flexible sub-size like FEI cameras
+ImageProperties A
+XA = $repVal1
+YA = $repVal2
+If $XA > $XP OR $YA > $YP
+	echo CallFunction  MyFuncs::CropImageAToBuffer $buffer
+	CallFunction MyFuncs::CropImageAToBuffer $buffer
+Endif
+
+## reset camera
+RestoreCameraSet
+EndFunction
+
+######################################################
+Function Relax 0 0 
+# function to relax stage for $dis distance
+
+## relax
+# report shift in buffer A from last round of Align
+# move stage 0.025um in opposite directions
+ReportAlignShift
+shiftX = $repVal5
+shiftY = $repVal6
+#echo shiftX = $repVal5
+#echo shiftY = $repVal6
+
+# just in case it got a blank image so no shift found
+If ABS ($shiftX ) < 25
+   signX = 0
+Else
+   signX = $shiftX / ABS ( $shiftX )
+Endif 
+
+If ABS ( $shiftY ) < 25
+   signY = 0
+Else 
+   signY = $shiftY / ABS ( $shiftY )
+Endif 
+
+moveX = -1 * $signX * 0.025
+moveY = -1 * $signY * 0.025
+echo Relax  $moveX $moveY ...
+MoveStage $moveX $moveY
+EndFunction 
+
+##################################
+Function AToJPG 0 0
+
+# SerialEM Script to save image in buffer A to a jpg image.
+# Tt reduces image in A by 2 for comfortable JPG density range. It
+# takes current filename and Z into jpg filename. Therefore, MRC file
+# is required to be opened.
+#
+# Chen Xu <chen.xu@umassmed.edu>
+# Created: 2018-04-29
+# Updated: 2018-04-29
+
+ReportCurrentFilename 1
+root = $RepVal1
+ReportFileZsize
+z = $RepVal1
+
+#ReduceImage A 2
+SaveToOtherFile A JPG JPG $root-$z.jpg
+EndMacro
+Macro	1
+ScriptName Cars
+
+## parameter of 1)  folder 2) Car and 3) sample name
+## to be called by LMMCars and other
+
+# define where to save 
+SetDirectory X:\James_20190610
+
+## define cartirges and sample names
+
+cat = { 10 11 12 }
+
+name = { 3-g1 3-g2 3-g3 }
+
+#cat = { 6  }
+#name = { 05mgml-4sec }
+ 
+EndMacro
+Macro	2
+
+
+MacroName DoseSymmetricTomo
+
+
+#Roll Buffer A->H
+
+#####Setting######
+
+   step  = 3
+   tilttimes  =  9
+   Tiltbacklash  = -3
+
+   Driftcrit  = 3
+   Driftinterval  =  10
+   Drifttimes  = 10
+
+###############END##############
+
+tiltangle = 0
+
+SetDefocus -0.5
+CallFunction TiltZero
+
+#prevent runaway focus
+
+AbsoluteFocusLimits -10 10
+FocusChangeLimits -2 2
+
+Loop $tilttimes
+
+   #tilt plus1
+
+     tiltangle = $tiltangle + $step
+     CallFunction TiltPlus
+
+   #tilt min1
+
+     tiltangle = -1 * $tiltangle
+     CallFunction TiltMinus
+
+   #tilt min2
+
+     tiltangle = $tiltangle - $step
+     CallFunction TiltMinus
+
+   #tilt plus2
+
+     tiltangle = -1 * $tiltangle
+     CallFunction TiltPlus
+
+EndLoop
+
+TiltTo 0
+ResetImageShift
+
+SetDefocus -0.5
+#########################################################
+Function TiltZero
+
+          #store stage position
+          ReportStageXYZ
+          StageX = $ReportedValue1
+          StageY = $ReportedValue2
+
+          # drift and tracking
+          T
+          Copy  A  K
+          Copy  A  L
+          Delay $driftinterval
+          Loop $drifttimes index
+            T
+          AlignTo K
+          ReportAlignShift
+          dx = $reportedValue3
+          dy = $reportedValue4
+
+          dist = sqrt ($dx * $dx + $dy * $dy)
+          rate = $dist  /  $driftinterval *10
+          echo Rate = $rate A/sec
+
+          If $rate < $driftcrit
+            echo Drift is low enough after shot $index 
+            break
+          Elseif $index < $drifttimes
+              Delay $driftinterval
+          Else
+              echo Drift never got below $driftcrit: Skipping ...
+            break
+
+          Endif
+         EndLoop
+
+#autofocus
+
+G
+G
+#store defocus
+#ReportDefocus
+#focusplus = $RepVal1
+#focusmin = $RepVal1
+
+#acquire tilt image
+R
+S
+Copy  A M
+Copy  A N
+
+
+#STORE image shifts
+ReportImageShift
+ISxplus = $RepVal1
+ISyplus = $RepVal2
+
+ISxminus = $RepVal1
+ISyminus = $RepVal2
+
+#tracking after just to be sure
+T
+Copy  A K
+Copy  A L
+Endfunction
+#######################################################
+
+Function TiltPlus
+   #tilt stage
+   TiltTo $tiltangle
+  
+   #reset stage XY
+   MoveStageTo $StageX $StageY
+
+   #set defocus and image shift
+   GoToLowDoseArea R
+   #SetDefocus $focusplus
+   SetImageShift $ISxplus $ISyplus
+
+   # drift and tracking
+          T
+          AlignTo K
+          Delay $driftinterval
+          Loop $drifttimes index
+            T
+          AlignTo  K
+          ReportAlignShift
+          dx = $reportedValue3
+          dy = $reportedValue4
+
+          dist = sqrt ($dx * $dx + $dy * $dy)
+          rate = $dist  /  $driftinterval *10
+          echo Rate = $rate A/sec
+
+          If $rate < $driftcrit
+            echo Drift is low enough after shot $index 
+            break
+          Elseif $index < $drifttimes
+              Delay $driftinterval
+          Else
+              echo Drift never got below $driftcrit: Skipping ...
+            break
+
+          Endif
+         EndLoop
+
+
+#autofocus
+
+G
+G
+#store defocus
+#ReportDefocus
+#focusplus = $RepVal1
+
+
+#acquire tilt image
+
+R
+S
+
+#tracking after
+
+AlignTo M
+Copy  A M
+
+
+#STORE image shifts
+ReportImageShift
+ISxplus = $RepVal1
+ISyplus = $RepVal2
+
+#new track reference
+T
+Copy  A K
+
+Endfunction
+
+###################################
+
+Function TiltMinus
+   #tilt stage with backlash
+   TiltTo $tiltangle
+   TiltBy $Tiltbacklash
+   TiltTo $tiltangle
+  
+   #reset stage XY
+   MoveStageTo $StageX $StageY
+
+   #set defocus and image shift
+   GoToLowDoseArea R
+  #SetDefocus $focusmin
+   SetImageShift $ISxminus $ISyminus
+
+   # drift and tracking
+          T
+          AlignTo L
+          Delay $driftinterval
+          Loop $drifttimes index
+            T
+          AlignTo L
+          ReportAlignShift
+          dx = $reportedValue3
+          dy = $reportedValue4
+
+          dist = sqrt ($dx * $dx + $dy * $dy)
+          rate = $dist  /  $driftinterval *10
+          echo Rate = $rate A/sec
+
+          If $rate < $driftcrit
+            echo Drift is low enough after shot $index 
+            break
+          Elseif $index < $drifttimes
+              Delay $driftinterval
+          Else
+              echo Drift never got below $driftcrit: Skipping ...
+            break
+
+          Endif
+         EndLoop
+
+
+#autofocus
+
+G
+G
+#store defocus
+#ReportDefocus
+#focusmin = $RepVal1
+
+
+#acquire tilt image
+
+R
+S
+
+#tracking after
+
+AlignTo N
+Copy  A N
+
+
+#STORE image shifts
+ReportImageShift
+ISxminus = $RepVal1
+ISyminus = $RepVal2
+
+#new track reference
+T
+Copy  A L
+
+Endfunction
+EndMacro
+Macro	3
+ScriptName Screen
+
+# toggle screen Up and Down, and say it.
+
+ReportScreen 
+
+If $repVal1 == 1 
+        ScreenUp 
+        echo Now Screen is UP!
+else 
+         ScreenDown 
+         echo Now screen is DOWN! 
+Endif 
+
+
+exit
+#######################################################
+#MacroName K2Test
+
+# Before starting:
+# for K2, set Record to 1.6 sec exposure, 0.2 sec frames or other setting with 8 frames
+# For K3, set Record to 0.4 sec exposure, 0.05 sec frames
+# turn on Save frames and Save frame sums and Setup the sums
+# Set up for 2 at 1 frame and 3 at 2 frames
+# Turn off the saving of frame sums
+
+# Set to 0 for K2, 1 for K3
+K3type = 1
+
+# Set to 0 for a real camera, 1 for simulator
+simulator = 1
+
+# Set to 1 to test with CPU and GPU; otherwise it uses whatever is set
+gpuVsCpu = 1
+
+# Set to 1 if the camera has no reorientation to test saving without
+noRot = 0
+
+# Set to 0 to keep valves open when it is failing tests quickly
+closeValvesOnFailure = 1 - $simulator
+
+# Set any of these non-zero to start at the given loop index and go on from there
+startMode = 0       # 2 for SR
+startFile = 0       # 2 for type 1
+startDivide = 0     # 2 to divide by 2
+startEarly = 0      # 2 for early 0, 3 for early with #
+startDefer = 0      # 2 for deferred sum
+
+Test $K3Type > 0 and $simulator > 0
+K3simulator = $testResult
+
+waitPerFrame = 0.3
+removeFrames = 1
+tolerance = 0.025
+
+# Higher binnings to test
+highBinCM = 4
+highBinSR = 2
+
+# The exposures have to be multiple of the frame time that is legal for single-shot too
+# These combinations work in the simulator
+if $K3type == 0
+   expCM = 1.0
+   expSR = 1.0
+   frameCM = 0.2
+   frameSR = 0.25
+   sumExpCM = 1.6
+   sumExpSR = 1.5
+Else
+
+   # K3 simulator has constant frame output regardless of time, saltatory single-shot
+   # count increases, and a missing frame in the DF counts through DM script at lower
+   # exposures.  This set just needs the factor of 2 for single shot
+   expCM = 0.4
+   expSR = 0.4
+   frameCM = 0.0504
+   frameSR = 0.0504
+   sumExpCM = 0.4
+   sumExpSR = 0.4
+   If $K3simulator > 0
+      highBinCM = 3
+   Endif 
+Endif
+
+# of frames in early return sum
+erSumCM = 2
+erSumSR = 1
+
+faBinningCM = 4
+faBinningSR = 8
+
+CameraProperties 
+camXsize = $repVal1
+camYsize = $repVal2
+rotFlip = $repVal3
+RetryReadOtherFile 5
+SkipFrameAliParamCheck
+SetUserSetting SaveFrameStackMdoc 0
+
+if $simulator == 0
+   SetColumnOrGunValve 1
+Endif
+
+# Get starting parameters for restoring
+echo Starting Params:
+ReportK2FileParams saveFileType savePackVal saveUse101 saveTimes100 saveSkipRot saveFilePerFrame
+ReportCountScaling saveDivideBy2 fullScale
+ReportFrameAliParams saveAliBin saveKeepPrec
+ReportFrameAli2 saveGPU
+
+OnStopCallFunc DoRestoreChanges
+
+SuppressReports
+ 
+# Loop on modes
+Loop 2 modeInd
+   if $startMode > 0 and $startMode > $modeInd
+      continue
+   endif
+   K2mode = $modeInd
+
+   # Set mode-dependent parameters
+   baseBin = 1
+   highBin = $highBinCM
+   tolAdjusted = $tolerance
+   baseExp = $expCM
+   earlySum = $erSumCM
+   faBinning = $faBinningCM
+   frameTime = $frameCM
+   sumExp = $sumExpCM
+   if $K2mode == 2
+      baseBin = 0.5
+      highBin = $highBinSR
+      baseExp = $expSR
+      earlySum = $erSumSR
+      if $simulator > 0
+         tolAdjusted = $tolerance * 2.
+      Endif 
+      faBinning = $faBinningSR
+      frameTime = $frameSR
+      sumExp = $sumExpSR
+   Elseif $K3type > 0
+
+      # There is no hardware binning for the reference shot, 3.8% diff seen
+      tolAdjusted = $tolerance * 2.
+   Endif 
+   
+   # Loop on file type (2 or 3 times)
+   Loop 2 fileInd
+      if $startFile > 0
+         if $startFile == $fileInd
+            startFile = 0
+         else
+            continue
+         Endif 
+      Endif 
+      fileType = $fileInd - 1
+      
+      # Loop on divide by 2
+      Loop 2 divideInd
+         if $startDivide > 0
+            if $startDivide == $divideInd
+               startDivide = 0
+            Else
+               continue
+            Endif 
+         Endif 
+         divideBy2 = $divideInd - 1
+         
+         # Loop on early return
+         Loop 3 earlyInd
+            if $startEarly > 0
+               if $startEarly == $earlyInd
+                  startEarly = 0
+               Else
+                  continue
+               Endif 
+            Endif 
+            earlyReturn = -1
+            numDef = 1
+            if $earlyInd == 2
+               earlyReturn = 0
+               numDef = 2
+            elseif $earlyInd == 3
+               earlyReturn = $earlySum
+               numDef = 2
+            Endif 
+            
+            # Loop on deferred sum 
+            Loop $numDef deferInd
+               if $startDefer > 0
+                  if $startDefer == $deferInd
+                     startDefer = 0
+                  Else
+                     continue
+                  Endif 
+               Endif 
+               deferredSum = $deferInd - 1 
+          
+               Echo ****************************************************************
+               Echo TEST SEQUENCE WITH: mode $K2mode file $fileType divide $divideBy2 early $earlyReturn defer $deferredSum
+               Echo ****************************************************************
+               # exp proc b testSums packVal use101 times100 skipRot keepPrec reduceSuper
+               
+               # GAIN NORM regular or times 100, test skip rot and sums
+               CallFunction TestVariations  $baseExp 2 $baseBin 0 0 0 0 0 0 0
+               if $noRot == 0
+                  CallFunction TestVariations  $baseExp 2 $baseBin 0 0 0 0 1 0 0
+               Endif
+               if $K3type == 0
+                  CallFunction TestVariations  $baseExp 2 $baseBin 0 0 0 1 0 0 0
+                  CallFunction TestVariations  $baseExp 2 $highBin 0 0 0 1 0 0 0
+                  CallFunction TestVariations  $baseExp 2 $baseBin 0 0 0 0 0 1 0
+               Endif
+
+               # summing
+               if $simulator == 0  or ($K2mode < 2 and $K3type == 0)  or  ($K2mode == 2 and $K3type == 1)
+                  CallFunction TestVariations $sumExp 2 $baseBin 1 0 0 0 0 0 0
+                  if $noRot == 0
+                     CallFunction TestVariations $sumExp 2 $highBin 1 0 0 0 1 0 0
+                  Endif
+               Endif
+
+               # Super-res reduced
+               if $K2mode == 2
+                  CallFunction TestVariations $baseExp 2 $baseBin 0 0 0 0 0 0 1
+                   if $K3type == 0 or $simulator == 0
+                      CallFunction TestVariations $baseExp 2 $highBin 1 0 0 0 0 0 1
+                   Endif 
+                   if $K3type == 0
+                      CallFunction TestVariations $baseExp 2 $baseBin 0 0 0 0 0 1 1
+                      CallFunction TestVariations $baseExp 2 $baseBin 0 0 0 0 0 1 1
+                  Endif
+               Endif
+
+               # Keeping precision in K2 early return
+               if $earlyReturn > 0 and $fileType == 0 and $deferredSum == 0 and $K3type == 0
+                  CallFunction TestVariations $baseExp 2 $baseBin 0 0 0 0 0 1 0
+                  CallFunction TestVariations  $baseExp 2 $baseBin 0 0 0 1 0 1 0
+                  CallFunction TestVariations  $baseExp 2 $highBin 0 0 0 0 0 1 0
+               Endif 
+               
+               # Dark-subtracted regular, mild pack, more pack, 101 for MRC
+               CallFunction TestVariations $baseExp 1 $baseBin  0 0 0 0 0 0 0
+               CallFunction TestVariations $baseExp 1 $baseBin 0 1 0 0 0 0 0
+               if $K2mode == 1 and $K3simulator == 0
+                  CallFunction TestVariations $baseExp 1 $baseBin 0 3 0 0 0 0 0
+               Endif 
+               if $fileType == 0 and $K3simulator == 0
+                  CallFunction TestVariations $baseExp 1 $baseBin 0 3 1 0 0 0 0
+               Endif 
+               if $noRot == 0
+                  CallFunction TestVariations $baseExp 1 $baseBin 0 1 0 0 1 0 0
+               Endif
+               if $simulator == 0  or  ($K2mode < 2 and $K3type == 0)  or  ($K2mode == 2 and $K3type == 1)
+                  CallFunction TestVariations $sumExp 1 $baseBin 1 1 0 0 0 0 0
+                  if $noRot == 0
+                     CallFunction TestVariations $sumExp 1 $highBin 1 1 0 0 1 0 0
+                  Endif
+               Endif 
+               CallFunction TestVariations $baseExp 1 $highBin 0 1 0 0 0 0 0
+               SuppressReports 0
+               ReportClock 
+               SuppressReports 
+            EndLoop 
+         EndLoop 
+      EndLoop 
+   EndLoop 
+EndLoop 
+SetColumnOrGunValve 0
+# END OF MAIN MACRO
+
+### TestVariations
+###
+# Variables that are expected to be set: in caller:
+# fileType
+# K2mode
+# divideBy2
+# earlyReturn
+# deferredSum
+# fullScale
+#
+Function TestVariations 10 1 exposure processing binning tstSms packVal use101 times100 skipRot keepPrec reduceSuper
+
+testSums = $tstSms
+echo ****************************************************************
+echo TestVariations VALUES: proc $processing bin $binning sums $testSums pack $packVal mode101 $use101 x100 $times100  skipRot $skipRot keepPrec $keepPrec redSR $reduceSuper
+
+numFrames = NEARINT ($exposure / $frameTime)
+
+# Get the scaling for the current Record image and frames
+div2factor = 1.
+if $divideBy2 > 0
+   div2factor = 2.
+endif
+scaleRec = $fullScale * $binning * $binning / $div2factor
+
+frameBin = 1.
+scaleFrame = $fullScale / $div2factor
+if $K2mode > 1 and $reduceSuper == 0
+   frameBin = 0.5
+   scaleFrame = $scaleFrame / 4
+   if $times100 == 0 and $K3type == 0
+      scaleFrame = 4.
+   endif
+endif
+if $processing < 2 and $K3simulator == 0
+   scaleFrame = 1. * $frameBin * $frameBin
+elseif $times100 > 0
+   scaleFrame = 100. * $scaleFrame
+endif
+
+frameTol = $tolAdjusted
+frameX = NEARINT ($camXsize / $frameBin)
+frameY = NEARINT ($camYsize / $frameBin)
+if $skipRot > 0 and MODULO ($rotFlip 2) > 0
+   frameX = NEARINT ($camYsize / $frameBin)
+   frameY = NEARINT ($camXsize / $frameBin)
+endif
+
+# Frame in X is half the size if 4-bit vales are written to TIFF
+if $processing < 2 and $fileType == 0 and $use101 == 0 and $packVal > 0 and ($K2mode == 2 or $packVal == 3)
+   frameX = $frameX / 2
+   scaleFrame = $scaleFrame * 16.5
+   frameTol = $tolAdjusted + (1. / 16.)
+endif
+
+test $K3type > 0 and $K2mode == 1
+binnedFrames = $testResult
+
+# Set parameters for this call
+# Set the frame time first since it might constrain the exposure; then the exposure can be set
+cenX = NEARINT ($camXsize / $binning - 0.4)
+cenY = NEARINT ($camYsize / $binning - 0.4)
+SetCenteredSize R $binning $cenX $cenY
+SetFrameTime R $frameTime
+SetExposure R $exposure
+if $K3type == 0
+   SetK2ReadMode R $K2mode
+Else
+   SetUserSetting TakeK3SuperResBinned $binnedFrames
+Endif
+SetBinning R $binning
+SetProcessing R $processing
+SetDivideBy2 $divideBy2
+SetFrameAliParams $faBinning $keepPrec
+SetUserSetting SaveSuperResReduced $reduceSuper
+SetK2FileParams $fileType $packVal $use101 $times100 $skipRot 0
+SetDivideBy2 $divideBy2
+#CallFunction ImposeChanges
+
+# do the reference exposure
+SetDoseFracParams R $binnedFrames 0 0 0 0
+R
+ImageProperties A recXsize recYsize
+ReportMeanCounts A
+refMean = $repVal1
+
+if $binnedFrames > 0 and $K3simulator > 0
+   refMean = $refMean / 4
+Endif 
+
+# Expected counts in one frame
+refFrame = $refMean * $scaleFrame / ( $scaleRec * $numFrames )
+
+# Dose frac and nothing else
+if $skipRot == 0 and ($K3simulator == 0 or $K2Mode  > 1)
+   SetDoseFracParams R 1
+   R
+   CallFunction CheckReturnImage 1. Simple dose frac shot
+endif
+
+# Save frames
+align = 0
+SetDoseFracParams R 1 1 0 0 $testSums
+fracFrames = 1.
+if $earlyReturn >= 0
+   EarlyReturnNextShot $earlyReturn $deferredSum
+   fracFrames = $earlyReturn / $numFrames
+endif
+R
+
+# Test returns or wait until frames are surely done, then check frames
+CallFunction CheckAllReturns Frame-saving shot
+CallFunction CheckFrames Frame-saving shot
+echo Finished Save Frames
+
+# Set up number of align loops, 2 for CPU/GPU test
+numAliLoop = 1
+if $gpuVsCpu  > 0
+   numAliLoop = 2
+Endif
+
+Loop $numAliLoop gpuInd
+   if $gpuVsCpu > 0
+      SetFrameAli2 $gpuInd - 1
+   Endif
+
+   # Align frames without saving
+   if $skipRot == 0
+      SetDoseFracParams R 1 0 1 1 $testSums
+      align = 1
+      if $earlyReturn >= 0
+         EarlyReturnNextShot $earlyReturn
+      endif
+      R
+      CallFunction CheckAllReturns Align without saving $gpuInd
+   endif
+   Echo Finished align frames $gpuInd
+
+   # Align frames with saving
+   SetDoseFracParams R 1 1 1 1 $testSums
+   if $earlyReturn >= 0
+      EarlyReturnNextShot $earlyReturn
+   endif
+   R
+   CallFunction CheckAllReturns Align and save
+   CallFunction CheckFrames Align and save $gpuInd
+   echo Finished align frames with save $gpuInd
+EndLoop
+
+# Save frames and align com file if no special options
+if $packVal == 0  and $times100 == 0 and $testSums == 0 and $skipRot == 0
+   align = 0
+   SetDoseFracParams R 1 1 1 1 $testSums
+   if $earlyReturn >= 0
+      EarlyReturnNextShot $earlyReturn $deferredSum
+   endif
+   R
+   CallFunction CheckAllReturns Save and make align com
+   CallFunction CheckFrames Save and make align com
+Endif 
+
+
+EndFunction 
+
+
+### CheckAllReturns
+###
+Function CheckAllReturns 0 1 mess1
+   if $earlyReturn != 0
+       CallFunction CheckReturnImage $fracFrames $mess1
+   endif
+   if $earlyReturn >= 0
+      if $deferredSum > 0 or $align > 0
+         GetDeferredSum
+         CallFunction CheckReturnImage 1. Deferred sum from $mess1
+      Else
+         wait = $numFrames * $waitPerFrame / ($frameBin * $frameBin)
+         Delay $wait
+      Endif 
+   Endif 
+EndFunction 
+
+###
+### CheckReturnImage
+###
+# argument 1 is fraction of reference frames in image
+#
+Function CheckReturnImage 1 1 frac mess2
+   ImageProperties A testX testY
+   ReportMeanCounts A
+   testMean = $repVal1
+   
+   Test $testX == $recXsize and $testY == $recYsize
+   CallFunction RestoreChanges $repVal1
+   AbortIfFailed $mess2  size ($testX $testY) does not match single-shot ($recXsize $recYsize)
+   
+   expect = $frac * $refMean
+   Test  FRACDIFF ($expect $testMean) < $tolAdjusted
+   CallFunction RestoreChanges $repVal1
+   AbortIfFailed $mess2 mean ($testMean) does not match expected value from single-shot ($expect)
+EndFunction 
+
+###
+### CheckFrames
+###
+Function CheckFrames 0 1 mess3
+   
+   # Make sure there is the right number of frames, and less with summing
+   ReportNumFramesSaved  savedFrames
+   lastFrame = $savedFrames - 1
+   checkFrame = $lastFrame
+   if $testSums == 0
+      Test $savedFrames == $numFrames
+      CallFunction RestoreChanges $repVal1
+      AbortIfFailed $mess3 gave $savedFrames frames, not expected $numFrames
+   Else
+      Test $savedFrames < $numFrames
+      CallFunction RestoreChanges $repVal1
+      AbortIfFailed Selecting frame sums gave the same number of frames, is frame summing set up for an exposure with $numFrames frames? 
+      checkFrame = 0
+   Endif 
+   
+   # Check first or last frame
+   ReportLastFrameFile 
+   ReadOtherFile $checkFrame P $repVal1
+   ImageProperties P testX testY
+   ReportMeanCounts P
+   testMean = $repVal1
+   Test $testX == $frameX and $testY == $frameY
+   CallFunction RestoreChanges $repVal1
+   AbortIfFailed $mess3 frame size ($testX $testY) does not match expected ($frameX $frameY)
+   
+   Test  FRACDIFF ($refFrame $testMean) < $frameTol
+   CallFunction RestoreChanges $repVal1
+   AbortIfFailed $mess3 frame mean ($testMean) does not match expected value ($refFrame)
+   
+   # Test the last frame with summed frames
+   if $testSums > 0
+      ReportLastFrameFile 
+      ReadOtherFile $lastFrame P $repVal1
+      ReportMeanCounts P
+      testMean = $repVal1
+      match = 0
+      loop 5 mult
+         if  FRACDIFF ($mult * $refFrame $testMean) < $frameTol
+            match = 1
+            Break 
+         Endif 
+      EndLoop 
+      test $match == 1
+      CallFunction RestoreChanges $repVal1
+      AbortIfFailed $mess3 last frame mean ($testMean) is not a small multiple of expected value ($refFrame)
+   Endif 
+   
+   if $removeFrames > 0
+      ReportLastFrameFile
+      RemoveFile $repVal1
+   Endif 
+   
+EndFunction 
+
+
+### RestoreChanges
+###
+Function RestoreChanges 1
+   if $argVal1 == 0
+      CallFunction DoRestoreChanges
+   endif
+EndFunction 
+
+### ImposeChanges
+###
+Function ImposeChanges
+   SetK2FileParams $fileType $packVal $use101 $times100 $skipRot 0
+   SetDivideBy2 $divideBy2
+EndFunction 
+
+### DoRestoreChanges
+###
+Function DoRestoreChanges
+   SetK2FileParams $saveFileType $savePackVal $saveUse101 $saveTimes100 $saveSkipRot $saveFilePerFrame
+   SetDivideBy2 $saveDivideBy2
+   SetFrameAliParams $saveAliBin $saveKeepPrec
+   SetFrameAli2 $saveGPU
+   if $closeValvesOnFailure > 0
+      SetColumnOrGunValve 0
+   Endif 
+EndFunction 
+EndMacro
+Macro	4
+ScriptName XY
+#ScriptName ZeroIS-P
+
+iter = 2
+
+buffer = P
+Copy A $buffer
+
+ResetImageShift 
+loop $iter
+V
+AlignTo $buffer
+ResetImageShift 
+EndLoop 
+#CallFunction MyFuncs::AlignToBuffer $iter $buffer
+EndMacro
+Macro	5
+ScriptName Z
+#ScriptName Z_byV2
+
+#
+#offset  = -245.1    #  C2=52.610% (70),spotsize=8
+#offset  = -246.4   #  C2=52.610% (70),spotsize=8 #before20190518
+
+#offset  = -235.3   #  C2=52.610% (50),spotsize=8
+#offset  = -234.6   #  C2=52.610% (70),spotsize=8
+
+offset  = -233.2   #  C2=52.573% (70),spotsize=8
+#offset  = -235.6   #  C2=52.610% (100),spotsize=8
+#offset  = -236.4   #  C2=52.610% (ph2),spotsize=8
+
+#offset  = -245.5   #  C2=50.546% (100),spotsize=8
+#offset  = -245.7   #  C2=52.610% (70),spotsize=8 (ph2)
+#
+iter = 3
+
+echo CallFunction MyFuncs::Z_byV2 $iter $offset
+SetCameraArea V H
+CallFunction MyFuncs::Z_byV2 $iter $offset
+RestoreCameraSet 
+echo
+
+#CallFunction V-25
+
+###########################
+Function V-25 0 0 
+V
+TiltTo -25
+V
+TiltTo 0
+EndFunction 
+EndMacro
+Macro	6
+ScriptName LMMCars
+# LMM for multiple cartriges, assumes the montage file opened.
+
+##########################
+# navigator must be open
+##########################
+
+Call Cars
+
+##### No editing Below ############
+
+CallFunction LMMCars
+
+## in the end,  rise mag to settle temp & Close the valves
+#GoToLowDoseArea  V
+SetColumnOrGunValve 0
+EndMacro
+Macro	7
+ScriptName MMMCars
+# make all the MMMs from different cartriges automatically!!!
+# use property of current registration to do so. 
+
+##########################
+# navigator must be open
+##########################
+echo MMMCars!!!
+
+# get cars info
+Call Cars
+
+CallFunction MMMCars 
+
+################ No editing Below #################
+
+Function MMMCars 0 0 
+## Define persistant variable 
+IsVariableDefined regInd
+If $repVal1 == 0 
+     regInd := 1           
+Endif
+
+
+ReportNavItem 
+SetNavRegistration $navRegis
+LoadCartridge $navRegis
+SetColumnOrGunValve 1
+
+CallFunction MyFuncs::Z_byV
+
+OpenNewMontage 0 0 MMM-Car$cat[$regInd]-$name[$regInd]-mesh$navLabel.st
+Montage
+NewMap 
+CloseFile 
+
+## if last point of this registration, switch to next available registration
+ReportNumNavAcquire 
+If $repVal1 == 1  
+     regInd := $regInd + 1
+      If $regInd > $#cat
+         regInd :=                            # clear the persistant variable
+         exit
+       Else 
+           echo SetNavRegistration $cat[$regInd]
+           SetNavRegistration $cat[$regInd]
+           LoadCartridge $cat[$regInd]
+       Endif   
+ else 
+       echo Going to next item in the same Registration!
+Endif
+EndFunction 
+
+echo
+EndMacro
+Macro	8
+ScriptName Quick-R
+
+ResetClock 
+buffer = T
+
+RealignToNavItem 0
+Copy A $buffer
+ResetImageShift 
+CallFunction MyFuncs::Relax
+CallFunction MyFuncs::BufferShot $buffer
+AlignTo $buffer 0 1
+
+# preparation for first item in group
+ReportGroupStatus 
+If $repVal1 == 1 OR $repVal1 == 0
+      #CallFunction MyFuncs::CycleTargetDefocus -1.2 -2.2  0.1
+     SetTargetDefocus -2.5
+     G
+Else 
+       echo shot!
+Endif
+
+GoToLowDoseArea R
+Delay 2
+#EarlyReturnNextShot 0
+R
+S
+
+RefineZLP 60
+
+ReportClock time
+echo $time
+echo
+EndMacro
+Macro	9
+ScriptName Z_update
+
+
+MoveToNavItem
+Call Z
+UpdateItemZ
+exit
+
+###############################
+#ScriptName Test
+
+#buffer = T
+
+#ResetClock 
+#ReportGroupStatus 
+#If $repVal1 == 1 OR $repVal1 == 0
+    #RealignToNavItem 0
+#Copy A $buffer
+   #ResetImageShift 
+   #CallFunction MyFuncs::Relax
+   #CallFunction MyFuncs::BufferShot $buffer 
+   #AlignTo  $buffer 0 1
+#Else   
+   #CallFunction MyFuncs::BufferShot $buffer 
+  #AlignTo  $buffer 0 1
+#RealignToNavItem 0 
+  #ResetImageShift 
+   #CallFunction MyFuncs::Relax
+   #CallFunction MyFuncs::BufferShot $buffer 
+   #AlignTo  $buffer 0 1
+#Endif
+
+#ReportClock T
+#echo $T
+
+#CallFunction MyFuncs::Drift 3.0
+EndMacro
+Macro	10
+ScriptName MMM_JPG
+#Call Cars
+CallFunction MyFuncs::NewMapToJPG
+EndMacro
+Macro	11
+ScriptName LMM_JPG
+
+#SetDirectory X:\Vertex_20180330
+#S
+#NewMap 
+
+ReportCurrentFilename 1
+root = $RepVal1 
+ext = $RepVal2
+ReportFileZsize
+z = $RepVal1
+
+
+ReportNavItem 
+#echo $navLabel
+
+V
+S
+
+#ReduceImage A 2
+SaveToOtherFile A JPEG JPEG $navLabel_V-shot.jpg
+#SaveToOtherFile A JPEG JPEG $root-$z.jpg
+EndMacro
+Macro	12
+ScriptName FindOffset
+# script to find proper offset value to run Z_byV2
+# assume speciment is ON the eucentricity 
+
+## Eucentric Z
+##
+#Eucentricity 3
+ReportStageXYZ 
+Z0 = $repVal3
+
+## now find the offset
+# for initial offset, get a close value from current setting
+ReportUserSetting LowDoseViewDefocus
+offset = $repVal1 - ( $repVal1 / 10 )
+# 
+Loop 10
+CallFunction MyFuncs::Z_byV2 $offset
+ReportStageXYZ 
+Z = $repVal3
+diffZ = $Z - $Z0
+echo $diffZ
+   If  ABS $diffZ < 1
+      offset = ROUND $offset 1
+      echo >>> Found "offset" is $offset
+      echo >>> run "Z_byZ2 $offset" 
+      exit
+   Else 
+      offset = $offset + $diffZ
+   Endif 
+EndLoop 
+EndMacro
+Macro	13
+ScriptName LD-Screen
+
+
+buffer = T
+
+ResetClock 
+## position (X,Y)
+RealignToNavItem 0      
+ResetImageShift
+Copy A $buffer          
+CallFunction MyFuncs::Relax   
+CallFunction MyFuncs::BufferShot $buffer  
+AlignTo $buffer 
+
+
+#GoToLowDoseArea R
+#AdjustBeamTiltforIS 
+
+#MultipleRecords 
+
+
+##Tilt Serials#####
+#OpenNewFile $index.st
+#SetTargetDefocus -0.5
+#G 
+#Call DoseSymmetricTomo
+#CloseFile
+#SaveLogOpenNew s.log
+RefineZLP 60
+EndMacro
+Macro	14
+ScriptName AutoIT Commands
+
+#ISX = { 1.5 1.5 -1.5 -2.5 }
+#ISY = { 1.5 -2 2 -1.6 }
+
+radius = 1.0
+number = 2
+ang_base = 360 / $number
+
+SetImageShift 0 0 
+Loop $number index
+
+ang = ( $index  - 1 ) * $ang_base
+ISx = $radius * SIN ( $ang )
+ISy = $radius * COS ( $ang )
+
+#ImageShiftByMicrons   $X $Y
+#ReportImageShift  ISx ISy
+ echo Set image shift to $ISx $ISy
+   SetImageShift $ISx $ISy 1 1
+Delay 1
+FixComaByCTF 1 1
+EndLoop
+
+Exit
+
+
+
+#SaveBeamTilt
+#ReportBeamTilt baseX baseY
+#ReportComaVsISmatrix  xpx xpy ypx ypy
+loop 2 ind
+   x = $ISX[$ind]
+   y = $ISY[$ind]
+   echo Set image shift to $x $y
+   SetImageShift $x $y 1 1
+   #btx = $x * $xpx + $y * $xpy
+   #bty = $x * $ypx + $y * $ypy
+   #echo Changing beam tilt by $btx $bty
+   #SetBeamTilt  $baseX + $btx $baseY + $bty
+   FixComaByCTF 1 1
+EndLoop
+
+exit
+
+#SetupScopeMessage 0 0 K2-shutter
+#ShowMessageOnScope SerialEM!
+
+#SetupScopeMessage 0 0 C2_100-OBJ_out
+#ShowMessageOnScope SerialEM!
+
+#SetupScopeMessage 0 0 C2_50-OBJ_70
+#ShowMessageOnScope SerialEM!
+
+#SetupScopeMessage 0 0 C2_50-OBJ_100
+#ShowMessageOnScope SerialEM!
+EndMacro
+Macro	15
+ScriptName LD 
+RealignToNavItem 0
+
+ResetClock 
+buffer = T
+
+RealignToNavItem 0
+Copy A $buffer
+ResetImageShift 
+CallFunction MyFuncs::Relax
+CallFunction MyFuncs::BufferShot $buffer 
+#CallFunction AlignToBuffer 1 T
+
+#CallFunction MyFuncs::Relax
+#CallFunction MyFuncs::BufferShot $buffer 
+AlignTo  $buffer 0 1
+
+#AutoCenterBeam 
+#CallFunction MyFuncs::CycleTargetDefocus -1.5 -2.5  0.2
+SetTargetDefocus -2.5
+G 
+
+#ReportFocusDrift 
+#drift_rate = sqrt ( $RepVal1 * $RepVal1 + $RepVal2 * $RepVal2 )
+#If $drift_rate < 0.09
+  #echo   +++ Drift is low enough! +++
+  #Else  
+  #CallFunction MyFuncs::Drift 2.0
+#Endif 
+
+#ReportClock Time
+#echo $time
+
+GoToLowDoseArea R
+#ReportBeamTilt BTX BTY
+#echo BTX BTY = $BTX $BTY
+
+#AdjustBeamTiltforIS 
+#MultipleRecords
+
+## or
+EarlyReturnNextShot 0
+R
+S
+
+# reminder for frames.mdoc open
+ReportFrameMdocOpen 
+If $repVal1 == 0
+   echo ====== FrameMdoc NOT OPEN  =========
+Endif 
+
+## Align ZLP every 60 minutes
+RefineZLP 60
+
+
+ReportClock Time
+echo $time
+echo
+EndMacro
+Macro	16
+ScriptName WaitForRefilling
+# a script to check refilling status. If it is being filled, 
+# do Update hardware Background while refilling. It can be used 
+# as pre-action macro for Krios and Talos-Arctica
+# 2015-12-07 08:39:00
+
+Loop 30
+AreDewarsFilling
+
+If $repVal1 == 1
+   echo LN2 is Refilling
+   #LongOperation Da 18
+Else
+   RefrigerantLevel 1
+   RefrigerantLevel  2
+   Break   
+Endif 
+
+Delay 1 min
+EndLoop 
+echo 
+EndMacro
+Macro	17
+ScriptName LD-Group
+
+# macro to skip points except the very first in the group.
+# assume LD is setup.
+
+ResetClock 
+
+#SetUserSetting DisableAutoTrim 1
+buffer = T
+
+RealignToNavItem 0
+#Copy A $buffer
+#CallFunction MyFuncs::BufferShot $buffer
+#AlignTo  $buffer 0 1
+ResetImageShift 
+CallFunction MyFuncs::Relax
+CallFunction MyFuncs::BufferShot $buffer
+AlignTo $buffer 0 1
+
+
+#ResetImageShift 
+#CallFunction MyFuncs::Relax
+
+#CallFunction AlignToBuffer 1 T
+
+#Copy A $buffer
+
+# preparation for first item in group
+ReportGroupStatus 
+If $repVal1 == 1 OR $repVal1 == 0
+    #Call Z_byV
+    #UpdateGroup Z
+     #AutoCenterBeam 0.5
+      CallFunction MyFuncs::CycleTargetDefocus -1.5 -2.0  0.1
+     #SetTargetDefocus -0.5
+     G
+     #G
+    ReportFocusDrift 
+drift_rate = sqrt ( $RepVal1 * $RepVal1 + $RepVal2 * $RepVal2 )
+If $drift_rate < 0.09
+  echo   +++ Drift is low enough! +++
+Else  
+  CallFunction MyFuncs::Drift 2.0
+    #RestoreCameraSet
+Endif
+Else 
+    #AutoCenterBeam
+     CallFunction MyFuncs::CycleTargetDefocus -1.5 -2.0  0.1
+   G
+    #SetTargetDefocus -0.3
+    #G
+    #echo shot!
+Endif
+
+#Delay 20
+#CallFunction Drift 2.0
+
+# For K2, uncomment next line
+
+GoToLowDoseArea R
+ReportBeamTilt BTX BTY
+echo BTX BTY = $BTX $BTY
+AdjustBeamTiltforIS 
+
+MultipleRecords 
+#EarlyReturnNextShot 0
+#R
+#S
+## Align ZLP every 60 minutes
+RefineZLP 60
+
+ReportClock time
+echo $time
+echo
+EndMacro
+Macro	18
+ScriptName VPP
+ResetClock 
+
+
+# script to skip bad Phase Plate Patch
+#
+# It uses a fucntion to see if a numher is among a list 
+#### AlongList? 1 0 nP ####
+# Yes assign 1 to RepVal1 or No assign 0 to RepVal1
+
+##### User Input #####
+# how many shot before Next Patch
+#shot  = 16
+
+# bad list patches and current one shown on TUI
+### Ph1
+#list = {  1 26 40 43 45 59 60 61 62 63 64 65 66 67 68 69  }
+##Ph2
+list = { 28 42 58 59 60 61 62 63 }
+#list = {  58 59 60 61 62 63 }
+current = 9
+##### no editing below #####
+
+# counter for patch number
+IsVariableDefined nP
+If $repVal1 == 0 
+   nP := $current
+Endif
+echo nP = $nP
+
+## make sure this one is good to start with
+#CallFunction 19::NextGood
+
+# counter for Acquire point starts after new patch
+IsVariableDefined nA
+echo RepVal1 = $RepVal1
+If $repVal1 == 0 
+   nA := 1
+Endif
+
+echo nA = $nA
+
+# main script to take shot
+  Call LD-Group
+  #Call LD-Screen
+   #Call DoseSymmetricTomo
+  #RefineZLP 60
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Main !!!!!!!!!!!!!!!!!!!!!!!!
+
+#ReportClock T
+#echo $T
+
+
+# after certain shots done, switch to next good and reset counter
+If $nA > 60
+  # AutoCenterBeam
+  echo SHOULD SWITCH
+   ShowMessageOnScope SerialEM PP
+   CallFunction NextGood   
+   nA := 
+   np := $nP + 1
+Else
+   nA := $nA + 1
+Endif
+
+Function NextGood
+# now switch to next Good one
+Loop 76
+#echo IN LOOP
+#echo nP = $nP
+CallFunction MyFuncs::AmongList? $nP
+#echo RepVal1 = $RepVal1
+If $RepVal1 == 1
+   Echo Bad one, skipping ...
+   ShowMessageOnScope SerialEM PP
+    If $nP > 76
+        nP := 1
+    Else
+        nP := $nP + 1
+    Endif
+Else 
+    Delay 1 min
+   #CallFunction Charger
+   Echo This is GOOD patch, take shots ...
+   break
+Endif
+Endloop
+EndFunction 
+
+##################################################
+Function Charger 
+## using R to charge PP in LD mode for 59 seconds
+
+# original 
+#ReportUserSetting  LowDoseAreaToShow Area
+#SetUserSetting LowDoseAreaToShow 3
+GoToLowDoseArea R
+ResetImageShift 
+ScreenDown 
+Delay 30 
+#Delay 1 min
+#Delay 5 min
+ScreenUp
+#RefineZLP 1
+Echo Charging is done!
+
+# resume orignal 
+#SetUserSetting LowDoseAreaToShow $Area
+#GoToLowDoseArea R
+EndFunction 
+EndMacro
+Macro	19
+ScriptName Charger
+
+CallFunction 19::Charger
+EndMacro
