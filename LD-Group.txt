@@ -27,6 +27,7 @@ Else
 Endif
 
 # Single shot For K2, uncomment next line
+AdjustBeamTiltforIS
 EarlyReturnNextShot 0
 R
 
