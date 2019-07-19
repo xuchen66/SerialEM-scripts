@@ -7,15 +7,12 @@ ScriptName LD-Group
 buffer = T
 
 #### X,Y position 
-RealignToNavItem 1
-# CallFunction MyFuncs::ZeroIS-quick 0.3 3.0
-## now get reference into ref buffer in one of 2 ways below
-# 1. just using last iamge from realign 
+RealignToNavItem 
+ResetImageShift
 Copy A $buffer
-# 2. if manually copied an image to ref buffer, comment out above line
-
-## now align agaist it 
-CallFunction MyFuncs::AlignToBuffer 2 $buffer
+CallFunction MyFuncs::Relax
+CallFunction MyFuncs::BufferShot $buffer
+AlignTo $buffer 0 1
 
 # preparation for first item in group
 ReportGroupStatus 
@@ -29,7 +26,12 @@ Else
     echo Directly shot!
 Endif
 
-# For K2, uncomment next line
-# EarlyReturnNextShot 0
+# Single shot For K2, uncomment next line
+EarlyReturnNextShot 0
 R
-S
+
+# multi-shot
+MultipleRecords
+
+# ZLP
+RefineZLP 30
