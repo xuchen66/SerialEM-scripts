@@ -7,12 +7,12 @@ ScriptName LD-Group
 buffer = T
 
 #### X,Y position 
-RealignToNavItem 
+RealignToNavItem 0
 ResetImageShift
-Copy A $buffer
+Copy A $buffer                          # comment out if a local template is used 
 CallFunction MyFuncs::Relax
 CallFunction MyFuncs::BufferShot $buffer
-AlignTo $buffer 0 1
+AlignTo $buffer 0 1                     
 
 # preparation for first item in group
 ReportGroupStatus 
@@ -23,6 +23,9 @@ If $repVal1 == 1 OR $repVal1 == 0
     CallFunction MyFuncs::CycleTargetDefocus -1.2 -2.0 0.2
     G
 Else 
+    AutoCenterBeam
+    CallFunction MyFuncs::CycleTargetDefocus -1.2 -2.0 0.2
+    G
     echo Directly shot!
 Endif
 
