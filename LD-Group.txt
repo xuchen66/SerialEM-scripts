@@ -8,9 +8,9 @@ buffer = T
 
 #### X,Y position 
 RealignToNavItem 0
-ResetImageShift
+ResetImageShift 2
 Copy A $buffer                          # comment out if a local template is used 
-CallFunction MyFuncs::Relax
+#CallFunction MyFuncs::Relax
 CallFunction MyFuncs::BufferShot $buffer
 AlignTo $buffer 0 1                     
 
