@@ -26,6 +26,8 @@ Loop $#points ind
    lastIndex = $repVal1
    #
    numPoint = $lastIndex - $mapIndex
+   # disable LMM realign at this point
+   SetProperty RealignItemMaxLMfield 5.0
    # run LD-group on these newly added points
    Loop $numPoint ind
       runNum = $lastIndex + $ind
