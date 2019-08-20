@@ -3,11 +3,10 @@ ScriptName AutoScreen
 # Created - 2019-08-20
 #
 # script to perform auto screening 
-# one pick points of meshes from LMM maps and then run this script
+# one picks points of meshes from LMM maps and then run this script
 # assuming in LD
 
-
-# the picked center points of meshed from all LMM maps of different grids\
+# the picked center points of meshes from all LMM maps of one of multiple grids.
 # best to be in order from low registry to high
 points = { 60 62 63 64 }
 
