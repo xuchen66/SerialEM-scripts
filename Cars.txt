@@ -14,7 +14,12 @@ name = { RA7-g1 RA7-g2 }
 
 
 #### NO EDITING BELOW ####
-## rename them so name is directly linked with cat #
 Loop $#cat ind
-   name$cat[$ind] = $name[$ind]
+   cat$ind = $cat[$ind]
+   echo cat$ind = $cat[$ind]
 EndLoop 
+
+Loop $#name ind
+   name$ind = $name[$ind]
+   echo name$ind = $name[$ind]
+EndLoop
