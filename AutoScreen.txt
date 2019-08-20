@@ -1,0 +1,246 @@
+ScriptName AutoScreen
+# Albert Xu & Chen Xu
+# Created - 2019-08-20
+#
+# script to perform auto screening 
+# one pick points of meshes from LMM maps and then run this script
+# assuming in LD
+
+
+# the picked center points of meshed from all LMM maps of different grids\
+# best to be in order from low registry to high
+points = { 60 62 63 64 }
+
+# grids (cartrige #) and grid label (name)
+Call Cars
+
+# these mesh points (can be across the grids)
+Loop $#points ind
+   ReportOtherItem $points[$ind]
+   CallFunction MakeMMM $points[$ind]
+   #
+   ReportOtherItem -1
+   mapIndex = $repVal1
+   CallFunction houghCircles -1
+   ReportOtherItem -1
+   lastIndex = $repVal1
+   #
+   numPoint = $lastIndex - $mapIndex
+   # run LD-group on these newly added points
+   Loop $numPoint ind
+      runNum = $lastIndex + $ind
+      CallFunction LD-Group -1.5 -1.6 0.1 $runNum
+   EndLoop 
+EndLoop
+
+
+###############################
+Function MakeMMM 1 0 index
+
+   # make LMM appropriate map
+   Echo => Realign to mesh ...
+   echo ----> SetProperty RealignItemMaxLMfield 700 ...
+   SetProperty RealignItemMaxLMfield 700
+
+   echo ----> take out OBJ aperture. 
+   CallFunction MyFuncs::C2_150-OBJ_out
+   
+   Echo index = $index
+   ReportOtherItem $index
+   mesh = $navLabel
+   
+   SetNavRegistration $navRegis
+   echo ----> LoadCartridge $navRegis
+   LoadCartridge $navRegis
+
+   SetColumnOrGunValve 1
+   echo ----> RealignToOtherItem $index 0 ...
+   RealignToOtherItem $index 0
+   ResetImageShift 
+   Copy A P
+   Search 
+   AlignTo P
+   ResetImageShift
+   # find out next two line from shift to marker
+   xShift = 0
+   yShift = 0
+   echo ----> MoveStage $xShift $yShift
+   MoveStage $xShift $yShift
+   
+   # V, fix Z 
+   echo => Fix Z ...
+   GoToLowDoseArea V
+   echo ----> C2 30 & Obj 70 ...
+   CallFunction MyFuncs::C2_30-OBJ_70
+   #V
+   #Copy A T
+   Call Z
+   UpdateItemZ 
+
+   echo => Make MMM map ...
+   SetUserSetting MontageUseViewInLD 1
+   SetUserSetting  MontageAlignPieces 1
+   SetUserSetting MontageVerySloppy 0
+   AllowFileOverwrite 1
+   OpenNewMontage 4 6  Car$navRegis_$name$navRegis_mesh$mesh_MMM.map
+   SetMontageParams 1 576 410 5760 4092 1 1        
+   echo ----> Acquire MMM map ...
+   Montage 
+   NewMap 
+   CallFunction MyFuncs::NewMapToJPG
+   CloseFile
+EndFunction
+
+###################################
+Function houghCircles 1 0 index
+
+# If something goes wrong, set Debug = 1
+Debug = 0             # True = 1 ; False = 0
+
+### semmatch arguments
+param2 = 50
+maxPts = 10
+
+acquire = 1                                    # True = 1 ; False = 0
+groupOption = 4
+    #    0 = no groups
+    #    1 = groups based on radius
+    #    2 = all points as one group
+    #    3 = specify a certain number of groups
+    #    4 = specify number of points per group
+
+# names of temporary files used by semmatch
+outputNav = semmatch_nav.nav
+image = MMM.jpg
+
+ReportIfNavOpen
+If $reportedValue1 != 2
+   Exit
+Else
+   SaveNavigator
+Endif
+ReportNavFile 1
+navfile = $reportedValue1$reportedValue2
+navdir = $reportedValue3
+SetDirectory $navdir
+
+If $acquire != 1 AND $acquire != 0
+   Echo acquire should be either 1 or 0
+   Exit
+Endif
+
+If $Debug == 1
+   debugStr = /k
+ElseIf $Debug == 0
+   debugStr = /c
+Else
+   Echo Debug should be either 1 or 0
+   Exit
+Endif
+
+## load and bin MMM map
+ReportOtherItem $index
+If $RepVal5 != 2        # if not a map item
+   Echo Not a map item. Select a Map item from the navigator.
+   Exit
+Endif
+MAP = $navLabel
+Echo Map Label: $MAP
+SetUserSetting BufferToReadInto 16
+SetUserSetting LoadMapsUnbinned 1
+# uncheck Montage Controls "Align pieces in overview"
+ReportUserSetting MontageAlignPieces alignChecked
+If $alignChecked == 1
+   SetUserSetting MontageAlignPieces 0
+Endif
+LoadNavMap
+
+# reduce image if larger than 2000x2000
+maxdimLimit = 2000
+ImageProperties Q width height
+maxdim = $width
+If $width < $height
+   maxdim = $height
+Endif
+
+If $maxdim < $maxdimLimit
+   Copy Q A
+   reduction = 1
+Else
+   reduction = $maxdim / $maxdimLimit
+   ReduceImage Q $reduction
+Endif
+Show Q
+
+## make a jpeg image
+SaveToOtherFile A JPG JPG $image
+Echo saved $image
+
+ReportOtherItem -1
+newLabel = $navIntLabel + 1
+
+RunInShell cmd $debugStr " "semmatch" \
+"--houghCircles" \
+"--param2" "$param2" \
+"--maxPts" "$maxPts" \
+"--navfile" "$navfile" \
+"--reduction" "$reduction" \
+"--image" "$image" \
+"--mapLabel" "$MAP" \
+"--newLabel" "$newLabel" \
+"--groupOption" "$groupOption" \
+"--output" "$outputNav" \
+"--acquire" "$acquire" "
+
+MergeNavFile $outputNav
+If $alignChecked == 1
+   SetUserSetting MontageAlignPieces 1
+Endif
+Show Q
+
+EndFunction 
+
+
+#############################
+Function LD-Group 4 0 df-low df-high step index
+
+# macro to skip points except the very first in the group.
+# assume LD is setup.
+
+# define ref buffer 
+buffer = T
+
+#### X,Y position 
+RealignToOtherItem 0 $index
+ResetImageShift 
+Copy A $buffer                          # comment out if a local template is used 
+CallFunction MyFuncs::Relax
+CallFunction MyFuncs::BufferShot $buffer
+AlignTo $buffer 0 1                     
+
+# preparation for first item in group
+ReportGroupStatus 
+If $repVal1 == 1 OR $repVal1 == 0
+    #Call Z_byV
+    #UpdateGroup Z
+    AutoCenterBeam
+    CallFunction MyFuncs::CycleTargetDefocus $df-low $df-high $step
+    G
+Else 
+    AutoCenterBeam
+    CallFunction MyFuncs::CycleTargetDefocus $df-low $df-high $step
+    G
+    echo Directly shot!
+Endif
+
+# Single shot For K2/K3, uncomment next line
+AdjustBeamTiltforIS
+EarlyReturnNextShot 0
+R
+
+# multi-shot
+MultipleRecords
+
+# ZLP
+RefineZLP 30
+EndFunction 
