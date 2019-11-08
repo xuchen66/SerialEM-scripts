@@ -556,13 +556,17 @@ SetUserSetting AutofocusBeamTilt 1.6
 SetEucentricFocus
 ChangeFocus $offset                         # for -300um offset 
 
+# adjustment for non-linear focus change
+ReportUserSetting LowDoseViewDefocus
+delta = ( $Voffset - $offset) / $Voffset
+
 #===========
 # Adjust Z
 #===========
 Loop $iter 
 Autofocus -1 2
 ReportAutofocus 
-Z = -1 * $repVal1
+Z = -1 * $repVal1 * $delta
 MoveStage 0 0 $Z
 Z = ROUND $Z 2
 echo Z has moved --> $Z micron 
