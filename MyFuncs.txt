@@ -558,6 +558,7 @@ ChangeFocus $offset                         # for -300um offset
 
 # adjustment for non-linear focus change
 ReportUserSetting LowDoseViewDefocus
+Voffset = $repVal1
 delta = ( $Voffset - $offset) / $Voffset
 
 #===========
