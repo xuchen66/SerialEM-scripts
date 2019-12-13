@@ -1,18 +1,23 @@
 SerialEMProperties
 GainReferencePath	C:\ProgramData\SerialEM\
-MRCHeaderTitle	Acquired on UMass Talos Camera -> 0:Ceta 1:K2
+MRCHeaderTitle	Acquired on UMass Talos Camera -> 0:Ceta 1:K3
 LogBookPathName	C:\ProgramData\SerialEM\TiltSeriesLogBook.txt
 DigitalMicrographReferencePath	C:\ProgramData\Gatan\Reference Images
 
 StartUpMessage Talos Admin!
-AssumeDPI 	150
+
+DisplayIsNot120DPI	1
+## https://www.sven.de/dpi/ -> 31.5 inch @ 2560x1600 
+## full 3840x2160 @ 31.5 inch -> 139.89 DPI
+AssumeDPI		150	#95.84	# for 2560x1440 @100%	
 
 #
 #  GENERAL CAMERA PROPERTIES
 #
-ActiveCameraList		0 1
+ActiveCameraList		0 1 2
 OtherCamerasInTIA		1
 InitialCurrentCamera		1
+AssumeCameraForDummy		1
 
 GainNormalizeInSerialEM		0
 ReferenceMemoryLimitMB		160
@@ -20,7 +25,7 @@ DarkRefAgeLimit			3600
 GainRefInactivityLimit		180
 DefaultCameraDivide16BitBy2     0
 DefaultActAfterExposures	0
-StartCameraInDebugMode	0
+StartCameraInDebugMode		0
 
 InnerXRayBorderDistance		1.2
 OuterXRayBorderDistance 	2.1
@@ -68,11 +73,13 @@ MaximumXRayDiameter     	6
 BuiltInSettling 		0
 ExtraBeamTime   		0.05
 StartupDelay    		1.
+ShutterDeadTime			0.007
 Retractable     		0
 GIF     			0
 Order 				1
 FilmToCameraMagnification       1.28
 PixelSizeInMicrons      	14
+CountsPerElectron	        6.90
 ExtraRotation   0.
 # MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
 #RotationAndPixel 22 999 999 0.997
@@ -88,8 +95,8 @@ EndCameraProperties
 # These are properties assuming remote access and a 270-degree rotation and
 #  flip, which seems standard for Tecnai/Polara above-GIF installs
 
-#GatanServerIP 127.0.0.1
-GatanServerIP 172.18.8.141
+GatanServerIP 127.0.0.1
+#GatanServerIP 172.18.8.141
 GatanServerPort 48890 
 SocketServerIP 1 172.18.8.16
 SocketServerPort 1 48892
@@ -102,22 +109,22 @@ K2FilterName Combined Filter (default)
 
 
 CameraProperties	     1
-Name	                     K2 Summit
-DMGainReferenceName	     K2-0001 1 Gain Ref. x1.m0.dm4
+Name	                     Talos-K3
+K2Type	                     3
+DMGainReferenceName	     K3-18140113 Gain Ref. x1.m0.dm4
 # THESE 5 WILL NEED CHANGING IF CAMERA ORIENTATION CHANGES
-CameraSizeX	             3710
-CameraSizeY	             3838
+CameraSizeX	             5760
+CameraSizeY	             4092
 SizeCheckSwapped             1
-RotationAndFlip              7		# accedently 1 before
-DMRotationAndFlip            7
+RotationAndFlip              0		# accedently 1 before
+DMRotationAndFlip            0
 #UsableArea                  0 0 3712 3840 	# top left bottom right!
 UseSocket	             0
-K2Type	                     1
 MakesUnsignedImages	     1
 XMustBeMultipleOf	     4
 YMustBeMultipleOf	     2
 FourPortReadout	             0
-Binnings	             1 2 3 4 5 6 8
+Binnings	             1 2 3 4 6 8
 BasicCorrections	     49
 HotPixelsAreImodCoords	     1
 #DarkXRayAbsoluteCriterion   20
@@ -126,10 +133,10 @@ HotPixelsAreImodCoords	     1
 MaximumXRayDiameter	     6
 BeamBlankShutter	     0
 OnlyOneShutter	             1
-StartupDelay                 1.45
-ExtraBeamTime                0.3
+StartupDelay                 1.185		#??????
+ExtraBeamTime                0.10
 BuiltInSettling              0.0 
-ShutterDeadTime	             0.001		
+ShutterDeadTime	             0.00		
 MinimumDriftSettling	     0.05
 MinimumBlankedExposure       0.35
 ExtraUnblankTime	     0.012
@@ -141,24 +148,83 @@ GIF	                     0
 Order                        2
 FilmToCameraMagnification    1.31	# orig=1.342
 PixelSizeInMicrons	     5.0  
-CountsPerElectron	     37.55	# measured at 3.15 e/p/s
+#CountsPerElectron	     #37.55	not needed for K3 # measured at 3.15 e/p/s
+#LinearToCountingRatio	     207	# according to Mast
 ExtraRotation	             0.
+AllowPostActions	     0
 # MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
 ##RotationAndPixel 33 0.04 999 0.0749
 #RotationAndPixel 1 999 -3.9 0
-RotationAndPixel 4 999 -102.4 0
+#RotationAndPixel 4 999 -102.4 0
+RotationAndPixel 3 999 -94.4 0
 #RotationAndPixel 16 999 -4.9 1.797
-RotationAndPixel 16 999 -94.7 1.797
-RotationAndPixel 17 999 84.0 3.396
-RotationAndPixel 28 999 999 0.2425	#17.5k
-RotationAndPixel 29 999 999 0.18879
-RotationAndPixel 30 999 999 0.14847
-RotationAndPixel 31 999 999 0.11687
-RotationAndPixel 32 999 999 0.09138
-RotationAndPixel 33 999 999 0.0719	#57k
+RotationAndPixel 16 999 -94.4 1.74	#k2=1.797
+RotationAndPixel 17 999 90.9 3.291	#k2=3.396
+RotationAndPixel 32 999 999 0.087	# from KK's pixel refine
+#RotationAndPixel 28 999 999 0.2425	#17.5k
+#RotationAndPixel 29 999 999 0.18879
+#RotationAndPixel 30 999 999 0.14847
+#RotationAndPixel 31 999 999 0.11687
+#RotationAndPixel 32 999 999 0.09138
+#RotationAndPixel 33 999 999 0.0719	#57k
 
+## K3
+LinearToCountingRatio	328
+
+## CDS
+K3CDSLinearRatio	1.37
 EndCameraProperties
 
+# For Rio camera, set type to 2, set size if different, set pixel size to 9
+#
+CameraProperties 			2
+Name    				Rio16
+DMGainReferenceName			Rio1816-C17106F0-0011 Gain Ref. x1.m0.roi[0,0,4096,4096].dm4
+OneViewType				2
+CameraSizeX     			4096
+CameraSizeY     			4096
+DMRotationAndFlip            		4
+MakesUnsignedImages			1
+XMustBeMultipleOf       		4
+YMustBeMultipleOf      			4
+# BINNING 8  IS NOT SUPPORTED: IF IT WORKS OK, FINE; IF NOT, TAKE IT OUT
+Binnings        			1 2 4 8
+BasicCorrections                        49
+#UsableArea 				7 7 4089 4089
+HotPixelsAreImodCoords  		1
+#DarkXRayAbsoluteCriterion	20
+#DarkXRaySDCriterion		15
+#DarkXRayRequireBothCriteria	1
+MaximumXRayDiameter     	6	
+BuiltInSettling 			0
+MinimumDriftSettling   			0.04
+FourPortReadout				0
+#ExtraBeamTime   			0.2
+#StartupDelay    			0.765
+StartupDelay  		0.210 
+ExtraBeamTime  		0.30
+Retractable     			1
+BeamBlankShutter			0
+# TRY THIS: EVEN IF THERE ARE TWO SHUTTERS, IT WILL WORK BETTER IF YOU USE ONE
+OnlyOneShutter				1
+Order 					0
+PixelSizeInMicrons			9.0
+FilmToCameraMagnification       	1.362
+ExtraRotation   			0.
+#CountsPerElectron			51.3
+#DMRotationAndFlip			4
+InsertionDelay				10
+RetractionDelay				10
+CanTakeFrames				3
+RotationAndFlip				0
+# THESE MAY OR MAY NOT BE NEEDED
+#RelativeGainFactors			1 0.25 0.125 0.0625
+#
+# MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
+#RotationAndPixel 20    0.16  999     0.77
+RotationAndPixel 17	999	86.7  5.853
+RotationAndPixel 16	999	999   3.094
+EndCameraProperties
 
 
 # THIS NEEDS TO HAVE GIF MAGS ADDED
@@ -295,12 +361,28 @@ BeamCalSpacingFactor	    	1.1
 #BeamCalMinCounts 		10000
 
 # testing on Talos for 46x - to allow Realign in LM range
-RealignItemMaxLMField		360	#50
+RealignItemMaxLMField		700 #360	#46x
+NavigatorMaxMontageIS		50
 		
 # email alert setup
 SMTPServer	smtp.gmail.com
 SendMailFrom	Talos-K2@cryoem.umassmed.edu
 
 ## try out to press COM error - actually the hiccups to acquire
-CameraRetries 		3
+
+#CameraRetries 		3
 MakeFEIerrorBeTimeout	1
+
+# added for 16bit map display by Chen & KH @12/03/2018
+ConvertMapsToBytesDefault	0
+
+## speed up MMM, within the limit, no stage move, which could save a second or two. Chen@march_24_2019
+#NavigatorMaxMontageIS	50
+RealignItemMaxIS	2
+
+## for background tilting
+BackgroundSocketToFEI	1
+
+## debug for Eagle and Ceta (FEI camera)
+#DebugOutput		E
+
