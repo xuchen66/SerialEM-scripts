@@ -31,12 +31,6 @@ mesh_label = $navLabel
 # defines variables: cat, name
 Call Cars
 
-## Define persistant variable for grids array index
-IsVariableDefined regInd
-If $repVal1 == 0 
-     regInd := 1           
-Endif
-
 # define array of to be acquired cartridge slot numbers
 grids = { 0 }
 empty = 1
@@ -70,7 +64,6 @@ Loop $#cat i
    Endif 
 EndLoop 
 map_name = Car$cur_grid_reg_$name[$name_index]_Mesh$mesh_label_MMM.map
-
 
 Echo Current mesh to be acquired: Item # $navIndex, Label $navLabel
 Echo LoadCartridge $cur_grid_reg
