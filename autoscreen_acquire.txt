@@ -1,5 +1,4 @@
 ScriptName AutoScreen_acquire
-# Albert Xu, Dec 25, 2019
 
 SuppressReports
 
@@ -17,7 +16,7 @@ yShift = 2
 # target defocus (um)
 def = -1.8
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  No Editing below !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  No Editting below !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 
 Echo
 Echo
@@ -32,7 +31,7 @@ mesh_label = $navLabel
 # defines variables: cat, name
 Call Cars
 
-## Define persistent variable for grids array index
+## Define persistant variable for grids array index
 IsVariableDefined regInd
 If $repVal1 == 0 
      regInd := 1           
@@ -77,209 +76,37 @@ Echo Current mesh to be acquired: Item # $navIndex, Label $navLabel
 Echo LoadCartridge $cur_grid_reg
 LoadCartridge $cur_grid_reg
 
-# realign to mesh position
-SetProperty RealignItemMaxLMfield 700
-echo ----> take out OBJ aperture. 
-CallFunction MyFuncs::C2_150-OBJ_out
-         
-SetColumnOrGunValve 1
-Echo MoveToNavItem $mesh_index
-MoveToNavItem $mesh_index
-echo ----> RealignToOtherItem $mesh_index 0
-RealignToOtherItem $mesh_index 0
-ResetImageShift 
-Copy A P
-Search 
-AlignTo P
-ResetImageShift 
-echo ----> MoveStage $xShift $yShift
-MoveStage $xShift $yShift
-SetProperty RealignItemMaxLMfield 5
+## main scope action
 
-# V, fix Z 
-echo => Fix Z ...
-GoToLowDoseArea V
-echo ----> C2 30 & Obj 70 ...
-CallFunction MyFuncs::C2_30-OBJ_70
-Delay 5
-V
-Copy A T
-Call Z
-UpdateItemZ 
-V
-AlignTo T
+Echo CallFunction MyFuncs::ScreenMesh \
+$cur_grid_reg \
+$mesh_index \
+$mesh_label \
+$xShift \
+$yShift \
+$MAP_X_PIECES \
+$MAP_Y_PIECES \
+$map_name \
+$NUM_HOLES \
+$def
 
-# MMM. No need for pre-setup template
-echo => Make MMM map ...
-SetUserSetting MontageUseViewInLD 1
-SetUserSetting  MontageAlignPieces 1
-SetUserSetting MontageVerySloppy 0
-AllowFileOverwrite 1
-#OpenNewMontage 4 6 $map_name
-#OpenNewMontage 1 2  $map_name
-OpenNewMontage $MAP_X_PIECES $MAP_Y_PIECES  $map_name
-SetMontageParams 1 576 410 5760 4092 1 1        
-echo ----> Acquire MMM map ...
-Montage 
-NewMap 
-CallFunction MyFuncs::NewMapToJPG
-CloseFile
+CallFunction MyFuncs::ScreenMesh \
+$cur_grid_reg \
+$mesh_index \
+$mesh_label \
+$xShift \
+$yShift \
+$MAP_X_PIECES \
+$MAP_Y_PIECES \
+$map_name \
+$NUM_HOLES \
+$def
 
-# Add holes and run a loop to take shots
-ReportOtherItem -1
-holes_index_start = $repVal1 + 1
-CallFunction houghCircles_index $repVal1 $NUM_HOLES
-SetNavRegistration $cur_grid_reg
-ReportOtherItem -1
-holes_index_end = $repVal1 
-n = $holes_index_end - $holes_index_start + 1
-         
-AutoCenterBeam
-         
-AllowFileOverwrite 1
-OpenNewFile R_mesh$mesh_label.st
-Loop $n ind
-   hole_index = $ind - 1 + $holes_index_start 
-   RealignToOtherItem $hole_index 0
-   ReportOtherItem $hole_index
-   hole_label = $navLabel
-   echo Acquiring at Item $hole_index, Label $hole_label
-   # CenterBeam & autofocus
-   echo => CenterBeam & Focus...
-   AutoCenterBeam 
-   SetTargetDefocus $def
-   G
-   R
-   S
-EndLoop
-CloseFile 
+## end of scope actions
 
-# if last point of this registration, switch to next available registration
+# go to next registration if available
 ReportNumNavAcquire
-Echo numNavAcq $repVal1
-If $repVal1 == 1  
-   regInd := $regInd + 1
-   Echo $regInd
-   If $regInd > $#grids
-      regInd :=                            # clear the persistant variable
-      Exit
-   Else 
-      echo SetNavRegistration $grids[$regInd]
-      SetNavRegistration $grids[$regInd]
-      #LoadCartridge $grids[$regInd]
-   Endif   
-Else 
-   echo  +++++  Going to next item in the same Registration! +++++
-Endif
-
-##########################################################
-Function houghCircles_index 2 0
-
-INDEX = $argVal1
-NUM_HOLES = $argVal2
-
-# If something goes wrong, set Debug = 1
-Debug = 0             # True = 1 ; False = 0
-
-### semmatch arguments
-param2 = 50
-maxPts = $NUM_HOLES
-
-acquire = 0                                    # True = 1 ; False = 0
-groupOption = 4
-    #    0 = no groups
-    #    1 = groups based on radius
-    #    2 = all points as one group
-    #    3 = specify a certain number of groups
-    #    4 = specify number of points per group
-
-# names of temporary files used by semmatch
-outputNav = semmatch_nav.nav
-image = MMM.jpg
-
-ReportIfNavOpen
-If $reportedValue1 != 2
-   Exit
-Else
-   SaveNavigator
-Endif
-ReportNavFile 1
-navfile = $reportedValue1$reportedValue2
-navdir = $reportedValue3
-SetDirectory $navdir
-
-If $acquire != 1 AND $acquire != 0
-   Echo acquire should be either 1 or 0
-   Exit
-Endif
-
-If $Debug == 1
-   debugStr = /k
-ElseIf $Debug == 0
-   debugStr = /c
-Else
-   Echo Debug should be either 1 or 0
-   Exit
-Endif
-
-## load and bin MMM map
-ReportOtherItem $INDEX
-If $RepVal5 != 2        # if not a map item
-   Echo Not a map item. Select a Map item from the navigator.
-   Exit
-Endif
-MAP = $navLabel
-Echo Map Label: $MAP
-SetUserSetting BufferToReadInto 16
-SetUserSetting LoadMapsUnbinned 1
-# uncheck Montage Controls "Align pieces in overview"
-ReportUserSetting MontageAlignPieces alignChecked
-If $alignChecked == 1
-   SetUserSetting MontageAlignPieces 0
-Endif
-LoadOtherMap $INDEX
-
-# reduce image if larger than 2000x2000
-maxdimLimit = 2000
-ImageProperties Q width height
-maxdim = $width
-If $width < $height
-   maxdim = $height
-Endif
-
-If $maxdim < $maxdimLimit
-   Copy Q A
-   reduction = 1
-Else
-   reduction = $maxdim / $maxdimLimit
-   ReduceImage Q $reduction
-Endif
-Show Q
-
-## make a jpeg image
-SaveToOtherFile A JPG JPG $image
-Echo saved $image
-
-ReportOtherItem -1
-newLabel = $navIntLabel + 1
-
-RunInShell cmd $debugStr " "semmatch" \
-"--houghCircles" \
-"--param2" "$param2" \
-"--maxPts" "$maxPts" \
-"--navfile" "$navfile" \
-"--reduction" "$reduction" \
-"--image" "$image" \
-"--mapLabel" "$MAP" \
-"--newLabel" "$newLabel" \
-"--groupOption" "$groupOption" \
-"--output" "$outputNav" \
-"--acquire" "$acquire" "
-
-MergeNavFile $outputNav
-If $alignChecked == 1
-   SetUserSetting MontageAlignPieces 1
-Endif
-Show Q
-
-EndFunction 
+If $repVal1 == 1 AND $#grids > 1
+   Echo SetNavRegistration $grids[2]
+   SetNavRegistration $grids[2]
+Endif 
