@@ -1,0 +1,112 @@
+ScriptName AutoScreen_acquire
+
+SuppressReports
+
+# number of holes per mesh to screen
+NUM_HOLES = 1
+
+# MMM map size (normally 4, 6)
+MAP_X_PIECES = 1
+MAP_Y_PIECES = 2
+
+# shift from LMM to V
+xShift = 2
+yShift = 2
+
+# target defocus (um)
+def = -1.8
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  No Editting below !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+
+Echo
+Echo
+Echo ============== AutoScreen ================
+
+
+ReportNavItem
+cur_grid_reg = $navRegis
+mesh_index = $navIndex
+mesh_label = $navLabel
+
+# defines variables: cat, name
+Call Cars
+
+## Define persistant variable for grids array index
+IsVariableDefined regInd
+If $repVal1 == 0 
+     regInd := 1           
+Endif
+
+# define array of to be acquired cartridge slot numbers
+grids = { 0 }
+empty = 1
+Loop 12 i
+   SetNavRegistration $i
+   toBeAcquired = 0
+   ReportNumNavAcquire
+   If $repVal1 != 0
+      toBeAcquired = 1
+   Endif 
+   If $toBeAcquired == 1
+      If $empty == 1
+         grids[1] = $i
+      Else
+         grids = { $grids $i }
+      Endif 
+      empty = 0
+   Endif 
+EndLoop
+If $empty == 1
+   Echo No grids to be acquired, exiting
+   Exit
+EndIf
+SetNavRegistration $cur_grid_reg
+Echo Grids to be Acquired: $grids
+
+name_index = 0
+Loop $#cat i
+   If $cat[$i] == $cur_grid_reg
+      name_index = $i
+   Endif 
+EndLoop 
+map_name = Car$cur_grid_reg_$name[$name_index]_Mesh$mesh_label_MMM.map
+
+
+Echo Current mesh to be acquired: Item # $navIndex, Label $navLabel
+Echo LoadCartridge $cur_grid_reg
+LoadCartridge $cur_grid_reg
+
+## main scope action
+
+Echo CallFunction MyFuncs::ScreenMesh \
+$cur_grid_reg \
+$mesh_index \
+$mesh_label \
+$xShift \
+$yShift \
+$MAP_X_PIECES \
+$MAP_Y_PIECES \
+$map_name \
+$NUM_HOLES \
+$def
+
+CallFunction MyFuncs::ScreenMesh \
+$cur_grid_reg \
+$mesh_index \
+$mesh_label \
+$xShift \
+$yShift \
+$MAP_X_PIECES \
+$MAP_Y_PIECES \
+$map_name \
+$NUM_HOLES \
+$def
+
+## end of scope actions
+
+# go to next registration if available
+ReportNumNavAcquire
+If $repVal1 == 1 AND $#grids > 1
+   Echo SetNavRegistration $grids[2]
+   SetNavRegistration $grids[2]
+Endif 
