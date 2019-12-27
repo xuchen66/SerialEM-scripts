@@ -1,5 +1,6 @@
-MacroName MyFuncs
-## functions which can be called from a macro or a function.
+ScriptName MyFuncs
+# some functions
+
 
 ####################################
 Function CycleTargetDefocus 3 0
@@ -28,6 +29,7 @@ If $reportedValue1 > $TD_low OR $reportedValue1 < $TD_high
    SetTargetDefocus $TD_low
 Else 
    IncTargetDefocus $delta
+   ChangeFocus $delta
 Endif
 
 ReportTargetDefocus 
@@ -180,6 +182,8 @@ Elseif $S == 3
     shot = Record
 Elseif $S == 4
     shot = Preview
+Elseif $S == 5
+    shot = Search
 Endif
 
 ## set camera parameters
@@ -187,7 +191,7 @@ SetExposure $S $E
 SetCenteredSize $S $bin $XP $YP
 
 ## align
-Loop $iter
+Loop $iter ind
     $shot
     # Need crop, for Camera like Eagle or Falcon?
     ImageProperties A
@@ -198,7 +202,12 @@ Loop $iter
         CallFunction  MyFuncs::CropImageAToBuffer $buffer
     Endif
     AlignTo $buffer
-    ResetImageShift 
+    if $ind == $iter
+       ResetImageShift 2 0.05
+       echo Relaxing stage 50nm ...
+    else 
+       ResetImageShift 
+    endif
 EndLoop 
 
 ## reset camera
@@ -321,7 +330,7 @@ Echo ===> Running Drift $argVal1(A)...
 crit = $argVal1
 # set these above from centralized macro - Parameters 
 shot = F
-interval = 15
+interval = 4
 times = 10
 
 period = $interval + 1
@@ -462,6 +471,8 @@ SetEucentricFocus
 # Adjust Z
 #===========
 Loop 2
+#MoveStage 0 0 2
+#MoveStage 0 0 -1
 Autofocus -1
 ReportAutofocus 
 t = -1 * $reportedValue1
@@ -484,6 +495,10 @@ SaveFocus
 # set object lens 
 #==================
 SetEucentricFocus
+
+ReportAutofocusOffset 
+GOffset = $repVal1
+SetAutofocusOffset  -10
 #NormalizeLenses 2
 #Delay 1
 
@@ -502,6 +517,7 @@ EndLoop
 # restore the defocus set in V originally
 # ========================================
 RestoreFocus
+SetAutofocusOffset $GOffset
 EndFunction
 
 #######################################################
@@ -557,3 +573,563 @@ ImageShiftByMicrons $X $Y
 Record
 SetImageShift 0 0
 EndLoop
+EndFunction 
+
+###############################################################
+Function LMMCars 0 0 
+
+Loop $#cat index
+LoadCartridge $cat[$index]
+SetNavRegistration $cat[$index]
+SetColumnOrGunValve 1
+MoveStageTo 0 0 
+OpenNewMontage 0 0 $name[$index]-LMM-Car$cat[$index].st
+Montage
+NewMap
+CloseFile
+EndLoop 
+
+EndFunction 
+
+##############################################
+Function Z_byV2 2 0 iter offset 
+Echo ===> Running Z_byV2 ...
+#====================================
+# for defocus offset of V in Low Dose, save it
+# ===================================
+GoToLowDoseArea V
+SaveFocus
+
+#==================
+# set object lens 
+#==================
+SetEucentricFocus
+ChangeFocus $offset                         
+
+#===========
+# Adjust Z
+#===========
+Loop $iter
+Autofocus -1 2
+ReportAutofocus 
+Z = -1 * $reportedValue1
+#If ABS ($Z) > 180
+ #  echo Something is wrong, fix manually before continuing ...
+  # exit
+#Endif 
+MoveStage 0 0 $Z
+echo Z has moved --> $Z micron 
+EndLoop
+
+#=========================================
+# restore the defocus set in V originally
+# ========================================
+RestoreFocus
+EndFunction
+
+##################################################
+Function MapToJPG 0 0
+# 
+# SerialEM Script to convert map overview to a jpg image. 
+# it works on currently selected map item and should work for "Acquire at points...".
+# 
+#################################
+# Chen Xu <chen.xu@umassmed.edu>
+# Created: 2018-04-27
+# Updated: 2018-04-27
+#################################
+
+# skip non-map item
+ReportNavItem
+If $RepVal5 != 2        # if not a map item
+  Echo -> Not a map item
+  Exit
+EndIf
+
+# load map overview into Q unbinned
+SetUserSetting BufferToReadInto 16	# Q is 16th in alphabet, if A is 0.
+SetUserSetting LoadMapsUnbinned 1   
+LoadNavMap
+
+# make a jpeg image
+ReduceImage Q 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
+SaveToOtherFile A JPG JPG $navLabel_$navNote.jpg
+EndFunction
+
+###################################################################
+Function NewMapToJPG 0 0
+# 
+# SerialEM Script to convert last item - map overview to a jpg image. 
+# It uses Note string as part of jpg filename.
+# it works on an item which creates a map and should work for "Acquire at points..."
+# as "Run Script after". 
+# 
+# Chen Xu <chen.xu@umassmed.edu>
+# Created: 2018-04-27
+# Updated: 2018-04-30
+#
+
+# skip non-map item
+ReportOtherItem -1
+If $RepVal5 != 2        # if not a map item
+  Echo -> Not a map item, exit ...
+  Exit
+EndIf
+
+# load map overview into Q unbinned
+SetUserSetting BufferToReadInto 16	# Q is 16th in alphabet, if A is 0.
+SetUserSetting LoadMapsUnbinned 1   
+LoadOtherMap -1				# last item on the nav list
+
+# make a jpeg image
+ReduceImage Q 2         # assuming loading buffer is Q, and reduce 2 to make JPG image density range more pleasant
+SaveToOtherFile A JPG JPG $navLabel_$navNote.jpg
+EndFunction
+
+
+##################################################
+Function AToJPG 0 0
+# 
+# SerialEM Script to convert save image in buffer A to a jpg image. 
+# it reduces image in A by 2 for comfortable JPG density range. It 
+# takes current filename and Z into jpg filename
+# 
+#################################
+# Chen Xu <chen.xu@umassmed.edu>
+# Created: 2018-04-29
+# Updated: 2018-04-29
+#################################
+ReportCurrentFilename 1
+root = $RepVal1 
+ext = $RepVal2
+ReportFileZsize
+z = $RepVal1
+
+#ReduceImage A 1
+SaveToOtherFile A JPG JPG $root-$z.jpg
+
+EndFunction 
+
+####################################################
+Function BufferShot 0 1 buffer 
+# Take a shot using the same imaging condition in a buffer
+SuppressReports
+
+## Low Dose
+ReportLowDose 
+If $reportedValue1 == 1
+    ImageLowDoseSet $buffer
+    S = $reportedValue1
+Elseif $reportedValue1 == 0
+    ImageProperties $buffer
+    S = $reportedValue6
+Endif
+
+## get image parameters in buffer $buffer
+ImageProperties $buffer
+XP = $reportedValue1
+YP = $reportedValue2
+bin = $reportedValue3
+E = $reportedValue4
+# PixelSize = $reportedValue5
+#S = $reportedValue6
+
+# figure out from which set the image was taken
+#(0=view, 1=focus, 2=trial, 3=record, 4=preview)#
+If $S == 0
+    shot = View
+Elseif $S == 1
+    shot = Focus
+Elseif $S == 2 
+    shot = Trial
+Elseif $S == 3
+    shot = Record
+Elseif $S == 4
+    shot = Preview
+Elseif $S == 5 
+    shot = Search
+Endif
+
+## set camera parameters
+SetExposure $S $E
+SetCenteredSize $S $bin $XP $YP
+
+
+$shot
+# still need crop, for Camera which doesn't do flexible sub-size like FEI cameras
+ImageProperties A
+XA = $repVal1
+YA = $repVal2
+If $XA > $XP OR $YA > $YP
+	echo CallFunction  MyFuncs::CropImageAToBuffer $buffer
+	CallFunction MyFuncs::CropImageAToBuffer $buffer
+Endif
+
+## reset camera
+RestoreCameraSet
+EndFunction
+
+######################################################
+Function Relax 0 0 
+# function to relax stage for $dis distance
+
+## relax
+# report shift in buffer A from last round of Align
+# move stage 0.025um in opposite directions
+ReportAlignShift
+shiftX = $repVal5
+shiftY = $repVal6
+
+# just in case it got a blank image so no shift found
+# or the shift found is too small, skip this
+If ABS ( $shiftX ) < 25
+   signX = 0
+Else
+   signX = $shiftX / ABS ( $shiftX )
+Endif 
+
+If ABS ( $shiftY ) < 25
+   signY = 0
+Else 
+   signY = $shiftY / ABS ( $shiftY )
+Endif 
+
+moveX = -1 * $signX * 0.025
+moveY = -1 * $signY * 0.025
+echo MoveStage $moveX $moveY microns ...
+MoveStage $moveX $moveY
+EndFunction 
+
+######################################################
+Function CtfFindFocus 0 0
+# using CtfFind to do autofocusing, assume image in A buffer
+
+# get target focus and RefocusThresold on current setting
+ReportUserSetting TargetDefocus TargetDefocus
+ReportUserSetting RefocusThreshold RefocusThreshold
+
+dmin = $TargetDefocus + 2.
+if $dmin > 0
+dmin = 0
+endif
+dmax = $TargetDefocus - 2.
+ 
+#F
+#CtfFind buf dmin dmax [fast] [box] [phmin] [phmax] [phstep] [afix]
+CtfFind A $dmin $dmax 1 
+
+def = $repVal1
+stig = $repVal2
+
+delta =  $TargetDefocus  - $def 		#need test sign
+df = $delta * 1.30
+
+#ReportDefocus 
+ChangeFocus $df
+#ReportDefocus 
+echo 
+EndFunction
+
+###############################################################
+Function AmongList? 1 0 nP
+
+#list = { 1 4 5 9 }
+#echo  $#list
+
+n = $nP
+
+
+Loop $#list ind
+if $n == $list[$ind]
+ last = $ind
+  break
+else
+   last = $ind
+Endif
+EndLoop
+
+If $last <  $#list  OR $n ==  $list[$#list] 
+   #echo Among
+   RepVal1 = 1
+Else
+  # echo Not among
+   RepVal1 = 0
+Endif
+
+EndFunction
+
+#####################################################
+Function C2_150-OBJ_out 0 0
+# requires AutoIT-Talos.txt running on Talos 
+SetupScopeMessage 0 0 C2_150-OBJ_out
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_70-OBJ_100 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 C2_70-OBJ_100
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_50-OBJ_100 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 C2_50-OBJ_100
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_30-OBJ_100 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 C2_30-OBJ_100
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_70-OBJ_70 0 0 
+SetupScopeMessage 0 0 C2_70-OBJ_70
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_50-OBJ_70 0 0 
+SetupScopeMessage 0 0 C2_50-OBJ_70
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function C2_30-OBJ_70 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 C2_30-OBJ_70
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function K2-shutter 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 K2-shutter
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function Turbo_ON 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 Turbo_ON
+ShowMessageOnScope SEM
+EndFunction
+
+#####################################################
+Function Turbo_OFF 0 0 
+# requires AutoIT-Talos.txt running on Talos
+SetupScopeMessage 0 0 Turbo_OFF
+ShowMessageOnScope SEM
+EndFunction
+
+################### AutoScreen ########################
+Function ScreenMesh 10 0
+
+cur_grid_reg = $argVal1
+mesh_index = $argVal2
+mesh_label = $argVal3
+xShift = $argVal4
+yShift = $argVal5
+MAP_X_PIECES = $argVal6
+MAP_Y_PIECES = $argVal7
+map_name = $argVal8
+NUM_HOLES = $argVal9
+def = $argVal10
+
+## main scope action
+
+SetProperty RealignItemMaxLMfield 700
+echo ----> take out OBJ aperture. 
+CallFunction MyFuncs::C2_150-OBJ_out
+         
+SetColumnOrGunValve 1
+Echo MoveToNavItem $mesh_index
+MoveToNavItem $mesh_index
+echo ----> RealignToOtherItem $mesh_index 0
+RealignToOtherItem $mesh_index 0
+ResetImageShift 
+Copy A P
+Search 
+AlignTo P
+ResetImageShift 
+echo ----> MoveStage $xShift $yShift
+MoveStage $xShift $yShift
+SetProperty RealignItemMaxLMfield 5
+
+# V, fix Z 
+echo => Fix Z ...
+GoToLowDoseArea V
+echo ----> C2 30 & Obj 70 ...
+CallFunction MyFuncs::C2_30-OBJ_70
+Delay 5
+V
+Copy A T
+Call Z
+UpdateItemZ 
+V
+AlignTo T
+
+# MMM. No need for pre-setup template
+echo => Make MMM map ...
+SetUserSetting MontageUseViewInLD 1
+SetUserSetting  MontageAlignPieces 1
+SetUserSetting MontageVerySloppy 0
+AllowFileOverwrite 1
+
+OpenNewMontage $MAP_X_PIECES $MAP_Y_PIECES $map_name
+SetMontageParams 1 576 410 5760 4092 1 1        
+echo ----> Acquire MMM map ...
+Montage 
+NewMap 
+CallFunction MyFuncs::NewMapToJPG
+CloseFile
+
+# Add holes and run a loop to take shots
+ReportOtherItem -1
+holes_index_start = $repVal1 + 1
+CallFunction MyFuncs::houghCircles_index $repVal1 $NUM_HOLES
+SetNavRegistration $cur_grid_reg
+ReportOtherItem -1
+holes_index_end = $repVal1 
+n = $holes_index_end - $holes_index_start + 1
+         
+AutoCenterBeam
+         
+AllowFileOverwrite 1
+OpenNewFile R_mesh$mesh_label.st
+Loop $n ind
+   hole_index = $ind - 1 + $holes_index_start 
+   RealignToOtherItem $hole_index 0
+   ReportOtherItem $hole_index
+   hole_label = $navLabel
+   echo Acquiring at Item $hole_index, Label $hole_label
+   # CenterBeam & autofocus
+   echo => CenterBeam & Focus...
+   AutoCenterBeam 
+   SetTargetDefocus $def
+   G
+   R
+   S
+EndLoop
+CloseFile
+
+## end of scope actions
+
+EndFunction
+
+######################## semmatch houghCircles_index ###################
+
+Function houghCircles_index 2 0
+
+INDEX = $argVal1
+NUM_HOLES = $argVal2
+
+# If something goes wrong, set Debug = 1
+Debug = 0             # True = 1 ; False = 0
+
+### semmatch arguments
+param2 = 50
+maxPts = $NUM_HOLES
+
+acquire = 0                                    # True = 1 ; False = 0
+groupOption = 4
+    #    0 = no groups
+    #    1 = groups based on radius
+    #    2 = all points as one group
+    #    3 = specify a certain number of groups
+    #    4 = specify number of points per group
+
+# names of temporary files used by semmatch
+outputNav = semmatch_nav.nav
+image = MMM.jpg
+
+ReportIfNavOpen
+If $reportedValue1 != 2
+   Exit
+Else
+   SaveNavigator
+Endif
+ReportNavFile 1
+navfile = $reportedValue1$reportedValue2
+navdir = $reportedValue3
+SetDirectory $navdir
+
+If $acquire != 1 AND $acquire != 0
+   Echo acquire should be either 1 or 0
+   Exit
+Endif
+
+If $Debug == 1
+   debugStr = /k
+ElseIf $Debug == 0
+   debugStr = /c
+Else
+   Echo Debug should be either 1 or 0
+   Exit
+Endif
+
+## load and bin MMM map
+ReportOtherItem $INDEX
+If $RepVal5 != 2        # if not a map item
+   Echo Not a map item. Select a Map item from the navigator.
+   Exit
+Endif
+MAP = $navLabel
+Echo Map Label: $MAP
+SetUserSetting BufferToReadInto 16
+SetUserSetting LoadMapsUnbinned 1
+# uncheck Montage Controls "Align pieces in overview"
+ReportUserSetting MontageAlignPieces alignChecked
+If $alignChecked == 1
+   SetUserSetting MontageAlignPieces 0
+Endif
+LoadOtherMap $INDEX
+
+# reduce image if larger than 2000x2000
+maxdimLimit = 2000
+ImageProperties Q width height
+maxdim = $width
+If $width < $height
+   maxdim = $height
+Endif
+
+If $maxdim < $maxdimLimit
+   Copy Q A
+   reduction = 1
+Else
+   reduction = $maxdim / $maxdimLimit
+   ReduceImage Q $reduction
+Endif
+Show Q
+
+## make a jpeg image
+SaveToOtherFile A JPG JPG $image
+Echo saved $image
+
+ReportOtherItem -1
+newLabel = $navIntLabel + 1
+
+RunInShell cmd $debugStr " "semmatch" \
+"--houghCircles" \
+"--param2" "$param2" \
+"--maxPts" "$maxPts" \
+"--navfile" "$navfile" \
+"--reduction" "$reduction" \
+"--image" "$image" \
+"--mapLabel" "$MAP" \
+"--newLabel" "$newLabel" \
+"--groupOption" "$groupOption" \
+"--output" "$outputNav" \
+"--acquire" "$acquire" "
+
+MergeNavFile $outputNav
+If $alignChecked == 1
+   SetUserSetting MontageAlignPieces 1
+Endif
+Show Q
+
+EndFunction 
