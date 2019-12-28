@@ -97,9 +97,19 @@ $def
 
 ## end of scope actions
 
-# go to next registration if available
 ReportNumNavAcquire
 If $repVal1 == 1 AND $#grids > 1
-   Echo SetNavRegistration $grids[2]
-   SetNavRegistration $grids[2]
+   next_registration = 0
+   Loop $#grids i
+      If $grids[$i] != $cur_grid_reg
+         next_registration = $grids[$i]
+         break
+      Endif 
+   EndLoop 
+
+   Echo SetNavRegistration $next_registration
+   SetNavRegistration $next_registration
+
+   #Echo SetNavRegistration $grids[2]
+   #SetNavRegistration $grids[2]
 Endif 
