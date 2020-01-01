@@ -960,6 +960,10 @@ echo ----> MoveStage $xShift $yShift
 MoveStage $xShift $yShift
 SetProperty RealignItemMaxLMfield 5
 
+# center beam, in case beam shifted due to cooling down
+# T should be set at lower mag than R, 3-4 clicks 
+AutocenterBeam
+
 # V, fix Z 
 echo => Fix Z ...
 GoToLowDoseArea V
