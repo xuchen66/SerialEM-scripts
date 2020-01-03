@@ -26,6 +26,7 @@ delta = -1 * $step
 SuppressReports
 ReportTargetDefocus 
 If $reportedValue1 > $TD_low OR $reportedValue1 < $TD_high
+
    SetTargetDefocus $TD_low
 Else 
    IncTargetDefocus $delta
@@ -927,7 +928,7 @@ ShowMessageOnScope SEM
 EndFunction
 
 ################### AutoScreen ########################
-Function ScreenMesh 10 0
+Function ScreenMesh 11 1
 
 cur_grid_reg = $argVal1
 mesh_index = $argVal2
@@ -936,9 +937,29 @@ xShift = $argVal4
 yShift = $argVal5
 MAP_X_PIECES = $argVal6
 MAP_Y_PIECES = $argVal7
-map_name = $argVal8
-NUM_HOLES = $argVal9
-def = $argVal10
+NUM_HOLES = $argVal8
+def = $argVal9
+z_tune_iter = $argVal10
+z_tune_offset = $argVal11
+map_name = $argVal12
+
+/*
+echo $argVal1
+echo $argVal2
+echo $argVal3
+echo $argVal4
+echo $argVal5
+echo $argVal6
+echo $argVal7
+echo $argVal8
+echo $argVal9
+echo $argVal10
+echo $argVal11
+echo $argVal12
+echo passed in
+*/
+
+echo $map_name
 
 ## main scope action
 
@@ -960,10 +981,6 @@ echo ----> MoveStage $xShift $yShift
 MoveStage $xShift $yShift
 SetProperty RealignItemMaxLMfield 5
 
-# center beam, in case beam shifted due to cooling down
-# T should be set at lower mag than R, 3-4 clicks 
-AutocenterBeam
-
 # V, fix Z 
 echo => Fix Z ...
 GoToLowDoseArea V
@@ -972,7 +989,13 @@ CallFunction MyFuncs::C2_30-OBJ_70
 Delay 5
 V
 Copy A T
-Call Z
+# z_tune_iter and z_tune_offset are persistent variables defined in Script Z
+SetCameraArea V H
+echo For -200um V offset = $z_tune_offset ...
+Echo CallFunction MyFuncs::Z_byV2  $z_tune_iter $z_tune_offset
+CallFunction MyFuncs::Z_byV2  $z_tune_iter $z_tune_offset
+RestoreCameraSet
+
 UpdateItemZ 
 V
 AlignTo T
@@ -984,8 +1007,9 @@ SetUserSetting  MontageAlignPieces 1
 SetUserSetting MontageVerySloppy 0
 AllowFileOverwrite 1
 
+Echo OpenNewMontage $MAP_X_PIECES $MAP_Y_PIECES $map_name
 OpenNewMontage $MAP_X_PIECES $MAP_Y_PIECES $map_name
-SetMontageParams 1 576 410 5760 4092 1 1        
+SetMontageParams 1 576 410 5760 4092 1 1
 echo ----> Acquire MMM map ...
 Montage 
 NewMap 
@@ -1024,6 +1048,74 @@ CloseFile
 ## end of scope actions
 
 EndFunction
+
+################### AutoScreen ########################
+Function ScreenMesh 11 1
+
+cur_grid_reg = $argVal1
+mesh_index = $argVal2
+mesh_label = $argVal3
+xShift = $argVal4
+yShift = $argVal5
+MAP_X_PIECES = $argVal6
+MAP_Y_PIECES = $argVal7
+NUM_HOLES = $argVal8
+def = $argVal9
+z_tune_iter = $argVal10
+z_tune_offset = $argVal11
+map_name = $argVal12
+
+## main scope action
+
+SetProperty RealignItemMaxLMfield 700
+echo ----> take out OBJ aperture. 
+CallFunction MyFuncs::C2_150-OBJ_out
+         
+SetColumnOrGunValve 1
+Echo MoveToNavItem $mesh_index
+MoveToNavItem $mesh_index
+echo ----> RealignToOtherItem $mesh_index 0
+RealignToOtherItem $mesh_index 0
+ResetImageShift 
+Copy A P
+Search 
+AlignTo P
+ResetImageShift 
+echo ----> MoveStage $xShift $yShift
+MoveStage $xShift $yShift
+SetProperty RealignItemMaxLMfield 5
+
+# V, fix Z 
+echo => Fix Z ...
+GoToLowDoseArea V
+echo ----> C2 30 & Obj 70 ...
+CallFunction MyFuncs::C2_30-OBJ_70
+Delay 5
+V
+Copy A T
+# z_tune_iter and z_tune_offset are persistent variables defined in Script Z
+CallFunction MyFuncs::Z_byV2 $z_tune_iter $z_tune_offset
+UpdateItemZ 
+V
+AlignTo T
+
+# MMM. No need for pre-setup template
+echo => Make MMM map ...
+SetUserSetting MontageUseViewInLD 1
+SetUserSetting  MontageAlignPieces 1
+SetUserSetting MontageVerySloppy 0
+AllowFileOverwrite 1
+
+OpenNewMontage $MAP_X_PIECES $MAP_Y_PIECES $map_name
+SetMontageParams 1 576 410 5760 4092 1 1        
+echo ----> Acquire MMM map ...
+Montage 
+NewMap 
+CallFunction MyFuncs::NewMapToJPG
+CloseFile
+
+EndFunction 
+
 
 ######################## semmatch houghCircles_index ###################
 
@@ -1135,5 +1227,28 @@ If $alignChecked == 1
    SetUserSetting MontageAlignPieces 1
 Endif
 Show Q
+
+EndFunction 
+
+##################################################
+Function CrossGridsCenterAlign 0 0 
+
+ReportNavItem 
+NavIndexItemDrawnOn 0
+If $repVal1 == 0 
+   echo Nothing to draw on!
+Else
+   ReportOtherItem $repVal1
+   If $navColor == 4
+      Echo Skipping LMM map centering ...
+   else 
+      Echo Shift map $repVal1 by aligning in LMM first ...
+      SetProperty RealignItemMaxLMfield 700
+      RealignToOtherItem $repVal1 0
+      ShiftItemsByCurrentDiff 200
+      ChangeItemColor $repVal1 4
+      SetProperty RealignItemMaxLMfield 3.5
+    endif 
+Endif 
 
 EndFunction 

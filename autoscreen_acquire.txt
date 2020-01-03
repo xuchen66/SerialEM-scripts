@@ -3,11 +3,11 @@ ScriptName AutoScreen_acquire
 SuppressReports
 
 # number of holes per mesh to screen
-NUM_HOLES = 1
+NUM_HOLES = 5
 
 # MMM map size (normally 4, 6)
-MAP_X_PIECES = 1
-MAP_Y_PIECES = 2
+MAP_X_PIECES = 4
+MAP_Y_PIECES = 6
 
 # shift from LMM to V
 xShift = 2
@@ -16,6 +16,11 @@ yShift = 2
 # target defocus (um)
 def = -1.8
 
+# Z offsets
+z_tune_offset = -158.0
+z_tune_iter = 3
+
+ReadOnlyUnlessAdmin 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  No Editting below !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 
 Echo
@@ -64,25 +69,20 @@ Loop $#cat i
    Endif 
 EndLoop 
 map_name = Car$cur_grid_reg_$name[$name_index]_Mesh$mesh_label_MMM.map
+echo $map_name
 
 Echo Current mesh to be acquired: Item # $navIndex, Label $navLabel
 Echo LoadCartridge $cur_grid_reg
 LoadCartridge $cur_grid_reg
 
+
 ## main scope action
 
-Echo CallFunction MyFuncs::ScreenMesh \
-$cur_grid_reg \
-$mesh_index \
-$mesh_label \
-$xShift \
-$yShift \
-$MAP_X_PIECES \
-$MAP_Y_PIECES \
-$map_name \
-$NUM_HOLES \
-$def
+#Call LD-Group
+# if MMM only, CallFunction MyFuncs::ScreenMMM \
 
+Echo calling screenMesh
+echo $map_name
 CallFunction MyFuncs::ScreenMesh \
 $cur_grid_reg \
 $mesh_index \
@@ -91,12 +91,15 @@ $xShift \
 $yShift \
 $MAP_X_PIECES \
 $MAP_Y_PIECES \
-$map_name \
 $NUM_HOLES \
-$def
+$def \
+$z_tune_iter \
+$z_tune_offset \
+$map_name
 
 ## end of scope actions
 
+## Post-action Script part
 ReportNumNavAcquire
 If $repVal1 == 1 AND $#grids > 1
    next_registration = 0
