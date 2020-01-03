@@ -1050,7 +1050,8 @@ CloseFile
 EndFunction
 
 ################### AutoScreen ########################
-Function ScreenMesh 11 1
+Function AutoMMM 11 1
+# Function to do LMM and MMM maps from the mesh points picked on LMMs. 
 
 cur_grid_reg = $argVal1
 mesh_index = $argVal2
