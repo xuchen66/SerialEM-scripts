@@ -1026,6 +1026,7 @@ holes_index_end = $repVal1
 n = $holes_index_end - $holes_index_start + 1
          
 AutoCenterBeam
+CallFunction MyFucs::WaitForRefilling 
          
 AllowFileOverwrite 1
 OpenNewFile R_mesh$mesh_label.st
