@@ -1253,3 +1253,25 @@ Else
 Endif 
 
 EndFunction 
+
+#######################################################
+Function WaitForRefilling 0 0 
+# a macro to check refilling status. If it is being filled, 
+# do Update hardware Background while refilling. It can be used 
+# as pre-action macro for Krios and Talos-Arctica
+
+Loop 30
+AreDewarsFilling
+If $repVal1 == 1
+   echo LN2 is Refilling
+   #LongOperation Da 5
+Else
+   RefrigerantLevel 1
+   RefrigerantLevel 2
+   Break   
+Endif 
+
+Delay 1 min
+EndLoop
+
+EndFunction
