@@ -613,7 +613,8 @@ ChangeFocus $offset
 Loop $iter
 Autofocus -1 2
 ReportAutofocus 
-Z = -1 * $reportedValue1
+# Z = -1 * $reportedValue1
+Z = -0.74 * $reportedValue1 	# -200um V vs R offset, 0.74 is a good damper
 #If ABS ($Z) > 180
  #  echo Something is wrong, fix manually before continuing ...
   # exit
