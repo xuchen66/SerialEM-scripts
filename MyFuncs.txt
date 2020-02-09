@@ -1236,25 +1236,42 @@ EndFunction
 ##################################################
 Function CrossGridsCenterAlign 0 0 
 
+# function to fix large shift different due to reloading grid by
+# 1) realign to MMM map center first at LMM mag only
+# 2) disable LMM realign
+# 3) realign to MMM map center again at MMM mag
+# 4) fix the shift different 
+
+# updated at Feb 9, 2020 xuchen
+
 ReportNavItem 
 NavIndexItemDrawnOn 0
-If $repVal1 == 0 
+map_index = $repVal1
+If $map_index == 0 
    echo Nothing to draw on!
 Else
-   ReportOtherItem $repVal1
-   If $navColor == 4
+   ReportOtherItem $map_index
+   If $navColor == 4            # this is done, skip
       Echo Skipping LMM map centering ...
    else 
       Echo Shift map $repVal1 by aligning in LMM first ...
+      # realign to LMM mesh only
+      ChangeItemColor $map_index 5          # 5 = NRI, it will not align to itself
       SetProperty RealignItemMaxLMfield 700
-      RealignToOtherItem $repVal1 0
-      ShiftItemsByCurrentDiff 200
+      CallFunction MyFuncs::C2_150-OBJ_out
+      RealignToOtherItem $map_index 1
+      ShiftItemsByCurrentDiff 200                    # -> need to test
+      # realign it at MMM mag 
+      SetProperty RealignItemMaxLMfield 5
+      CallFunction MyFuncs::C2_50-OBJ_70
       ChangeItemColor $repVal1 4
-      SetProperty RealignItemMaxLMfield 3.5
+      RealignToOtherItem $map_index 1
+      ShiftItemsByCurrentDiff 200                    # -> need to test
     endif 
 Endif 
 
 EndFunction 
+
 
 #######################################################
 Function WaitForRefilling 0 0 
