@@ -1260,13 +1260,13 @@ Else
       SetProperty RealignItemMaxLMfield 700
       CallFunction MyFuncs::C2_150-OBJ_out
       RealignToOtherItem $map_index 1
-      ShiftItemsByCurrentDiff 200                    # -> need to test
+      
       # realign it at MMM mag 
       SetProperty RealignItemMaxLMfield 5
       CallFunction MyFuncs::C2_50-OBJ_70
       ChangeItemColor $repVal1 4
       RealignToOtherItem $map_index 1
-      ShiftItemsByCurrentDiff 200                    # -> need to test
+      ShiftItemsByCurrentDiff 100                    # -> need to test
     endif 
 Endif 
 
