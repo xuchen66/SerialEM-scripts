@@ -1,0 +1,431 @@
+ScriptName FastTomo
+Echo ========== FastTomo ==========
+/*
+* Author: Albert Xu <albert.t.xu@gmail.com>
+* Date Created: May 22, 2020
+* Last Modified: Jun 27, 2020
+*/
+
+scheme = 1
+# 0 = bidirectional
+# 1 = dose-symmetric
+# 2 = unidirectional
+
+runOnNavItem = 0    # set to 1 to run on highlighted navigator point, and when using Acquire at Items
+Debug = 0            # verbose output for debugging
+shot = R               # low dose beam to use for saving data
+
+### bi-directional settings
+startAngleBi = 0
+firstSideEnd = 60
+secondSideEnd = -60
+stepSizeBi = 3
+###
+
+### dose-symmetric settings
+endAngleDS = 60
+stepSizeDS = 3
+groupSizeDS = 3                                  # number of tilts before switching sides, 1 = original Wim Hagen scheme
+trackingShot = T
+doExtraTrackingShot = 1                # track first non-zero tilts, e.g. at +/- 3
+
+angleSwitchToBidirectional = 35          # switch to bidirectional scheme (set to -1 to disable)
+exposureTimeIncreaseFactor = 1.5     # after switching to bidirectional
+###
+
+### unidirectional settings
+startAngleUni = -60
+endAngleUni = 60
+stepSizeUni = 3
+###
+
+multiStepTilt_StepSize = 25
+
+###
+
+
+
+########## no editing below ##########
+
+# calibration variables
+phase = 0
+b1 = 0
+nonconstant_term_offset = 0
+
+If $Debug == 0
+   SuppressReports
+Endif
+
+#### main script start ####
+
+TiltTo 0
+If $runOnNavItem == 1
+   RealignToNavItem 0
+Endif
+# save reference shot for getting residual IS shift during tilt series
+Copy A S
+
+# get eucentricity
+Eucentricity 2
+
+ResetImageShift
+V
+AlignTo S
+Autofocus
+# report the value displayed on the microscope panel, it does not need to be correct
+ReportDefocus
+reference_defocus = $repVal1
+
+ResetClock
+CallFunction TS_calibrate_Z
+ReportClock calib_time
+Echo calibration time: $calib_time
+
+ResetClock
+
+# align to zero tilt S
+V
+AlignTo S
+
+If $scheme == 0
+   CallFunction TS_bidirectional $startAngleBi $firstSideEnd $secondSideEnd $stepSizeBi
+ElseIf $scheme == 1
+   # record and tracking buffers for both sides
+   positiveRecordBuf = P
+   negativeRecordBuf = Q
+   positiveTrackingBuf = R
+   negativeTrackingBuf = S
+
+   If $angleSwitchToBidirectional > 0
+      CallFunction TS_dose_symmetric $angleSwitchToBidirectional $stepSizeDS $groupSizeDS
+      ImageProperties A
+      newExposureTime = $repVal4 * $exposureTimeIncreaseFactor
+      SetExposure $shot $newExposureTime
+      startAngleAfterSwitch = $angleSwitchToBidirectional + $stepSizeDS
+      ReportTiltAngle
+      If $repVal1 > 0
+         CallFunction TS_unidirectional $startAngleAfterSwitch $endAngleDS $stepSizeDS
+         CallFunction TiltToMultiStep -$startAngleAfterSwitch
+         $trackingShot
+         AlignTo $positiveTrackingBuf
+         CallFunction TS_unidirectional -$startAngleAfterSwitch -$endAngleDS $stepSizeDS
+      Else
+         CallFunction TS_unidirectional -$startAngleAfterSwitch -$endAngleDS $stepSizeDS
+         CallFunction TiltToMultiStep $startAngleAfterSwitch
+         $trackingShot
+         AlignTo $negativeTrackingBuf
+         CallFunction TS_unidirectional $startAngleAfterSwitch $endAngleDS $stepSizeDS
+      Endif
+      RestoreCameraSet $shot
+   Else
+      CallFunction TS_dose_symmetric $endAngleDS $stepSizeDS $groupSizeDS
+   Endif
+ElseIf $scheme == 2
+   WalkUpTo $startAngleUni
+   CallFunction TS_unidirectional $startAngleUni $endAngleUni $stepSizeUni
+Endif
+TiltTo 0
+
+ReportClock ts_time
+Echo TS time: $ts_time
+total_time = $ts_time + $calib_time
+Echo total time: $total_time
+
+#### main script end ####
+
+
+
+
+##################################################
+
+Function TS_calibrate_Z 0 0
+   Echo ------ starting calibration -------
+   defocus_angles = { -40 -22 0 22 40 }
+   defocus_values = { 0 0 0 0 0 }
+
+   Loop 5 i
+      TiltTo $defocus_angles[$i]
+      Autofocus -1
+      ReportAutoFocus
+      defocus_values[$i] = $repVal1
+   EndLoop
+
+   # do sindusoid fit for defocus curve
+   sin_angles = { 0 0 0 0 0 }
+   cos_angles = { 0 0 0 0 0 }
+   Loop 5 i
+      sin_angles[$i] = SIN $defocus_angles[$i]
+      cos_angles[$i] = COS $defocus_angles[$i]
+   EndLoop
+   LinearFitToVars sin_angles cos_angles defocus_values
+   phase = ATAN2 $repVal3 $repVal2
+   cos_phase = COS $phase
+   b1 = $repVal2 / $cos_phase
+   # to calculate the y-intercept at zero degree tilt, non-constant term at
+   #   zero degrees must be subtracted along with constant term
+   sin_phase = SIN $phase
+   nonconstant_term_offset = $b1 * $sin_phase
+   If $Debug == 1
+      Echo LinearFitToVars coefficients: $repVal2 $repVal3 $repVal4
+      Echo sin curve amplitude: $b1
+      Echo sin curve phase: $phase
+   Endif
+
+   TiltTo 0
+   Echo ------ end of calibration ------
+EndFunction
+
+
+###################################################
+Function TS_bidirectional 4 0
+   Echo ------ starting bidirectional TS ------
+   startAngle = $argVal1
+   endAngleFirstSide = $argVal2
+   endAngleSecondSide = $argVal3
+   stepSize = $argVal4
+
+   ### first side
+   WalkUpTo $startAngle
+   ResetShiftIfAbove 2
+   # override S with tilted starting View
+   Copy A S
+   ReportImageShift
+   CallFunction TS_unidirectional $startAngle $endAngleFirstSide $stepSize
+
+   ### second side
+   # backlash removal
+   If $endAngleSecondSide > $startAngle
+      direction = 1
+   ElseIf $endAngleSecondSide < $startAngle
+      direction = -1
+   Endif
+   angleCorrectBacklash = $startAngle - 3 * $direction
+   TiltTo $angleCorrectBacklash
+   TiltTo $startAngle
+   # get residual IS between current location and map image
+   V
+   AlignTo S
+   ResetShiftIfAbove 2
+   ReportImageShift
+   CallFunction TS_unidirectional $startAngle $endAngleSecondSide $stepSize
+   Echo ------ end of bidirectional TS ------
+EndFunction
+
+
+###################################################
+Function TS_unidirectional 3 0
+   Echo ------ starting unidirectional TS ------
+   startAngle = $argVal1
+   endAngle = $argVal2
+   stepSize = $argVal3
+
+   # define a direction variable for convenience
+   If $endAngle > $startAngle
+      direction = 1
+   ElseIf $endAngle < $startAngle
+      direction = -1
+   Else
+      Echo Cannot set start and end angles to same value
+      Exit
+   Endif
+
+   # create array of tilt angles
+   angles = { $startAngle }
+   Loop 99 i
+      angle = $startAngle + $direction * $stepSize * $i
+      If ($endAngle > $startAngle AND $angle > $endAngle) OR ($endAngle < $startAngle AND $angle < $endAngle)
+         break
+      Endif
+      angles = { $angles $angle }
+   EndLoop
+
+   # start tilt series
+   Loop $#angles i
+      angle = $angles[$i]
+
+      # predict Z
+      sin_term = SIN $angle + $phase
+      predicted_Z_change = $b1 * $sin_term - $nonconstant_term_offset
+      predicted_defocus = $reference_defocus - $predicted_Z_change
+      If $debug == 1
+         Echo predicted_Z_change: $predicted_Z_change
+         Echo predicted_defocus (microscope panel): $predicted_defocus
+      Endif
+      # set image shift and defocus before tilting to save time
+      GoToLowDoseArea $shot
+      SetDefocus $predicted_defocus
+
+      TiltTo $angle
+      $shot
+      Save
+      If $i == 1
+         Copy A P
+         Continue
+      Endif
+      AlignTo P
+      If $Debug == 1
+         ReportImageShift
+         Echo StageXY shifts: $repVal5 $repVal6
+      Endif
+      Copy A P
+   EndLoop
+   Echo ------ end of unidirectional TS ------
+EndFunction
+
+
+###############################################
+Function TS_dose_symmetric 3 0
+   Echo ------ starting dose symmetric TS ------
+   endAngle = $argVal1
+   stepSize = $argVal2
+   groupSize = $argVal3
+
+   # generate list of angles
+   angles = { 0 }
+   Loop 99 i
+      i_minus_one = $i - 1
+      angle = $stepSize + $i_minus_one * $stepSize * $groupSize
+      If $angle > $endAngle
+         break
+      Endif
+      positiveGroup = { $angle }
+      negativeGroup = { -$angle }
+      gsMinusOne = $groupSize - 1
+      Loop $gsMinusOne j
+         nextAngle = $angle + $j * $stepSize
+         If $nextAngle > $endAngle
+            break
+         Endif
+         positiveGroup = { $positiveGroup $nextAngle }
+         negativeGroup = { $negativeGroup -$nextAngle }
+      EndLoop
+      i_is_odd = MODULO $i 2
+      If $i_is_odd == 1
+         angles = { $angles $positiveGroup }
+         angles = { $angles $negativeGroup }
+      Else
+         angles = { $angles $negativeGroup }
+         angles = { $angles $positiveGroup }
+      Endif
+   EndLoop
+   If $Debug == 1
+      Echo Dose symmetric angles: $angles
+   Endif
+
+   positiveFirstGroupDone = 0
+   negativeFirstGroupDone = 0
+
+   Loop $#angles i
+      angle = $angles[$i]
+      If $Debug == 1
+         Echo angle: $angle
+      Endif
+
+     CallFunction TiltToMultiStep $angle
+
+      # if coming from opposite side, align to tracking shot
+      If $i > 1
+         If $angles[$i] > 0 AND $angles[$i-1] < 0 AND $positiveFirstGroupDone == 1
+            If $Debug == 1
+               Echo Aligning to positive side tracking shot
+            Endif
+            $trackingShot
+            AlignTo $positiveTrackingBuf
+         ElseIf $angles[$i] < 0 AND $angles[$i-1] > 0 AND $negativeFirstGroupDone == 1
+            If $Debug == 1
+               Echo Aligning to negative side tracking shot
+            Endif
+            $trackingShot
+            AlignTo $negativeTrackingBuf
+         Endif
+         If $doExtraTrackingShot == 1 AND ($i == 2 OR $i == 2 + $groupSize)
+            $trackingShot
+            If $angle[$i] < 0
+               AlignTo $negativeTrackingBuf
+            ElseIf $angle[$i] > 0
+               AlignTo $positiveTrackingBuf
+            Endif
+         Endif
+      Endif
+
+      # predict Z
+      sin_term = SIN $angle + $phase
+      predicted_Z_change = $b1 * $sin_term - $nonconstant_term_offset
+      predicted_defocus = $reference_defocus - $predicted_Z_change
+      If $debug == 1
+         Echo predicted_Z_change: $predicted_Z_change
+         Echo predicted_defocus (microscope panel): $predicted_defocus
+      Endif
+
+      GoToLowDoseArea $shot
+      SetDefocus $predicted_defocus
+      $shot
+      Save
+      If $i == 1
+         Copy A $positiveRecordBuf
+         Copy A $negativeRecordBuf
+         If $doExtraTrackingShot == 1
+            $trackingShot
+            Copy A $positiveTrackingBuf
+            Copy A $negativeTrackingBuf
+         Endif
+         Continue
+      Endif
+      If $angle > 0
+         AlignTo $positiveRecordBuf
+         Copy A $positiveRecordBuf
+      Else
+         AlignTo $negativeRecordBuf
+         Copy A $negativeRecordBuf
+      Endif
+      If $Debug == 1
+         ReportImageShift
+         Echo StageXY shifts: $repVal5 $repVal6
+      Endif
+
+      If $i > 1 AND $i < $#angles
+         If $angles[$i] > 0 AND $angles[$i+1] < 0
+            If $Debug == 1
+               Echo Next tilt will switch to negative side, saving a tracking shot
+            Endif
+            $trackingShot
+            Copy A $positiveTrackingBuf
+            positiveFirstGroupDone = 1
+         ElseIf $angles[$i] < 0 AND $angles[$i+1] > 0
+            If $Debug == 1
+               Echo Next tilt will switch to positive side, saving a tracking shot
+            Endif
+            $trackingShot
+            Copy A $negativeTrackingBuf
+            negativeFirstGroupDone = 1
+         Endif
+      Endif
+   EndLoop
+   Echo ------ end of dose symmetric TS ------
+EndFunction
+
+##############################################
+
+Function TiltToMultiStep 1 0
+   toAngle = $argVal1
+   ReportTiltAngle
+   fromAngle = $repVal1
+
+   If $toAngle > $fromAngle
+      direction = 1
+   Else
+      direction = -1
+   Endif
+
+   change = ABS $toAngle - $fromAngle
+   Loop 99
+      If $change > $multiStepTilt_StepSize
+         TiltBy $direction * $multiStepTilt_StepSize
+         change = $change - $multiStepTilt_StepSize
+      Else
+         TiltTo $toAngle
+         break
+      Endif
+   EndLoop
+EndFunction
+
