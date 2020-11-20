@@ -580,16 +580,15 @@ EndFunction
 Function LMMCars 0 0 
 
 Loop $#cat index
-LoadCartridge $cat[$index]
-SetNavRegistration $cat[$index]
-SetColumnOrGunValve 1
-MoveStageTo 0 0 
-OpenNewMontage 0 0 $name[$index]-LMM-Car$cat[$index].st
-Montage
-NewMap
-CloseFile
-EndLoop 
-
+   LoadCartridge $cat[$index]
+   SetNavRegistration $cat[$index]
+   MoveStageTo 0 0 
+   SetColumnOrGunValve 1
+   OpenNewMontage 0 0 $name[$index]-LMM-Car$cat[$index].map
+   Montage
+   NewMap
+   CloseFile
+EndLoop
 EndFunction 
 
 ##############################################
