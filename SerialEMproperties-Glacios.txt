@@ -9,23 +9,27 @@ SerialEMProperties
 # modified by Chen Xu @ 2022/8/16
 
 
+## extras
+AssumeDPI 	160		# 160 is good for 4k and 100% 
+#AssumeDPI 	110		# good for 150% 
+
 #
 # SERIALEM PROPERTIES
 #
 
 # TotalMemoryLimitMB		1900
-StartAsAdministrator		1 # TODO Change after installation to "0"
-DebugOutput			        0
-ExitWithUnsavedLog		  0
-LogBookPathName			    C:\ProgramData\SerialEM\TiltSeriesLogBook.txt
-GridLinesPerMM 			           2160 # TODO Check if your cross grating matches this value
-DoseLifetimeInHours		        168
-ProgramTitleText      		     Talos Glacios 9955160
+StartAsAdministrator		0 # TODO Change after installation to "0"
+DebugOutput			      0
+ExitWithUnsavedLog		0
+LogBookPathName			C:\ProgramData\SerialEM\TiltSeriesLogBook.txt
+GridLinesPerMM 			2160 # TODO Check if your cross grating matches this value
+DoseLifetimeInHours		168
+ProgramTitleText      		[Talos Glacios 9955160]
 
 # Python Properties
 
-PathToPython 3.8            	C:\Users\Supervisor\AppData\Local\Programs\Python\Python38
-PythonModulePath            	C:\Program Files\SerialEM\PythonModules
+#PathToPython 3.8            	C:\Users\Supervisor\AppData\Local\Programs\Python\Python38
+#PythonModulePath            	C:\Program Files\SerialEM\PythonModules
 ScriptMonospaceFont         	Consolas
 EnableExternalPython        	1
 
@@ -34,7 +38,7 @@ EnableExternalPython        	1
 #  GENERAL CAMERA PROPERTIES
 #
 
-ActiveCameraList	        0 1 
+ActiveCameraList	        0 1 2
 
 GainNormalizeInSerialEM	        1
 GainReferencePath		C:\ProgramData\SerialEM\
@@ -46,9 +50,11 @@ DefaultCameraDivide16BitBy2     1
 DefaultActAfterExposures	       1
 StartCameraInDebugMode	         0
 XRayCriterionIterations	        4
-LocalFalconFramePath            S:\TemScripting\EF-Falcon        #TODO check   
+#LocalFalconFramePath            S:\TemScripting\EF-Falcon        #TODO check  
+LocalFalconFramePath		\\192.168.10.2\OffloadData\TemScripting\EF-Falcon 
 Falcon4CanSaveEER               1
-FalconReferenceDir	             C:\Titan\Data\Dragonfly\Reference Images\200 kv. # TODO Check
+#FalconReferenceDir	        C:\Titan\Data\Dragonfly\Reference Images\200 kv. # TODO Check
+FalconReferenceDir		C:\Tecnai\Data\EF-Falcon4\Reference Images\200 kv
 
 
 #
@@ -56,7 +62,7 @@ FalconReferenceDir	             C:\Titan\Data\Dragonfly\Reference Images\200 kv.
 #
 
 CameraProperties        	0
-Name				Ceta
+Name				Ceta-D
 DetectorName			0 BM-Ceta
 FEICameraType 			3
 CameraSizeX     		4096
@@ -76,7 +82,7 @@ InsertionDelay   		1
 RetractionDelay  		1
 FEIFilterType     		0
 Order 				1
-FilmToCameraMagnification       1.28
+FilmToCameraMagnification       1.0
 PixelSizeInMicrons      	14
 ExtraRotation   		0
 # MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
@@ -93,7 +99,7 @@ CameraProperties        	1
 Name				Falcon 4EC
 DetectorName			0 EF-Falcon
 FEICameraType 			5
-RelativeGainFactors           	1 0.25 0.0625
+RelativeGainFactors           	1 0.25 0.0625 #TODO checking
 CameraSizeX     		4096
 CameraSizeY     		4096
 InsertingRetractsCam      	0
@@ -104,78 +110,113 @@ Binnings        		1 2 4
 HotPixelsAreImodCoords  	1
 MaximumXRayDiameter     	6
 BuiltInSettling 		0 # changed from 0
+ShutterDeadTime			0.015
 ExtraBeamTime   		0.05
-StartupDelay    		1.
-#FEIFilterType     		0
-GIF                             1
+StartupDelay    		1.0	#1.
+GIF                             0
+FEIFilterType     		1
 Order 				2
-CountsPerElectron	      	307       #changed old 307 (correct when checked with .xml 1/CountsToElectron) old2 321 old3 415.5
-LinearToCountingRatio         	6.1
-Falcon3ScalingPower           	3
-FalconEventScaling              234.72    # new property, 307 x 4747.41/6209.3
+CountsPerElectron	      	481.12    # measured = 194.828       # 9017.25*4096*4096/(0.149*6.242*10^9) @ 200kV
+LinearToCountingRatio         	12.90		# 1.516	  # 1894.40/1308.87 = 1.516
+#Falcon3ScalingPower           	3
+FalconEventScaling              234.72    #TODO checking -
 # AddToExposureTime             0.013
 Retractable     		1
 InsertionDelay   		1
 RetractionDelay  		1
+FilmToCameraMagnification       1.13
+PixelSizeInMicrons      	14
+ExtraRotation   		0
+# MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
+# TODO Add RotationAndPixel lines from calibration here
+RotationAndPixel 1 999 83.4 0
+RotationAndPixel 14 999 83.4 3.579
+RotationAndPixel 15 999 88.0 12.92
+RotationAndPixel 27 999 999 0.507
+RotationAndPixel 28 999 999 0.4048
+EndCameraProperties
+
+CameraProperties        	2
+Name				EF-Ceta
+DetectorName			0 EF-FalconService
+FEICameraType 			3
+CameraSizeX     		4096
+CameraSizeY     		4096
+MakesUnsignedImages		1
+FourPortReadout         	1
+Binnings        		1 2 4 8
+# UsableArea 			7 7 4087 4085
+HotPixelsAreImodCoords  	1
+MaximumXRayDiameter     	6
+BuiltInSettling 		0
+ExtraBeamTime   		0.15
+StartupDelay    		0.755
+ShutterDeadTime			0.021
+AutoGainFactors 		1
+Retractable     		1
+InsertionDelay   		1
+RetractionDelay  		1
+GIF				0
+FEIFilterType     		1
+Order 				2
 FilmToCameraMagnification       1.0
 PixelSizeInMicrons      	14
 ExtraRotation   		0
 # MagIndex  DeltaRotation (999 not measured)  SolvedRotation (999 not measured)   Pixel size (nm, 0 not measured)
 # TODO Add RotationAndPixel lines from calibration here
-RotationAndPixel 16 999 999   5.18
-RotationAndPixel 17 999 173.5 5.363
 EndCameraProperties
- 
+
 #
 # MICROSCOPE PROPERTIES
 #
 
 MagnificationTable  44     					# TODO Check 
-1        25   -90       25       60    90			# Lowest LM
-2        34   -90       34       86    90
-3        46   -90       46      110    90
-4        62   -90       62      145    90
-5        84   -90       84      185    90
-6       115   -90      115      240    90
-7       155   -90      155      320    90
-8       210   -90      210      410    90
-9       280   -90      280      540    90
-10      380   -90      380      690    90
-11      510   -90      510      900    90
-12      700   -90      700     1150    90
-13      940   -90      940     1500    90
-14     1300   -90     1300     1950    90
-15     1700   -90     1700     2550    90
-16     2300   -90     2300     3300    90			# Highest LM
-17     1250    90     1250      910    90			# Lowest M
-18     1600    90     1600     1300    90	
-19     2000    90     2000     1600    90			# Highest M
-20     2600    90     2600     2000    90			# Lowest SA
-21     3400    90     3400     3000    90
-22     4300    90     4300     4100    90
-23     5300    90     5300     5600    90
-24     6700    90     6700     7300    90
-25     8500    90     8500     9200    90
-26    11000    90    11000    11500    90
-27    13500    90    13500    15000    90
-28    17500    90    17500    19000    90
-29    22000    90    22000    24000    90
-30    28000    90    28000    31000    90
-31    36000    90    36000    39000    90
-32    45000    90    45000    49000    90
-33    57000    90    57000    63000    90
-34    73000    90    73000    79000    90
-35    92000    90    92000   100000    90
-36   120000    90   120000   130000    90
-37   150000    90   150000   165000    90
-38   190000    90   190000   205000    90
-39   240000    90   240000   265000    90
-40   310000    90   310000   330000    90
-41   390000    90   390000   420000    90			# Highest SA
-42   400000    90   400000   540000    90			# Lowest Mh
-43   510000    90   510000   670000    90
-44   650000    90   650000   850000    90
-LowestMModeMagIndex 17
+1       25   -90       25      110    90
+2       34   -90       34      145    90
+3       46   -90       46      185    90
+4       62   -90       62      240    90
+5       84   -90       84      320    90
+6      115   -90      115      410    90
+7      155   -90      155      540    90
+8      210   -90      210      690    90
+9      280   -90      280      900    90
+10      380   -90      380     1150    90
+11      510   -90      510     1500    90
+12      700   -90      700     1950    90
+13      940   -90      940     2550    90
+14     1300   -90     1300     3300    90
+15     1700   -90     1700      910    90
+16     2300   -90     2300     1300    90
+17     1250    90     1250     1600    90
+18     1600    90     1600     2000    90
+19     2000    90     2000     3000    90
+20     2600    90     2600     4100    90
+21     3400    90     3400     5600    90
+22     4300    90     4300     7300    90
+23     5300    90     5300     9200    90
+24     6700    90     6700    11500    90
+25     8500    90     8500    15000    90
+26    11000    90    11000    19000    90
+27    13500    90    13500    24000    90
+28    17500    90    17500    31000    90
+29    22000    90    22000    39000    90
+30    28000    90    28000    49000    90
+31    36000    90    36000    63000    90
+32    45000    90    45000    79000    90
+33    57000    90    57000   100000    90
+34    73000    90    73000   130000    90
+35    92000    90    92000   165000    90
+36   120000    90   120000   205000    90
+37   150000    90   150000   265000    90
+38   190000    90   190000   330000    90
+39   240000    90   240000   420000    90
+40   310000    90   310000   540000    90
+41   390000    90   390000   670000    90
+42   400000    90   400000   850000    90
+43   510000    90   510000  1100000    90
+44   650000    90   650000        0     0
+LowestMModeMagIndex 		17
+LowestEFTEMNonLMIndex		15
 
 UseTEMScripting         	1
 SkipAdvancedScripting		0
@@ -186,7 +227,7 @@ DeltaZtoDefocusFactor	        1.0
 ScreenCurrentFactor             1.0
 SmallScreenFactor               1.0
 LensNormalizationDelay          6000
-TiltAxisOffset                  0.12     #TODO - adjusted by PCAE-estimated offset 12062022, Mag 53kx,    0.19 from Guenter TiltAxis offset
+TiltAxisOffset                  2.82     # TODO - ask TFS to make better
 WatchGauge	                IGPco 1.48e-5 4.25e-5
 FloatingCurrentMeterSmoothed	0
 MaxCalibrationImageShift	5.
@@ -197,14 +238,14 @@ WarnIfKVnotAt			200
 UseIlluminatedAreaForC2         0
 IlluminatedAreaLimits 		-0.5 2.5 # TODO Check
 C2ApertureSizes			20 50 70 150 # TODO Check (yes)
-ImageShiftDelays                7
+
+ImageShiftDelays 4
 0.1 0.
 0.3 0.4
-0.8 0.9
-1.6 1.7
-3. 3.
-3.5 3.5
-4. 3.7
+0.5 0.5
+1.0 0.5
+
+
 ISdelayScaleFactor              1    # new 
 
 
@@ -242,7 +283,24 @@ WalkUpMinField	                1.5
 WalkUpShiftLimit	        3.0
 WalkUpLowDoseISLimit	        2.0
 
+#
+# GIF/FILTER AND REFINE ZLP PROPERTIES
+#
 
+BiggestGIFApertureNumber        4
+FilterSlitInOutDelay            18
+FilterOffsetDelayCriterion      40.
+FilterOffsetDelayBase1          10.
+FilterOffsetDelayBase2          30.
+FilterOffsetDelaySlope1         0.5
+FilterOffsetDelaySlope2         0.25
+RetractCameraOnEnteringEFTEM    0
+MinLowMagSlitWidth              25
+SlitWideningSafetyFactor        0.75
+EnergyShiftCalMinField          8.
+RefineZLPStepSize               2.
+RefineZLPSlitWidth              20.
+RefineZLPMinimumExposure        0.005
 
 #
 # INTENSITY CALIBRATION - CETA/ONEVIEW SETTINGS
@@ -260,3 +318,10 @@ BeamCalMaxCounts	    35000
 BeamCalInitialIncrement	    0.0002
 BeamCalSpacingFactor	    1.2
 BeamCalFavorMagChanges	    1
+
+## added by Chen Cali @8/18/2022
+ZbyGFocusScalings  0  1.015  -50  0.984  -100  0.974  -150  0.975  -200  0.972  -250  0.982  -300  0.979
+ImageShiftLimit		18
+
+ScopeHasPhasePlate	0
+DewarVacCapabilities	3
